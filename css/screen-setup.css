@@ -1,0 +1,82 @@
+/* ============================================================ SCREEN: SETUP */
+#screen-setup {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.setup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 680px;
+  padding: 40px;
+}
+.setup-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.setup-sub { font-size: 13px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 32px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.form-row.full { grid-template-columns: 1fr; }
+.form-group label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+.color-picker-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.color-option {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+.color-option.selected { border-color: var(--white); transform: scale(1.2); }
+.league-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.league-option {
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  padding: 14px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.league-option:hover { border-color: var(--border2); }
+.league-option.selected { border-color: var(--accent); background: rgba(0,212,255,0.05); }
+.league-option .lo-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text);
+}
+.league-option .lo-desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.setup-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
+

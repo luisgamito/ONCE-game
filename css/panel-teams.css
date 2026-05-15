@@ -1,0 +1,64 @@
+/* ============================================================ TEAMS PANEL */
+.teams-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.team-chip {
+  padding: 5px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.12s;
+  border-radius: 2px;
+}
+.team-chip:hover { border-color: var(--border2); color: var(--text); }
+.team-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.07); }
+.team-chip.player-team { border-color: var(--yellow); color: var(--yellow); }
+
+.rival-squad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.rival-player-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rpc-top { display: flex; align-items: center; justify-content: space-between; }
+.rpc-pos {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 5px;
+  border-radius: 2px;
+  background: var(--bg-overlay);
+}
+.rpc-stars { color: var(--yellow); font-size: 12px; letter-spacing: 1px; }
+.rpc-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rpc-age { font-size: 10px; color: var(--text-muted); }
+.rpc-stats { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.rpc-stat { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+.rpc-stat span { color: var(--text); }
+
+.teams-div-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  margin-top: 4px;
+}
+
