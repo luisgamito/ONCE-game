@@ -1,0 +1,82 @@
+/* ============================================================ RESET & ROOT */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+/* Desactivar forced color adjust del navegador */
+html, body { -webkit-text-size-adjust: 100%; forced-color-adjust: none; }
+
+:root {
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body:    'Barlow', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+}
+
+/* MODO OSCURO (por defecto) */
+html[data-theme="dark"], html:not([data-theme]) {
+  color-scheme: dark;
+  --bg:        #0a0e13;
+  --bg2:       #11171f;
+  --bg3:       #182029;
+  --surface:   #1e2733;
+  --surface2:  #25303d;
+  --border:    #2a3a4d;
+  --border2:   #3d5066;
+  --text:      #e6f0f7;
+  --text-dim:  #94aec3;
+  --text-muted:#5c768d;
+  --accent:    #00d4ff;
+  --accent2:   #0099bb;
+  --green:     #00e676;
+  --green2:    #00b856;
+  --red:       #ff5571;
+  --yellow:    #ffd84d;
+  --orange:    #ff8a5b;
+  --gold:      #ffd84d;
+  --white:     #ffffff;
+  --purple:    #b39bff;
+  --cyan:      #67e8f9;
+  --bg-overlay: rgba(0,0,0,0.25);
+  --bg-overlay-strong: rgba(0,0,0,0.7);
+  --team-own:  #00d4ff;
+  --team-opp:  #ff5571;
+  --ball-col:  #ffd84d;
+}
+
+/* MODO CLARO */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg:        #eaf0f6;
+  --bg2:       #ffffff;
+  --bg3:       #f5f8fb;
+  --surface:   #ffffff;
+  --surface2:  #f0f4f8;
+  --border:    #c5d0dc;
+  --border2:   #94a4b6;
+  --text:      #0d1929;
+  --text-dim:  #2c4257;
+  --text-muted:#5b738a;
+  --accent:    #0066a3;
+  --accent2:   #00547f;
+  --green:     #15703a;
+  --green2:    #105528;
+  --red:       #b3142a;
+  --yellow:    #8a6500;
+  --orange:    #b04200;
+  --gold:      #8a6500;
+  --white:     #000000;
+  --purple:    #6044c8;
+  --cyan:      #086880;
+  --bg-overlay: rgba(0,30,60,0.07);
+  --bg-overlay-strong: rgba(0,0,0,0.5);
+  --team-own:  #0066a3;
+  --team-opp:  #b3142a;
+  --ball-col:  #8a6500;
+}
+
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow: hidden;
+}
+

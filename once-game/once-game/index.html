@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONCE — Football Manager</title>
+
+<!-- Aplicar tema ANTES de que cargue el CSS (evita flash y forced dark mode) -->
+<script>
+(function(){
+  var t = localStorage.getItem('once_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+
+<!-- Fuentes -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Estilos modulares -->
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/screen-setup.css">
+<link rel="stylesheet" href="css/screen-hub.css">
+<link rel="stylesheet" href="css/screen-match.css">
+<link rel="stylesheet" href="css/panel-teams.css">
+<link rel="stylesheet" href="css/panel-faq.css">
+<link rel="stylesheet" href="css/modals.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<body>
+
+<!-- ============================================================ GOAL OVERLAY -->
+<div class="goal-overlay" id="goalOverlay">
+  <div class="goal-text" id="goalText">GOL</div>
+</div>
+
+<!-- ============================================================ OFFER INBOX (rival bids) -->
+<div class="offer-inbox" id="offerInbox"></div>
+
+<!-- ============================================================ NEGOCIACIÓN MODAL -->
+<!-- ============================================================ CONTRACT MODAL -->
+<div class="modal-overlay" id="contractModal">
+  <div class="modal" style="width:420px;padding:0;overflow:hidden">
+    <div class="neg-player-header">
+      <div class="neg-player-name" id="cmTitle">OFRECER CONTRATO</div>
+      <div class="neg-player-name" id="cmPlayerName" style="font-size:16px;margin-top:4px">—</div>
+      <div class="neg-player-meta" id="cmPlayerMeta">—</div>
+    </div>
+    <div class="neg-body">
+      <div id="cmCurrentContract" style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:none"></div>
+
+      <div class="neg-price-row">
+        <span class="neg-price-label">Salario semanal</span>
+        <span class="neg-price-val" id="cmSalaryVal">—</span>
+      </div>
+      <div class="neg-slider-wrap">
+        <input type="range" class="neg-slider" id="cmSalarySlider" min="500" max="100000" value="5000" step="500" oninput="onCmSalarySlider()">
+      </div>
+
+      <div class="neg-price-row" style="margin-top:12px">
+        <span class="neg-price-label">Duración</span>
+        <span class="neg-price-val" id="cmYearsVal">3 años</span>
+      </div>
+      <div class="neg-slider-wrap">
+        <input type="range" class="neg-slider" id="cmYearsSlider" min="1" max="6" value="3" step="1" oninput="onCmYearsSlider()">
+        <div class="neg-range-labels"><span>1 año</span><span>6 años</span></div>
+      </div>
+
+      <div id="cmCostPreview" style="margin:12px 0;font-size:12px;text-align:center;padding:8px;background:var(--bg3);border:1px solid var(--border)"></div>
+      <div id="cmWageInfo" style="font-size:11px;color:var(--text-muted);margin-bottom:12px;text-align:center"></div>
+
+      <div class="neg-actions">
+        <button class="btn accent" onclick="confirmContract()">✓ CONFIRMAR CONTRATO</button>
+        <button class="btn" onclick="closeContractModal()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="negModal">
+  <div class="negociation-modal">
+    <div class="neg-player-header">
+      <div class="neg-player-name" id="negPlayerName">—</div>
+      <div class="neg-player-meta" id="negPlayerMeta">—</div>
+    </div>
+    <div class="neg-body">
+      <div class="neg-price-row">
+        <span class="neg-price-label">Valor de mercado</span>
+        <span class="neg-price-val" id="negMarketVal">—</span>
+      </div>
+      <div class="neg-price-row">
+        <span class="neg-price-label">Tu oferta</span>
+        <span class="neg-price-val" id="negOfferVal">—</span>
+      </div>
+      <div class="neg-slider-wrap">
+        <input type="range" class="neg-slider" id="negSlider" min="0" max="100" value="50" oninput="onNegSlider()">
+        <div class="neg-range-labels">
+          <span id="negSliderMin">—</span>
+          <span id="negSliderMax">—</span>
+        </div>
+      </div>
+      <div class="neg-rounds" id="negRounds">—</div>
+      <div class="neg-response pending" id="negResponse">Ajusta tu oferta y envíala al club vendedor.</div>
+      <div class="neg-actions">
+        <button class="btn accent" onclick="sendNegOffer()" id="negBtnSend">ENVIAR OFERTA</button>
+        <button class="btn" onclick="closeNegModal()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ POST MATCH -->
+<div class="post-match-overlay" id="postMatchOverlay">
+  <div class="post-match-card">
+    <div class="pmc-head">
+      <div class="pmc-label">Resultado Final</div>
+      <div class="pmc-score" id="pmcScore">0 – 0</div>
+      <div class="pmc-teams">
+        <span id="pmcTeamA">—</span>
+        <span id="pmcTeamB">—</span>
+      </div>
+      <div class="pmc-result" id="pmcResult">—</div>
+    </div>
+    <div class="pmc-body">
+      <div class="pmc-mvp" id="pmcMvp"></div>
+      <div class="section-title">Valoraciones</div>
+      <table class="pmc-players-table" id="pmcPlayersTable">
+        <thead><tr>
+          <th style="text-align:left">Jugador</th>
+          <th>Min</th><th>Goles</th><th>Tiros</th><th>Pases%</th><th>Fat.</th><th>Val.</th>
+        </tr></thead>
+        <tbody id="pmcPlayersTbody"></tbody>
+      </table>
+      <div class="section-title">Estadísticas del Partido</div>
+      <div id="pmcMatchStats"></div>
+    </div>
+    <div class="pmc-foot" style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn accent" onclick="closePostMatch()">CONTINUAR →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ SEASON SUMMARY -->
+<div class="post-match-overlay" id="seasonSummaryOverlay">
+  <div class="post-match-card" style="width:640px">
+    <div class="pmc-head" style="background:linear-gradient(180deg, rgba(255,214,0,0.08) 0%, transparent 100%)">
+      <div class="pmc-label" style="color:var(--gold)">Fin de temporada</div>
+      <div id="ssOutcome" style="font-family:var(--font-display);font-size:48px;font-weight:900;letter-spacing:3px;margin:8px 0;color:var(--white)">—</div>
+      <div id="ssDescription" style="color:var(--text-dim);font-size:13px"></div>
+    </div>
+    <div class="pmc-body" id="ssBody">
+    </div>
+    <div class="pmc-foot" style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn accent" onclick="closeSeasonSummary()">SIGUIENTE TEMPORADA →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: PLAYER DETAIL -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div id="pm-name" style="font-size:18px;font-weight:700"></div>
+        <div id="pm-meta" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
+      </div>
+      <button class="modal-close" onclick="closePlayerModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="attr-grid" id="pm-attrs"></div>
+      <div class="section-title" style="margin-top:12px">Estadísticas de temporada</div>
+      <div id="pm-season-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px"></div>
+      <div class="section-title">Personalidad</div>
+      <div id="pm-personality" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"></div>
+      <div id="pm-release-section"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODAL: SUBSTITUTION -->
+<div class="modal-overlay" id="subModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div style="font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--accent)">SUSTITUCIÓN</div>
+        <div id="sub-info" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
+      </div>
+      <button class="modal-close" onclick="closeSubModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Elige al jugador que entra:</div>
+      <div id="sub-bench-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ SCREEN: INTRO -->
+<div class="screen active" id="screen-intro">
+  <div style="position:absolute;top:16px;right:16px;z-index:10;display:flex;gap:8px">
+    <button class="btn" onclick="toggleTheme()" id="themeBtnIntro" style="font-size:16px;padding:6px 12px">☀️</button>
+    <button class="btn" onclick="toggleLang()" id="langBtnIntro" style="font-size:12px;padding:6px 12px;letter-spacing:1px;font-family:var(--font-display)">ES</button>
+  </div>
+  <div class="intro-logo">ON<span>CE</span></div>
+  <div class="intro-sub" data-i18n="tagline">Football Manager</div>
+  <div class="intro-actions">
+    <button class="btn-primary" id="btnNewGame" onclick="startNewGame()" data-i18n="newGame">NUEVO JUEGO</button>
+    <button class="btn-secondary" id="btnContinue" onclick="continueGame()" style="display:none" data-i18n="continue">CONTINUAR</button>
+  </div>
+</div>
+
+<!-- ============================================================ SCREEN: SETUP -->
+<div class="screen" id="screen-setup">
+  <div class="setup-card">
+    <div class="setup-title" data-i18n="setupTitle">Crea tu Club</div>
+    <div class="setup-sub" data-i18n="setupSub">Define tu identidad antes de empezar</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label data-i18n="clubName">Nombre del Club</label>
+        <input type="text" id="setupClubName" value="FC Ciudad" maxlength="24" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="clubAbbr">Abreviatura (3 letras)</label>
+        <input type="text" id="setupClubAbbr" value="FCC" maxlength="3" style="text-transform:uppercase" />
+      </div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label data-i18n="teamColor">Color del equipo</label>
+        <div class="color-picker-row" id="colorPicker">
+          <div class="color-option selected" data-color="#00d4ff" style="background:#00d4ff"></div>
+          <div class="color-option" data-color="#00e676" style="background:#00e676"></div>
+          <div class="color-option" data-color="#ff3d5a" style="background:#ff3d5a"></div>
+          <div class="color-option" data-color="#ffd600" style="background:#ffd600"></div>
+          <div class="color-option" data-color="#ff7043" style="background:#ff7043"></div>
+          <div class="color-option" data-color="#7c4dff" style="background:#7c4dff"></div>
+          <div class="color-option" data-color="#e91e8c" style="background:#e91e8c"></div>
+          <div class="color-option" data-color="#f0f0f0" style="background:#f0f0f0"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label data-i18n="startDivision">División de inicio</label>
+        <div class="league-options" id="leaguePicker" style="grid-template-columns: repeat(2, 1fr)">
+          <div class="league-option selected" data-division="2">
+            <div class="lo-name" data-i18n="div2Name">SEGUNDA DIVISIÓN</div>
+            <div class="lo-desc" data-i18n="div2Desc">Calidad media: 65<br>Presupuesto: 2M<br>Asciende a Primera</div>
+          </div>
+          <div class="league-option" data-division="1">
+            <div class="lo-name" data-i18n="div1Name">PRIMERA DIVISIÓN</div>
+            <div class="lo-desc" data-i18n="div1Desc">Calidad media: 78<br>Presupuesto: 8M<br>Élite directa</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label data-i18n="formation">Formación inicial</label>
+        <select id="setupFormation">
+          <option value="4-3-3">4-3-3</option>
+          <option value="4-4-2">4-4-2</option>
+          <option value="4-2-3-1" selected>4-2-3-1</option>
+          <option value="3-5-2">3-5-2</option>
+          <option value="5-3-2">5-3-2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label data-i18n="tactic">Táctica base</label>
+        <select id="setupTactic">
+          <optgroup label="Posesión">
+            <option value="tikitaka">🔵 Tiki-Taka</option>
+            <option value="possession">⚙️ Posesión</option>
+            <option value="positional">♟️ Juego de posición</option>
+            <option value="vertical">⬆️ Vertical</option>
+          </optgroup>
+          <optgroup label="Presión">
+            <option value="gegenpressing">🔥 Gegenpressing</option>
+            <option value="pressing" selected>🟠 Presión alta</option>
+          </optgroup>
+          <optgroup label="Defensivas">
+            <option value="counter">⚡ Contraataque</option>
+            <option value="parking">🧱 Bloque bajo</option>
+          </optgroup>
+          <optgroup label="Otros">
+            <option value="direct">🎯 Juego directo</option>
+            <option value="wing">↔️ Juego por bandas</option>
+            <option value="balanced">⚖️ Equilibrado</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <div class="setup-footer">
+      <button class="btn-secondary" onclick="showScreen('screen-intro')" data-i18n="back">← VOLVER</button>
+      <button class="btn-primary" onclick="createClub()" data-i18n="createClub">CREAR CLUB →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ SCREEN: HUB -->
+<div class="screen" id="screen-hub">
+  <div class="hub-header">
+    <div class="hub-brand">ONCE</div>
+    <div class="hub-team-badge">
+      <div class="badge-circle" id="hubBadge"></div>
+      <span class="hub-team-name" id="hubTeamName">—</span>
+    </div>
+    <div class="hub-season" id="hubSeason">J1 · Temporada 1</div>
+    <nav class="hub-nav">
+      <div class="hub-nav-item active" data-panel="panel-home" onclick="switchHubPanel('panel-home')" data-i18n="navHome">🏠 INICIO</div>
+      <div class="hub-nav-item" data-panel="panel-squad" onclick="switchHubPanel('panel-squad')" data-i18n="navSquad">👥 PLANTILLA</div>
+      <div class="hub-nav-item" data-panel="panel-liga" onclick="switchHubPanel('panel-liga')" data-i18n="navLeague">🏆 LIGA</div>
+      <div class="hub-nav-item" data-panel="panel-cup" onclick="switchHubPanel('panel-cup')" data-i18n="navCup">🏅 COPA</div>
+      <div class="hub-nav-item" data-panel="panel-teams" onclick="switchHubPanel('panel-teams');renderTeamsPanel()" data-i18n="navTeams">🔍 EQUIPOS</div>
+      <div class="hub-nav-item" data-panel="panel-stats" onclick="switchHubPanel('panel-stats')" data-i18n="navStats">📊 ESTADÍSTICAS</div>
+      <div class="hub-nav-item" data-panel="panel-transfers" onclick="switchHubPanel('panel-transfers')" data-i18n="navMarket">💰 MERCADO</div>
+      <div class="hub-nav-item" data-panel="panel-faq" onclick="switchHubPanel('panel-faq');renderFaq()" data-i18n="navHelp">❓ AYUDA</div>
+      <div class="hub-nav-item" style="margin-left:auto;border-left:1px solid var(--border)" onclick="toggleTheme()" id="themeBtn" title="Cambiar tema">☀️</div>
+      <div class="hub-nav-item" style="border-left:1px solid var(--border);letter-spacing:1px" onclick="toggleLang()" id="langBtn" title="Change language">ES</div>
+    </nav>
+  </div>
+
+  <div class="hub-body">
+    <!-- MAIN PANELS -->
+    <div class="hub-main">
+
+      <!-- PANEL: HOME -->
+      <div class="hub-panel active" id="panel-home">
+        <div class="card" id="nextMatchCard">
+          <div class="card-header">
+            <span class="card-title">Próximo Partido</span>
+            <span id="homeJornada" style="font-size:11px;color:var(--text-muted)">Jornada 1</span>
+          </div>
+          <div class="next-match-teams" id="nextMatchTeams"></div>
+          <div class="nm-meta" id="nextMatchMeta"></div>
+        </div>
+
+        <div class="card" id="recentCard">
+          <div class="card-header"><span class="card-title">Últimos Resultados</span></div>
+          <div class="card-body" id="recentResults"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Posición en la Liga</span></div>
+          <div class="card-body" id="homeLeaguePos"></div>
+        </div>
+      </div>
+
+      <!-- PANEL: SQUAD -->
+      <div class="hub-panel" id="panel-squad">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="section-title" style="margin-bottom:0;border:none">👥 Plantilla</div>
+          <div id="squadAlerts" style="font-size:11px;color:var(--text-muted)"></div>
+        </div>
+
+        <!-- 11 INICIAL -->
+        <div style="font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">ONCE INICIAL</div>
+        <div id="squadStarters" style="display:flex;flex-direction:column;gap:4px;margin-bottom:18px"></div>
+
+        <!-- BANQUILLO -->
+        <div style="font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">BANQUILLO</div>
+        <div id="squadBench" style="display:flex;flex-direction:column;gap:4px"></div>
+
+        <!-- POPUP CONTEXTUAL (posicionado dinámicamente) -->
+        <div id="squadCtxMenu" style="display:none;position:fixed;z-index:500;background:var(--surface);border:1px solid var(--border2);box-shadow:0 8px 24px rgba(0,0,0,0.4);min-width:220px;padding:8px 0"></div>
+      </div>
+
+      <!-- PANEL: LIGA -->
+      <div class="hub-panel" id="panel-liga">
+        <div class="section-title">Clasificación</div>
+        <div class="card">
+          <table class="table-liga" id="ligaTable">
+            <thead><tr>
+              <th style="text-align:left;padding-left:16px">#</th>
+              <th style="text-align:left">Equipo</th>
+              <th>PJ</th><th>G</th><th>E</th><th>P</th>
+              <th>GF</th><th>GC</th><th>DG</th><th>Pts</th>
+            </tr></thead>
+            <tbody id="ligaTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="section-title">Calendario Completo</div>
+        <div id="calendarioList" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+
+      <!-- PANEL: CUP -->
+      <div class="hub-panel" id="panel-cup">
+        <div id="cupBracket"></div>
+      </div>
+
+      <!-- PANEL: TEAMS -->
+      <div class="hub-panel" id="panel-teams">
+        <div id="teamsPanel"></div>
+      </div>
+
+      <!-- PANEL: STATS -->
+      <div class="hub-panel" id="panel-stats">
+        <div class="section-title">Temporada</div>
+        <div class="records-grid" id="statsRecords"></div>
+
+        <div class="section-title">Máximos Goleadores (Mi Equipo)</div>
+        <div class="card">
+          <table class="top-table" id="topScorersTable">
+            <thead><tr>
+              <th style="text-align:left">Jugador</th>
+              <th>Pos</th><th>PJ</th><th>G</th><th>A</th><th>Tiros</th><th>Val.</th>
+            </tr></thead>
+            <tbody id="topScorersTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="section-title">Historial de Partidos</div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+
+      <!-- PANEL: TRANSFERS -->
+      <div class="hub-panel" id="panel-transfers">
+        <div class="budget-bar">
+          <span class="budget-label">PRESUPUESTO FICHAJES</span>
+          <span class="budget-val" id="budgetVal">—</span>
+        </div>
+        <div class="budget-bar" style="margin-top:4px;margin-bottom:12px">
+          <span class="budget-label" style="color:var(--text-muted)">MASA SALARIAL</span>
+          <span id="wageBudgetVal" style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim)">—</span>
+          <span id="wageUsedVal" style="font-size:11px;color:var(--text-muted);margin-left:8px"></span>
+        </div>
+        <div id="transferWindowBadge" style="font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:2px;display:inline-block;margin-bottom:8px"></div>
+        <div id="transferWindowMsg" style="margin-bottom:12px"></div>
+        <div class="section-title">Jugadores Disponibles</div>
+        <div class="transfer-list" id="transferList"></div>
+      </div>
+
+      <!-- PANEL: FAQ -->
+      <div class="hub-panel" id="panel-faq">
+        <div id="faqContent"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="hub-sidebar">
+      <!-- Presupuestos -->
+      <div class="sidebar-section" style="padding:10px 12px 8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-family:var(--font-display);font-size:9px;letter-spacing:1.5px;color:var(--text-muted)">FICHAJES</span>
+          <span id="sidebarBudget" style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-family:var(--font-display);font-size:9px;letter-spacing:1.5px;color:var(--text-muted)">SALARIOS</span>
+          <span id="sidebarWage" style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim)">—</span>
+        </div>
+        <div id="sidebarWageBar" style="margin-top:5px;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+          <div id="sidebarWageFill" style="height:100%;width:0%;background:var(--green);transition:width 0.3s"></div>
+        </div>
+      </div>
+
+      <!-- Formation editor -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">FORMACIÓN</div>
+        <select id="hubFormationSelect" onchange="changeFormation(this.value)" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--font-body);font-size:13px;padding:7px 10px;outline:none;margin-bottom:10px;appearance:none">
+          <option value="4-3-3">4-3-3</option>
+          <option value="4-4-2">4-4-2</option>
+          <option value="4-2-3-1">4-2-3-1</option>
+          <option value="3-5-2">3-5-2</option>
+          <option value="5-3-2">5-3-2</option>
+        </select>
+        <div class="formation-pitch" id="formationPitch">
+          <svg class="fp-lines" id="fpLines" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <rect x="0" y="30" width="16" height="40" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <rect x="84" y="30" width="16" height="40" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+          </svg>
+          <div id="fpPlayers"></div>
+        </div>
+
+        <!-- Bench (drag from here to swap) -->
+        <div class="bench-label">
+          <span class="bench-label-text">Banquillo (arrastra para sustituir)</span>
+        </div>
+        <div class="bench-bar" id="benchBar"></div>
+      </div>
+
+      <!-- Tactics -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">TÁCTICA</div>
+        <div style="display:flex;flex-direction:column;gap:4px" id="hubTacticRow">
+          <div class="tactic-chip" data-tactic="tikitaka"      title="Tiki-Taka: posesión total con presión inmediata">🔵 Tiki-Taka</div>
+          <div class="tactic-chip active" data-tactic="possession" title="Posesión: circulación corta, dominio del balón">⚙️ Posesión</div>
+          <div class="tactic-chip" data-tactic="positional"    title="Juego de posición: ocupación ordenada de zonas">♟️ Posicional</div>
+          <div class="tactic-chip" data-tactic="vertical"      title="Vertical: posesión con verticalización rápida">⬆️ Vertical</div>
+          <div class="tactic-chip" data-tactic="gegenpressing" title="Gegenpressing: presión asfixiante tras pérdida">🔥 Gegenpressing</div>
+          <div class="tactic-chip" data-tactic="pressing"      title="Presión alta: línea alta y presión en campo rival">🟠 Presión alta</div>
+          <div class="tactic-chip" data-tactic="counter"       title="Contraataque: bloque medio y transición rápida">⚡ Contraataque</div>
+          <div class="tactic-chip" data-tactic="parking"       title="Bloque bajo: defensa profunda y compacta">🧱 Bloque bajo</div>
+          <div class="tactic-chip" data-tactic="direct"        title="Juego directo: balones largos hacia los delanteros">🎯 Directo</div>
+          <div class="tactic-chip" data-tactic="wing"          title="Bandas: amplitud, centros al área">↔️ Bandas</div>
+          <div class="tactic-chip" data-tactic="balanced"      title="Equilibrado: sin extremos, sólido">⚖️ Equilibrado</div>
+        </div>
+        <div id="tacticDesc" style="font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.4"></div>
+      </div>
+
+      <!-- Play button -->
+      <button class="play-btn" id="playMatchBtn" onclick="startMatch()">
+        ▶ JUGAR PARTIDO
+      </button>
+      <div id="playMatchWarning" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(255,85,113,0.1);border:1px solid var(--red);font-size:10px;color:var(--red);font-family:var(--font-display);letter-spacing:0.5px;text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ SCREEN: MATCH -->
+<div class="screen" id="screen-match">
+  <div class="match-header">
+    <div class="mh-score-block">
+      <div class="mh-team own" id="mhTeamOwn">—</div>
+      <div class="mh-score" id="mhScoreOwn">0</div>
+      <div class="mh-sep">–</div>
+      <div class="mh-score" id="mhScoreOpp">0</div>
+      <div class="mh-team opp" id="mhTeamOpp">—</div>
+    </div>
+
+    <div class="mh-time">
+      <div class="mh-minute" id="mhMinute">0:00</div>
+      <div class="mh-period" id="mhPeriod">PRE-PARTIDO</div>
+    </div>
+
+    <div class="mh-controls">
+      <button class="ctrl-btn primary-ctrl" id="btnPlay" onclick="togglePlay()">▶ PLAY</button>
+      <button class="ctrl-btn" onclick="stepOneTick()">TICK →</button>
+      <div class="speed-row">
+        <div class="spd-btn" onclick="setSpeed(250)">0.5x</div>
+        <div class="spd-btn on" onclick="setSpeed(120)">1x</div>
+        <div class="spd-btn" onclick="setSpeed(60)">2x</div>
+        <div class="spd-btn" onclick="setSpeed(20)">4x</div>
+        <div class="spd-btn" onclick="setSpeed(5)">MAX</div>
+      </div>
+      <button class="ctrl-btn danger-ctrl" onclick="abandonMatch()" data-i18n="abandon">ABANDONAR</button>
+      <button class="ctrl-btn" onclick="toggleTheme()" id="themeBtnMatch" style="font-size:14px;padding:4px 8px">☀️</button>
+      <button class="ctrl-btn" onclick="toggleLang()" id="langBtnMatch" style="font-size:11px;letter-spacing:1px;font-family:var(--font-display)">ES</button>
+    </div>
+  </div>
+
+  <div class="match-body">
+    <div class="match-left">
+      <canvas id="pitch"></canvas>
+      <div class="match-ticker" id="matchTicker"><span>Esperando inicio...</span></div>
+    </div>
+
+    <div class="match-right">
+      <div class="match-tabs">
+        <div class="match-tab active" onclick="switchMatchTab('log')">LOG</div>
+        <div class="match-tab" onclick="switchMatchTab('stats')">STATS</div>
+        <div class="match-tab" onclick="switchMatchTab('squad')">JUGADORES</div>
+        <div class="match-tab" onclick="switchMatchTab('manage')">GESTIÓN</div>
+      </div>
+
+      <!-- LOG -->
+      <div class="match-panel active" id="mpanel-log">
+        <div class="log-filters">
+          <div class="lf-btn on" data-filter="all" onclick="setLogFilter('all')">TODO</div>
+          <div class="lf-btn f-goal" data-filter="goal" onclick="setLogFilter('goal')">GOLES</div>
+          <div class="lf-btn f-shot" data-filter="shot" onclick="setLogFilter('shot')">TIROS</div>
+          <div class="lf-btn f-card" data-filter="card" onclick="setLogFilter('card')">TARJETAS</div>
+          <div class="lf-btn f-foul" data-filter="foul" onclick="setLogFilter('foul')">FALTAS</div>
+          <div class="lf-btn log-scroll-end" onclick="scrollLogEnd()">↓</div>
+        </div>
+        <div class="live-indicator" id="liveIndicator"><div class="live-dot"></div>EN VIVO</div>
+        <div class="log-scroll" id="matchLog"></div>
+      </div>
+
+      <!-- STATS -->
+      <div class="match-panel" id="mpanel-stats">
+        <div class="match-stats-scroll" id="matchStatsPanel"></div>
+      </div>
+
+      <!-- SQUAD -->
+      <div class="match-panel" id="mpanel-squad">
+        <div class="match-squad-scroll" id="matchSquadPanel"></div>
+      </div>
+
+      <!-- MANAGE -->
+      <div class="match-panel" id="mpanel-manage">
+        <div class="manage-scroll">
+          <div class="sidebar-label" style="padding:10px 10px 0">CAMBIO DE TÁCTICA</div>
+          <div style="padding:8px 10px">
+            <div class="tactic-live-row" id="tacticLiveRow">
+              <div class="tactic-chip" data-tactic="tikitaka"      onclick="changeTacticLive('tikitaka')"      title="Tiki-Taka">🔵 Tiki-Taka</div>
+              <div class="tactic-chip" data-tactic="possession"    onclick="changeTacticLive('possession')"    title="Posesión">⚙️ Posesión</div>
+              <div class="tactic-chip" data-tactic="positional"    onclick="changeTacticLive('positional')"    title="Posicional">♟️ Posicional</div>
+              <div class="tactic-chip" data-tactic="vertical"      onclick="changeTacticLive('vertical')"      title="Vertical">⬆️ Vertical</div>
+              <div class="tactic-chip" data-tactic="gegenpressing" onclick="changeTacticLive('gegenpressing')" title="Gegenpressing">🔥 Gegen</div>
+              <div class="tactic-chip" data-tactic="pressing"      onclick="changeTacticLive('pressing')"      title="Presión alta">🟠 Presión</div>
+              <div class="tactic-chip" data-tactic="counter"       onclick="changeTacticLive('counter')"       title="Contraataque">⚡ Contra</div>
+              <div class="tactic-chip" data-tactic="parking"       onclick="changeTacticLive('parking')"       title="Bloque bajo">🧱 Bloque</div>
+              <div class="tactic-chip" data-tactic="direct"        onclick="changeTacticLive('direct')"        title="Directo">🎯 Directo</div>
+              <div class="tactic-chip" data-tactic="wing"          onclick="changeTacticLive('wing')"          title="Bandas">↔️ Bandas</div>
+              <div class="tactic-chip" data-tactic="balanced"      onclick="changeTacticLive('balanced')"      title="Equilibrado">⚖️ Equilibrado</div>
+            </div>
+          </div>
+          <div class="sidebar-label" style="padding:10px 10px 0">SUSTITUCIONES</div>
+          <div class="subs-remaining" id="subsRemaining">5 cambios disponibles</div>
+          <div style="padding:0 10px">
+            <div id="subsPlanned"></div>
+            <button class="btn-sub-action" onclick="openSubModal()">+ PROGRAMAR SUSTITUCIÓN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts: orden importante por dependencias -->
+<!-- 1. Datos y utilidades base -->
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/state.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/theme.js"></script>
+
+<!-- 2. Generación de jugadores y liga -->
+<script src="js/players.js"></script>
+<script src="js/league.js"></script>
+
+<!-- 3. UI del hub -->
+<script src="js/ui-hub.js"></script>
+<script src="js/ui-formation.js"></script>
+<script src="js/ui-playermodal.js"></script>
+<script src="js/ui-teams.js"></script>
+<script src="js/ui-market.js"></script>
+<script src="js/ui-offers.js"></script>
+<script src="js/ui-faq.js"></script>
+
+<!-- 4. Motor de partido -->
+<script src="js/match-engine.js"></script>
+<script src="js/match-render.js"></script>
+<script src="js/match-log.js"></script>
+<script src="js/match-subs.js"></script>
+<script src="js/match-postmatch.js"></script>
+<script src="js/match-controls.js"></script>
+
+<!-- 5. UI de pantalla de inicio/setup -->
+<script src="js/setup-ui.js"></script>
+
+<!-- 6. Inicialización -->
+<script src="js/main.js"></script>
+
+</body>
+</html>

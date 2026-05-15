@@ -1,0 +1,96 @@
+/* ============================================================ RESPONSIVE MOBILE */
+@media (max-width: 768px) {
+  body { overflow: auto; }
+  .screen { height: auto; min-height: 100vh; overflow: auto; }
+
+  /* Intro */
+  .intro-logo { font-size: 60px; letter-spacing: 6px; }
+  .intro-sub { font-size: 12px; letter-spacing: 3px; }
+  .intro-actions { margin-top: 40px; }
+
+  /* Setup */
+  #screen-setup { padding: 16px; justify-content: flex-start; padding-top: 32px; }
+  .setup-card { padding: 20px; max-width: 100%; }
+  .form-row { grid-template-columns: 1fr; gap: 12px; }
+  .league-options { grid-template-columns: 1fr !important; }
+
+  /* Hub header */
+  .hub-header { height: auto; flex-wrap: wrap; padding: 8px 0; gap: 0; }
+  .hub-brand { padding: 8px 12px; border-right: none; border-bottom: 1px solid var(--border); width: 100%; }
+  .hub-team-badge { padding: 6px 12px; border-right: none; border-bottom: 1px solid var(--border); width: 100%; }
+  .hub-season { display: none; }
+  .hub-nav { margin-left: 0; width: 100%; overflow-x: auto; flex-wrap: nowrap; border-top: 1px solid var(--border); }
+  .hub-nav-item { padding: 0 12px; font-size: 10px; white-space: nowrap; border-right: 1px solid var(--border); height: 38px; }
+
+  /* Hub body: stack vertically */
+  #screen-hub { overflow: auto; }
+  .hub-body { grid-template-columns: 1fr; overflow: visible; }
+  .hub-main { padding: 12px; overflow: visible; }
+  .hub-sidebar { border-left: none; border-top: 1px solid var(--border); overflow: visible; }
+
+  /* Cards */
+  .squad-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .records-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Next match */
+  .next-match-teams { padding: 12px; }
+  .nm-sep { padding: 0 10px; font-size: 20px; }
+
+  /* Liga table — horizontal scroll */
+  .table-liga { font-size: 10px; }
+  .card { overflow-x: auto; }
+
+  /* Match screen */
+  #screen-match { height: auto; min-height: 100vh; overflow: auto; }
+  .match-header {
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .mh-score-block { justify-content: center; }
+  .mh-score { font-size: 28px; }
+  .mh-team { font-size: 12px; }
+  .mh-time { text-align: center; }
+  .mh-controls { justify-content: center; flex-wrap: wrap; gap: 6px; }
+  .ctrl-btn { font-size: 11px; padding: 6px 10px; }
+  .speed-row { flex-wrap: wrap; }
+
+  .match-body { grid-template-columns: 1fr; overflow: visible; }
+  .match-left { height: 55vw; min-height: 220px; max-height: 340px; }
+  canvas#pitch { flex: 1; }
+  .match-right { border-left: none; border-top: 1px solid var(--border); height: 320px; }
+
+  /* Post match */
+  .post-match-card { width: 95vw; }
+  .pmc-score { font-size: 44px; }
+  .pmc-players-table { font-size: 10px; }
+
+  /* Modals */
+  .modal { width: 95vw; max-height: 85vh; }
+  .negociation-modal { width: 95vw; }
+
+  /* Offer inbox */
+  .offer-inbox { bottom: 8px; right: 8px; left: 8px; max-width: 100%; }
+
+  /* History */
+  .history-item { grid-template-columns: 60px 1fr auto; }
+
+  /* Formation pitch sidebar: make it reasonable size on mobile */
+  .formation-pitch { aspect-ratio: 1.8; }
+
+  /* Transfer items */
+  .transfer-item { grid-template-columns: 1fr auto; gap: 8px; }
+  .transfer-item .ti-price { display: none; }
+
+  /* Hub nav scrollbar */
+  .hub-nav::-webkit-scrollbar { height: 0; }
+}
+
+@media (max-width: 400px) {
+  .intro-logo { font-size: 44px; }
+  .squad-grid { grid-template-columns: 1fr 1fr; }
+  .mh-team { display: none; }
+}
