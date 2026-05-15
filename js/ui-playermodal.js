@@ -18,7 +18,7 @@ function openPlayerModal(playerId) {
   const suspended = p.suspension && p.suspension > 0;
   const warned = !suspended && p.season && p.season.yellows > 0 && (p.season.yellows % 5 === 4);
   const injStatus = injured
-    ? `<span style="color:var(--red);margin-left:8px">🩹 ${p.injury.type || 'Lesionado'} — ${p.injury.jornadasLeft}j</span>`
+    ? `<span style="color:var(--red);margin-left:8px">🩹 ${p.injury.type || t('injured')} — ${p.injury.jornadasLeft}</span>`
     : suspended
     ? `<span style="color:var(--red);margin-left:8px">🟥 SANCIONADO — ${p.suspension} partido${p.suspension!==1?'s':''}</span>`
     : warned
@@ -53,7 +53,7 @@ function openPlayerModal(playerId) {
   if (p.lastLevelUp && p.lastLevelUp.season === G.season) {
     document.getElementById('pm-attrs').insertAdjacentHTML('afterend',
       `<div style="margin-top:8px;padding:8px 10px;background:rgba(0,230,118,0.07);border:1px solid var(--green);border-radius:2px;font-size:11px;color:var(--green)">
-        ↑ Mejora reciente — media subió ${p.lastLevelUp.gain > 1 ? '+'+p.lastLevelUp.gain : '+1'} en la jornada ${p.lastLevelUp.jornada}
+        ${t('recentLevelUp', p.lastLevelUp.gain > 0 ? p.lastLevelUp.gain : 1, p.lastLevelUp.jornada)}
        </div>`
     );
   }
@@ -79,6 +79,9 @@ function openPlayerModal(playerId) {
   const isOwnPlayer = getMyTeam().squad.some(pl => pl.id === p.id);
   if (isOwnPlayer && !match) {
     const compensation = rescissionCost(p);
+    const saleInfo = p.listedForSale
+      ? `<div style="padding:6px 10px;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.25);font-size:11px;color:var(--accent);margin-bottom:10px">${t('contractListed', '<strong>'+fmt(p.askingPrice)+'</strong>')}</div>`
+      : '';
     releaseSection.innerHTML = `<div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
       <div style="font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:8px">CONTRATO</div>
       <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">
@@ -86,11 +89,16 @@ function openPlayerModal(playerId) {
           ? `<strong style="color:var(--text)">${contractLabel(p)}</strong><br><span style="color:var(--text-muted)">Rescisión: ${fmt(compensation)}</span>`
           : 'Sin contrato formal.'}
       </div>
+      ${saleInfo}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <button class="btn" style="border-color:var(--accent);color:var(--accent)"
-          onclick="openContractModal({mode:'reneg',player:getMyTeam().squad.find(pl=>pl.id==='${p.id}')});closePlayerModal()">
+          onclick="closePlayerModal();openContractModal({mode:'reneg',player:getMyTeam().squad.find(pl=>pl.id==='${p.id}')})">
           🔄 RENOVAR
         </button>
+        ${isTransferWindowOpen() ? `<button class="btn" style="border-color:var(--yellow);color:var(--yellow)"
+          onclick="closePlayerModal();listPlayerForSale('${p.id}')">
+          💰 ${p.listedForSale ? 'EDITAR OFERTA' : 'OFRECER'}
+        </button>` : ''}
         <button class="btn" style="border-color:var(--red);color:var(--red)"
           onclick="releasePlayer('${p.id}', ${compensation})">
           ✕ RESCINDIR

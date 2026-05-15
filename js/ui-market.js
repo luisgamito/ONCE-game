@@ -184,12 +184,12 @@ function openContractModal(ctx) {
     `Presupuesto salarial restante: <strong style="color:var(--accent)">${fmt(Math.max(0, remaining))}</strong>/año`;
 
   if (ctx.mode === 'reneg') {
-    document.getElementById('cmTitle').textContent = 'RENEGOCIAR CONTRATO';
+    document.getElementById('cmTitle').textContent = _lang==='en'?'RENEGOTIATE CONTRACT':'RENEGOCIAR CONTRATO';
     document.getElementById('cmCurrentContract').style.display = 'block';
     document.getElementById('cmCurrentContract').textContent =
       `Contrato actual: ${fmt(p.contract?.salary || 0)}/sem · ${p.contract?.yearsLeft || 0} año${(p.contract?.yearsLeft||0)!==1?'s':''} restante${(p.contract?.yearsLeft||0)!==1?'s':''}`;
   } else {
-    document.getElementById('cmTitle').textContent = 'OFRECER CONTRATO';
+    document.getElementById('cmTitle').textContent = t('listingTitle').replace('TRANSFER','CONTRACT').replace('MERCADO','CONTRATO');
     document.getElementById('cmCurrentContract').style.display = 'none';
   }
 
@@ -238,7 +238,7 @@ function confirmContract() {
     const idx = _contractCtx.transferIdx;
     const price = _contractCtx.transferPrice;
     const myTeam = getMyTeam();
-    if (G.club.budget < price) { alert('No tienes presupuesto suficiente.'); return; }
+    if (G.club.budget < price) { alert(_lang==='en'?'Insufficient budget.':'No tienes presupuesto suficiente.'); return; }
     G.club.budget -= price;
     p.contract = contract;
     p.inSquad = false;
@@ -254,7 +254,7 @@ function confirmContract() {
     if (typeof updateBudgetSidebar === 'function') updateBudgetSidebar();
     showRivalOfferToast({
       title: t('signingDone'),
-      body: `${p.name} fichado por ${fmt(price)} · Contrato ${years}a · ${fmt(salary)}/sem`,
+      body: `${p.name} ${_lang==='en'?'signed for':'fichado por'} ${fmt(price)} · ${years}${_lang==='en'?'yr':'a'} · ${fmt(salary)}${_lang==='en'?'/wk':'/sem'}`,
       color: 'var(--green)', duration: 5000, noButtons: true
     });
   } else {
@@ -266,8 +266,8 @@ function confirmContract() {
     renderSquad();
     if (typeof updateBudgetSidebar === 'function') updateBudgetSidebar();
     showRivalOfferToast({
-      title: '✓ CONTRATO RENOVADO',
-      body: `${p.name} · ${fmt(salary)}/sem · ${years} año${years!==1?'s':''}`,
+      title: _lang==='en'?'✓ CONTRACT RENEWED':'✓ CONTRATO RENOVADO',
+      body: `${p.name} · ${fmt(salary)}${_lang==='en'?'/wk':'/sem'} · ${years} ${_lang==='en'?'year'+(years!==1?'s':''):'año'+(years!==1?'s':'')}`,
       color: 'var(--green)', duration: 4000, noButtons: true
     });
   }

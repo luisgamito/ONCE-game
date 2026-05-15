@@ -10,12 +10,12 @@ const FX = 40, FY = 30, FW = 970, FH = 620;
 // Metadatos extra en FORMATIONS_META.
 // ============================================================
 const FORMATIONS_META = {
-  '4-3-3':   { defenders:4, midfielders:3, forwards:3, defensiveShape:'4-1-4-1', desc:'Posesional con extremos abiertos. Triángulo de mediocampo con un pivote.' },
-  '4-4-2':   { defenders:4, midfielders:4, forwards:2, defensiveShape:'4-4-2',   desc:'Bloque clásico. Dos líneas de cuatro, dos delanteros. Sólido y directo.' },
-  '4-2-3-1': { defenders:4, midfielders:5, forwards:1, defensiveShape:'4-4-1-1', desc:'Mediocampo de doble pivote y línea ofensiva con mediapunta.' },
-  '3-5-2':   { defenders:3, midfielders:5, forwards:2, defensiveShape:'5-3-2',   desc:'Carrileros que dan amplitud. Trío central que defiende.' },
-  '5-3-2':   { defenders:5, midfielders:3, forwards:2, defensiveShape:'5-3-2',   desc:'Bloque defensivo profundo de cinco. Sale al contragolpe.' },
-  '4-1-4-1': { defenders:4, midfielders:5, forwards:1, defensiveShape:'4-5-1',   desc:'Mediocentro defensivo aislado. Bloque medio compacto y resistente.' }
+  '4-3-3':   { defenders:4, midfielders:3, forwards:3, defensiveShape:'4-1-4-1', desc:'4-3-3: Wide front with pivot triangle.' },
+  '4-4-2':   { defenders:4, midfielders:4, forwards:2, defensiveShape:'4-4-2',   desc:'4-4-2: Classic flat block. Solid and direct.' },
+  '4-2-3-1': { defenders:4, midfielders:5, forwards:1, defensiveShape:'4-4-1-1', desc:'4-2-3-1: Double pivot with attacking trio behind striker.' },
+  '3-5-2':   { defenders:3, midfielders:5, forwards:2, defensiveShape:'5-3-2',   desc:'3-5-2: Wing-backs provide width. Back three defends.' },
+  '5-3-2':   { defenders:5, midfielders:3, forwards:2, defensiveShape:'5-3-2',   desc:'5-3-2: Deep five-man block. Counter-attacks.' },
+  '4-1-4-1': { defenders:4, midfielders:5, forwards:1, defensiveShape:'4-5-1',   desc:'4-1-4-1: Isolated anchor. Compact mid block.' }
 };
 
 const FORMATIONS = {
@@ -336,8 +336,8 @@ const TEAMS_PER_DIV = 18;
 const ROUNDS_PER_SEASON = 34;
 
 const DIV_CFG = {
-  1: { name:'Primera División',  baseQuality:78, qualitySpread:8, startBudget:8000000 },
-  2: { name:'Segunda División',  baseQuality:65, qualitySpread:8, startBudget:2000000 }
+  1: { name:(_lang&&_lang==='en'?'First Division':'Primera División'),  baseQuality:78, qualitySpread:8, startBudget:8000000 },
+  2: { name:(_lang&&_lang==='en'?'Second Division':'Segunda División'),  baseQuality:65, qualitySpread:8, startBudget:2000000 }
 };
 
 const LEAGUE_PRIZES = {

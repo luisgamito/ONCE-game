@@ -6,7 +6,7 @@ function initHub() {
   document.getElementById('hubBadge').textContent = G.club.abbr;
   document.getElementById('hubBadge').style.color = isDark(G.club.color)?'#fff':'#000';
   document.getElementById('hubTeamName').textContent = G.club.name;
-  document.getElementById('hubSeason').textContent = `J${myDiv.currentJornada+1} · ${myDiv.name} · T${G.season}`;
+  document.getElementById('hubSeason').textContent = `${t('matchdayShort', myDiv.currentJornada+1)} · ${myDiv.name} · S${G.season}`;
   document.getElementById('hubFormationSelect').value = G.club.formation;
   updateTacticChips('hubTacticRow', G.club.tactic);
 
@@ -40,7 +40,15 @@ function updateBudgetSidebar() {
     if (sidebarFill) { sidebarFill.style.width = pct + '%'; sidebarFill.style.background = col; }
   }
 
-  // Aviso en botón de jugar si hay jugadores no disponibles en el 11
+  // Fecha actual
+  const myDiv2 = getMyDivision();
+  const dateEl = document.getElementById('sidebarDateLine');
+  if (dateEl && myDiv2) {
+    const j = myDiv2.currentJornada;
+    const dateStr = jornadaDateStr(j, G.season, _lang);
+    const jLabel = j === 0 ? (_lang === 'en' ? 'Pre-season' : 'Pretemporada') : (_lang === 'en' ? `Matchday ${j}` : `Jornada ${j}`);
+    dateEl.innerHTML = `<span style="color:var(--text-dim)">${jLabel}</span> <span style="color:var(--text-muted)">·</span> <span style="color:var(--text-muted)">${dateStr}</span>`;
+  }
   const myTeam = getMyTeam();
   if (!myTeam) return;
   const unavailable = myTeam.squad.filter(p =>
@@ -157,7 +165,7 @@ function getNextEvent() {
 function renderNextMatch() {
   const event = getNextEvent();
   const myDiv = getMyDivision();
-  document.getElementById('homeJornada').textContent = `Jornada ${myDiv.currentJornada+1} · ${myDiv.name}`;
+  document.getElementById('homeJornada').textContent = `${t('matchdayLabel', myDiv.currentJornada+1)} · ${myDiv.name}`;
   if (!event) {
     document.getElementById('nextMatchTeams').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Temporada completada</div>';
     document.getElementById('nextMatchMeta').innerHTML = '';
@@ -193,7 +201,7 @@ function renderNextMatch() {
 
   document.getElementById('nextMatchMeta').innerHTML = `
     <div class="nm-meta-item"><div class="nm-meta-label">Competición</div><div class="nm-meta-val" style="color:${event.type==='cup'?'var(--gold)':'var(--accent)'}">${badge}</div></div>
-    <div class="nm-meta-item"><div class="nm-meta-label">${event.type==='league'?'Jornada':'Ronda'}</div><div class="nm-meta-val">${label}</div></div>
+    <div class="nm-meta-item"><div class="nm-meta-label">${event.type==='league'?t('matchdayLabel','').replace('0','').trim():t('roundLabel')}</div><div class="nm-meta-val">${label}</div></div>
     <div class="nm-meta-item"><div class="nm-meta-label">Campo</div><div class="nm-meta-val">${isHome?'LOCAL':'VISITANTE'}</div></div>
     <div class="nm-meta-item"><div class="nm-meta-label">Temporada</div><div class="nm-meta-val">${G.season}</div></div>`;
 }
@@ -352,9 +360,9 @@ function renderSquad() {
     const suspended  = starters.filter(p => p.suspension > 0);
     const expiring   = myTeam.squad.filter(p => p.contract && p.contract.yearsLeft <= 1);
     const parts = [];
-    if (injured.length)   parts.push(`<span style="color:var(--red)">🩹 ${injured.length} lesionado${injured.length>1?'s':''} en el 11</span>`);
-    if (suspended.length) parts.push(`<span style="color:var(--red)">🟥 ${suspended.length} sancionado${suspended.length>1?'s':''} en el 11</span>`);
-    if (expiring.length)  parts.push(`<span style="color:var(--yellow)">⚠️ ${expiring.length} contrato${expiring.length>1?'s':''} por expirar</span>`);
+    if (injured.length)   parts.push(`<span style="color:var(--red)">${t('alertInjuredInXI', injured.length)}</span>`);
+    if (suspended.length) parts.push(`<span style="color:var(--red)">${t('alertSuspendedInXI', suspended.length)}</span>`);
+    if (expiring.length)  parts.push(`<span style="color:var(--yellow)">${t('alertExpiringCtrs', expiring.length)}</span>`);
     alertEl.innerHTML = parts.join(' · ');
   }
 
@@ -370,8 +378,9 @@ function renderSquad() {
     const slot      = formSlots[slotIdx] || { pos: p.pos };
 
     const statusIcon = injured   ? `<span title="${p.injury.type} — ${p.injury.jornadasLeft}j" style="color:var(--red)">🩹</span>`
-                     : suspended ? `<span title="Sancionado — ${p.suspension}j" style="color:var(--red)">🟥</span>`
-                     : warned    ? `<span title="Amonestado" style="color:var(--yellow)">⚠️</span>`
+                     : suspended ? `<span title="${_lang==='en'?'Suspended':'Sancionado'} — ${p.suspension}j" style="color:var(--red)">🟥</span>`
+                     : warned    ? `<span title="${t('warned')}" style="color:var(--yellow)">⚠️</span>`
+                     : p.listedForSale ? `<span title="${_lang==='en'?'Listed: ':'Ofrecido: '}${fmt(p.askingPrice)}" style="color:var(--accent)">💰</span>`
                      : '';
 
     const xpPct = p.age < 27 && p.potential > overall
@@ -413,7 +422,7 @@ function renderSquad() {
     : starters.map((p, i) => playerRow(p, i, false)).join('');
 
   benchEl.innerHTML = bench.length === 0
-    ? '<div style="color:var(--text-muted);font-size:12px;padding:8px">Banquillo vacío.</div>'
+    ? '<div style="color:var(--text-muted);font-size:12px;padding:8px">' + t('benchEmpty') + '</div>'
     : bench.map((p, i) => playerRow(p, starters.length + i, true)).join('');
 }
 
@@ -442,11 +451,11 @@ function squadRowClick(e, pid) {
     // Es TITULAR
     if (unavailable) {
       // Lesionado o sancionado en el 11 → forzar reemplazo
-      const reason = injured ? `🩹 Lesionado (${p.injury.jornadasLeft}j)` : `🟥 Sancionado (${p.suspension}j)`;
+      const reason = injured ? t('ctxInjured', p.injury.jornadasLeft+'j') : t('ctxSuspended', p.suspension+'j');
       items.push(`<div class="ctx-label" style="color:var(--red)">${reason} — reemplazar:</div>`);
       const availBench = myTeam.squad.filter(pl => !pl.inSquad && !(pl.injury?.jornadasLeft > 0) && !(pl.suspension > 0));
       if (availBench.length === 0) {
-        items.push(`<div class="ctx-item disabled">Sin suplentes disponibles</div>`);
+        items.push(`<div class="ctx-item disabled">${t('ctxNoSubs')}</div>`);
       } else {
         availBench.forEach(sub => {
           const ov = calcOverall(sub);
@@ -461,12 +470,12 @@ function squadRowClick(e, pid) {
       // Titular sano → opciones normales
       const slotIdx = starters.findIndex(pl => pl.id === pid);
       const slot = formSlots[slotIdx] || { pos: p.pos };
-      items.push(`<div class="ctx-label">Titular · ${slot.pos}</div>`);
+      items.push(`<div class="ctx-label">${t('ctxStarter', slot.pos)}</div>`);
       // Mover al banquillo (solo si hay suplente disponible)
       const hasSub = myTeam.squad.some(pl => !pl.inSquad && !(pl.injury?.jornadasLeft > 0) && !(pl.suspension > 0));
-      items.push(`<div class="ctx-item${hasSub?'':' disabled'}" ${hasSub?`onclick="squadToBench('${pid}')"`:''}>${hasSub ? '↓ Pasar al banquillo' : '↓ Banquillo (sin suplentes)'}</div>`);
+      items.push(`<div class="ctx-item${hasSub?'':' disabled'}" ${hasSub?`onclick="squadToBench('${pid}')"`:''}>${hasSub ? t('ctxToBench') : t('ctxToBenchNoSubs')}</div>`);
       // Cambiar posición / intercambiar con otro titular
-      items.push(`<div class="ctx-label" style="margin-top:4px">Intercambiar con:</div>`);
+      items.push(`<div class="ctx-label" style="margin-top:4px">${t('ctxSwapWith')}</div>`);
       starters.filter(pl => pl.id !== pid).forEach(other => {
         const ov = calcOverall(other);
         const otherSlot = formSlots[starters.findIndex(pl => pl.id === other.id)] || { pos: other.pos };
@@ -479,7 +488,7 @@ function squadRowClick(e, pid) {
       // Cambiar por suplente
       const availBench = myTeam.squad.filter(pl => !pl.inSquad && !(pl.injury?.jornadasLeft > 0) && !(pl.suspension > 0));
       if (availBench.length > 0) {
-        items.push(`<div class="ctx-label" style="margin-top:4px">Reemplazar por:</div>`);
+        items.push(`<div class="ctx-label" style="margin-top:4px">${t('ctxReplaceWith')}</div>`);
         availBench.forEach(sub => {
           const ov = calcOverall(sub);
           items.push(`<div class="ctx-item" onclick="squadReplace('${pid}','${sub.id}')">
@@ -493,17 +502,17 @@ function squadRowClick(e, pid) {
   } else {
     // Es SUPLENTE
     if (unavailable) {
-      const reason = injured ? `🩹 Lesionado (${p.injury.jornadasLeft}j)` : `🟥 Sancionado (${p.suspension}j)`;
+      const reason = injured ? t('ctxInjured', p.injury.jornadasLeft+'j') : t('ctxSuspended', p.suspension+'j');
       items.push(`<div class="ctx-label" style="color:var(--red)">${reason}</div>`);
-      items.push(`<div class="ctx-item disabled">No disponible para el próximo partido</div>`);
+      items.push(`<div class="ctx-item disabled">${t('ctxUnavailable')}</div>`);
     } else {
-      items.push(`<div class="ctx-label">Suplente · ${p.pos}</div>`);
+      items.push(`<div class="ctx-label">${t('ctxSub', p.pos)}</div>`);
       if (starters.length < 11) {
         // Hay hueco — colocar directamente
-        items.push(`<div class="ctx-item" onclick="squadAddStarter('${pid}')">↑ Añadir al once inicial</div>`);
+        items.push(`<div class="ctx-item" onclick="squadAddStarter('${pid}')">${t('ctxAddToSquad')}</div>`);
       } else {
         // Reemplazar a un titular
-        items.push(`<div class="ctx-label" style="margin-top:4px">Sustituir a:</div>`);
+        items.push(`<div class="ctx-label" style="margin-top:4px">${t('ctxSubstituteFor')}</div>`);
         starters.forEach(starter => {
           const ov = calcOverall(starter);
           const slotIdx = starters.findIndex(pl => pl.id === starter.id);
@@ -519,7 +528,12 @@ function squadRowClick(e, pid) {
   }
 
   items.push(`<div class="ctx-divider"></div>`);
-  items.push(`<div class="ctx-item" onclick="closeSquadCtx();openPlayerModal('${pid}')">📋 Ver ficha del jugador</div>`);
+  // Ofrecer al mercado (solo en ventana abierta)
+  if (isTransferWindowOpen()) {
+    const saleLabel = p.listedForSale ? t('ctxEditListing') : t('ctxListForSale');
+    items.push(`<div class="ctx-item" onclick="closeSquadCtx();listPlayerForSale('${pid}')">${saleLabel}</div>`);
+  }
+  items.push(`<div class="ctx-item" onclick="closeSquadCtx();openPlayerModal('${pid}')">${t('ctxViewProfile')}</div>`);
 
   menu.innerHTML = items.join('');
 
@@ -712,10 +726,10 @@ function renderTransferList() {
   const wageEl = document.getElementById('wageBudgetVal');
   const wageUsedEl = document.getElementById('wageUsedVal');
   if (wageEl) {
-    wageEl.textContent = fmt(G.club.wageBudget || 0) + '/año';
+    wageEl.textContent = fmt(G.club.wageBudget || 0) + (_lang==='en'?'/yr':'/año');
     const pct = G.club.wageBudget > 0 ? Math.round(bill / G.club.wageBudget * 100) : 0;
     const col = pct > 90 ? 'var(--red)' : pct > 70 ? 'var(--yellow)' : 'var(--green)';
-    if (wageUsedEl) wageUsedEl.innerHTML = `<span style="color:${col}">Usado: ${fmt(bill)}/año (${pct}%)</span>`;
+    if (wageUsedEl) wageUsedEl.innerHTML = `<span style="color:${col}">${t('wageUsed', fmt(bill), pct)}</span>`;
   }
   const status = getTransferWindowStatus();
   const badge = document.getElementById('transferWindowBadge');
@@ -820,7 +834,7 @@ function renderTransferList() {
     return `<div class="transfer-item">
       <div>
         <div class="ti-name">${p.name}${potHint}</div>
-        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age}a</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}/sem</span>${wageWarn}</div>
+        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age}a</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}${_lang==='en'?'/wk':'/sem'}</span>${wageWarn}</div>
       </div>
       <div class="ti-price">${fmt(p.value)}</div>
       <button class="btn-sign" onclick="openNegModal(${realIdx})" ${canAfford?'':'style="opacity:0.4;cursor:not-allowed"'} ${canAfford?'':'disabled'}>NEGOCIAR</button>
@@ -834,7 +848,7 @@ function setTransferFilter(pos) {
 }
 
 function signPlayer(idx) {
-  if (!isTransferWindowOpen()) { alert('El mercado de fichajes está cerrado.'); return; }
+  if (!isTransferWindowOpen()) { alert(t('marketClosed2')); return; }
   const p = G._transferPool[idx];
   if (!p || G.club.budget < p.value) return;
   const myTeam = getMyTeam();

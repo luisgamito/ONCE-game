@@ -63,12 +63,14 @@ function showPostMatch(){
 
 function closePostMatch(){
   document.getElementById('postMatchOverlay').classList.remove('show');
-  // If there's a season summary pending, show it
   if (G.lastSeasonSummary && !G._summaryShown) {
     G._summaryShown = true;
     showSeasonSummary();
     return;
   }
+  // Generar ofertas al volver al hub
+  if (typeof generateRivalOffers === 'function') generateRivalOffers();
+  if (typeof generateOffersForListedPlayers === 'function') generateOffersForListedPlayers();
   showScreen('screen-hub');
   initHub();
 }
@@ -150,7 +152,7 @@ function showSeasonSummary() {
     ${s.expiredContracts && s.expiredContracts.length > 0 ? `
       <div style="margin-top:12px;padding:10px 12px;background:rgba(255,85,113,0.06);border:1px solid rgba(255,85,113,0.25);font-size:11px">
         <div style="color:var(--red);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px">⚠️ CONTRATOS EXPIRADOS</div>
-        <div style="color:var(--text-dim)">${s.expiredContracts.join(', ')} han abandonado el club al terminar su contrato.</div>
+        <div style="color:var(--text-dim)">${s.expiredContracts.join(', ')} ${t('expiredDesc', '').replace('undefined ', '')}</div>
       </div>` : ''}
     ${s.promoted || s.relegated ? `
       <div style="margin-top:16px;padding:12px;background:${s.promoted?'rgba(0,230,118,0.06)':'rgba(255,61,90,0.06)'};border:1px solid ${s.promoted?'var(--green)':'var(--red)'};font-size:12px">

@@ -44,7 +44,7 @@ function startMatch() {
         : `🟥 ${p.name} (sancionado, ${p.suspension}j)`;
       return reason;
     }).join('\n');
-    alert(`No puedes jugar el partido. Debes reemplazar a los siguientes jugadores del once inicial:\n\n${names}\n\nVe a Plantilla → pulsa sobre el jugador para sustituirlo.`);
+    alert(t('unavailableInXI', names));
     // Redirigir al panel de plantilla
     showScreen('screen-hub');
     switchHubPanel('panel-squad');
@@ -74,7 +74,7 @@ function startMatch() {
   ].slice(0, 11);
 
   if (matchStarters.length < 11) {
-    alert(`No tienes suficientes jugadores disponibles (${matchStarters.length}/11). Demasiadas bajas.`);
+    alert(t('notEnoughPlayers', matchStarters.length));
     showScreen('screen-hub');
     switchHubPanel('panel-squad');
     return;
@@ -369,8 +369,8 @@ function processTick() {
 
   let phase;
   if(adv<.30)phase='buildup';
-  else if(adv<.60)phase='progression';
-  else if(adv<.82)phase='attack';
+  else if(adv<.55)phase='progression';
+  else if(adv<.75)phase='attack';
   else phase='danger';
 
   if(match.phase==='kickoff'){match.phase='buildup';return executeKickoffPass(holder,team);}
@@ -429,12 +429,13 @@ function processTick() {
       if(chance(.10*oppCfg.pressIntensity+.04))return executeFoul(holder,team,opp,nearestOpp.player);
     }
     if((isAtk||isMid)&&beingPressed&&chance(.30+ourCfg.dribbleBias*.4))return executeDribble(holder,team,opp,nearestOpp.player);
-    // Tiro
-    if(isAtk){
-      let sp=(adv-.60)/.22*.45+.12+ourCfg.shootBias*.35;
-      if(beingPressed)sp*=.6;
-      sp*=clamp(1-Math.abs(holder.y-.5)*1.5,.3,1);
-      if(chance(sp))return executeShot(holder,team,opp,'normal');
+    // Tiro — puede disparar atacante o mediocampista en buena posición
+    if(isAtk || (isMid && adv > .60)){
+      let sp = (adv - .55) / .20 * .35 + .18 + ourCfg.shootBias * .30;
+      if(beingPressed) sp *= .55;
+      sp *= clamp(1 - Math.abs(holder.y - .5) * 1.3, .35, 1);
+      sp = clamp(sp, 0, .70);
+      if(chance(sp)) return executeShot(holder, team, opp, 'normal');
     }
     // Si táctica de bandas y estamos en banda, centrar
     if(ourCfg.crossingBias>.7 && (isFB||['LM','RM','LW','RW'].includes(holder.pos))){
@@ -456,14 +457,13 @@ function processTick() {
       if(chance(.14))return executeFoul(holder,team,opp,nearestOpp.player);
     }
     if((isAtk||isMid)&&beingPressed&&chance(.45))return executeDribble(holder,team,opp,nearestOpp.player);
-    if(isAtk||isMid){
-      let sp=(adv-.80)/.18*.60+.40+ourCfg.shootBias*.25;
-      if(beingPressed)sp*=.75;
-      sp*=clamp(1-Math.abs(holder.y-.5)*1.4,.4,1);
-      // Goleadores natos disparan más
-      if(role.poach) sp*=1.25;
-      sp=clamp(sp,.30,.90);
-      if(chance(sp))return executeShot(holder,team,opp,'normal');
+    if(isAtk || isMid){
+      let sp = (adv - .75) / .25 * .45 + .50 + ourCfg.shootBias * .20;
+      if(beingPressed) sp *= .75;
+      sp *= clamp(1 - Math.abs(holder.y - .5) * 1.2, .45, 1);
+      if(role.poach) sp *= 1.20;
+      sp = clamp(sp, .40, .92);
+      if(chance(sp)) return executeShot(holder, team, opp, 'normal');
     }
     return executePass(holder,team,opp,'final');
   }
@@ -582,7 +582,7 @@ function executePass(holder,team,opp,passType='normal'){
       const gk2 = findGK(opp);
       if(gk2){match.possession=opp.side; match.ballHolder=gk2; match.ballX=gk2.x; match.ballY=gk2.y;}
       else {const def=fieldP(opp)[0]; if(def){match.possession=opp.side; match.ballHolder=def; match.ballX=def.x; match.ballY=def.y;}}
-      return finishTick(`Fuera de juego de ${tgt.name}`,'normal');
+      return finishTick(t('offsideOf', tgt.name),'normal');
     }
   }
 
@@ -619,84 +619,87 @@ function registerTransition(loser, winner) {
   winner.lastWinTick = match.tick;
 }
 
-function executeShot(holder,team,opp,shotType='normal'){
-  let gk=findGK(opp);
-  if(!gk)gk=fieldP(opp).find(p=>['CB','LB','RB'].includes(p.pos))||fieldP(opp)[0];
-  if(!gk){
-    holder.match.shots++;team.shots++;holder.match.shotsOnTarget++;team.shotsOnTarget++;
-    holder.match.goals++;holder.match.rating=clamp(holder.match.rating+1.4,0,10);team.score++;
-    updateMatchScore();showGoalOverlay();resetKickoff(opp.side);
-    return finishTick(`⚽ ¡GOL DE ${holder.name.toUpperCase()}! Portería vacía (${match.teamA.score}–${match.teamB.score})`,'event-goal');
+function executeShot(holder, team, opp, shotType='normal') {
+  let gk = findGK(opp);
+  if (!gk) gk = fieldP(opp).find(p=>['CB','LB','RB'].includes(p.pos)) || fieldP(opp)[0];
+  if (!gk) {
+    holder.match.shots++; team.shots++;
+    holder.match.shotsOnTarget++; team.shotsOnTarget++;
+    holder.match.goals++;
+    holder.match.rating = clamp(holder.match.rating + 1.5, 0, 10);
+    team.score++; updateMatchScore(); showGoalOverlay(); resetKickoff(opp.side);
+    return finishTick(`⚽ ¡GOL DE ${holder.name.toUpperCase()}! Portería vacía (${match.teamA.score}–${match.teamB.score})`, 'event-goal');
   }
 
-  const adv  = advance(holder);
-  const dF   = clamp((adv - .45) / .55, .05, 1);  // bonus por cercanía al gol
-  const aF   = clamp(1 - Math.abs(holder.y - .5) * 1.6, .15, 1); // bonus por ángulo central
-  const sk   = (effectiveAttr(holder,'shooting')*.60 + effectiveAttr(holder,'technique')*.25 + effectiveAttr(holder,'mentality')*.15) / 100;
-
-  // Calidad del disparo: combinación de habilidad y factor aleatorio (talento vs momento)
-  const er   = Math.random();
-  let eq;
-  if (er < .20) eq = rnd(0, .30);       // disparo malo
-  else if (er < .65) eq = rnd(.35, .70); // disparo normal
-  else eq = rnd(.65, 1);                 // disparo excelente
-
-  const sq  = sk * .60 + eq * .40;
-  let ss = sq * (.30 + dF * .45 + aF * .25);
-  if (shotType === 'long') ss *= .65;
-
-  // Umbral para ir a puerta: más bajo → más tiros a puerta
-  const otThr = .14 + (1 - sk) * .12 + (1 - eq) * .16 + (shotType === 'long' ? .08 : 0);
-  const onTarget = ss > otThr;
   holder.match.shots++; team.shots++;
 
-  if (!onTarget) {
+  const adv = advance(holder);
+  const dF  = clamp((adv - .50) / .50, .05, 1.0); // 0 en mediocampo, 1 en línea de fondo
+  const aF  = clamp(1 - Math.abs(holder.y - .5) * 1.5, .20, 1.0); // ángulo central mejor
+
+  // Habilidad del atacante (0-1)
+  const atkSk = (effectiveAttr(holder, 'shooting') * .60 +
+                 effectiveAttr(holder, 'technique') * .25 +
+                 effectiveAttr(holder, 'mentality') * .15) / 100;
+
+  // Probabilidad de ir a puerta: posición + habilidad
+  let pOnTarget = clamp(0.18 + dF * 0.30 + aF * 0.18 + atkSk * 0.12, 0.08, 0.92);
+  if (shotType === 'long') pOnTarget *= 0.55; // tiros lejanos mucho menos precisos
+
+  if (!chance(pOnTarget)) {
+    match.possession = opp.side; match.ballHolder = gk; match.ballX = gk.x; match.ballY = gk.y;
     const msg = shotType === 'long'
       ? `${holder.name} prueba desde lejos — fuera`
-      : ss < .12
-        ? `${holder.name} dispara muy desviado`
-        : chance(.5) ? `Disparo de ${holder.name} — al lateral de la red` : `Disparo de ${holder.name} — fuera`;
-    match.possession = opp.side; match.ballHolder = gk; match.ballX = gk.x; match.ballY = gk.y;
+      : adv > .80
+        ? `Disparo de ${holder.name} — ${chance(.5) ? 'al palo' : 'fuera por poco'}`
+        : `Disparo de ${holder.name} — fuera`;
     return finishTick(msg, 'event-shot');
   }
 
   holder.match.shotsOnTarget++; team.shotsOnTarget++;
 
-  // Parada del portero
-  const gkSk = (effectiveAttr(gk,'reflexes')*.55 + effectiveAttr(gk,'positioning')*.30 + effectiveAttr(gk,'mentality')*.15) / 100;
-  let gkEx = rnd(.25, 1);
-  if (chance(.07)) gkEx = rnd(0, .25); // error del portero
-  const gkP = gkSk * .55 + gkEx * .45;
+  // Habilidad del portero (0-1)
+  const gkSk = (effectiveAttr(gk, 'reflexes')   * .55 +
+                effectiveAttr(gk, 'positioning') * .30 +
+                effectiveAttr(gk, 'mentality')   * .15) / 100;
 
-  // Probabilidad de gol: ss vs portero. Threshold 0.42 → más goles
-  let gp = clamp(ss - gkP * .45 + rnd(-.04, .10) + .38, 0, 1);
-  if (shotType === 'long') gp *= .70;
+  // Error aleatorio del portero: 10% de las veces falla gravemente
+  const gkPerf = chance(.10) ? rnd(0, .35) : rnd(.40, 1.0);
 
-  if (gp > .50) {
-    holder.match.goals++;
-    holder.match.rating = clamp(holder.match.rating + 1.5, 0, 10);
-    gk.match.rating = clamp(gk.match.rating - .25, 0, 10);
-    team.score++;
-    updateMatchScore(); showGoalOverlay(); addedTime(2);
-    const msg = shotType === 'long'
-      ? `⚽ ¡GOLAZO DE ${holder.name.toUpperCase()}! Desde fuera del área (${match.teamA.score}–${match.teamB.score})`
-      : adv > .92 && chance(.3)
-        ? `⚽ ¡GOL! ${holder.name.toUpperCase()} a placer (${match.teamA.score}–${match.teamB.score})`
-        : `⚽ ¡GOL DE ${holder.name.toUpperCase()}! ${gk.name} no llega (${match.teamA.score}–${match.teamB.score})`;
-    resetKickoff(opp.side);
-    return finishTick(msg, 'event-goal');
+  // Probabilidad de parada: base + habilidad - posición del atacante
+  let savePct = clamp(0.45 + gkSk * .30 + gkPerf * .15 - atkSk * .20 - dF * .12, 0.20, 0.92);
+  if (shotType === 'long') savePct = clamp(savePct - 0.10, 0.15, 0.90); // menos alcance
+
+  if (chance(savePct)) {
+    // Parada
+    gk.match.rating = clamp(gk.match.rating + .20, 0, 10);
+    if (chance(.45)) {
+      // Córner
+      team.corners++; addedTime(1);
+      const cx  = team.side === 'A' ? rnd(.85, .93) : rnd(.07, .15);
+      const cy  = holder.y < .5 ? rnd(.12, .28) : rnd(.72, .88);
+      const tkr = fieldP(team).find(p => ['LW','RW','CAM','CM'].includes(p.pos)) || fieldP(team).find(p => p !== holder);
+      if (tkr) { tkr.x = cx; tkr.y = cy; match.ballHolder = tkr; match.ballX = cx; match.ballY = cy; }
+      return finishTick(`¡Gran disparo de ${holder.name}! ${gk.name} lo manda a córner`, 'event-shot');
+    }
+    match.possession = opp.side; match.ballHolder = gk; match.ballX = gk.x; match.ballY = gk.y;
+    return finishTick(`¡PARADA de ${gk.name}! Disparo de ${holder.name} atajado`, 'event-save');
   }
-  if(chance(.55)){
-    gk.match.rating=clamp(gk.match.rating+.15,0,10);
-    match.possession=opp.side;match.ballHolder=gk;match.ballX=gk.x;match.ballY=gk.y;
-    return finishTick(`¡PARADA de ${gk.name}! Disparo de ${holder.name} atajado`,'event-save');
-  }
-  team.corners++;addedTime(1);
-  const cx=team.side==='A'?rnd(.85,.93):rnd(.07,.15);
-  const cy=holder.y<.5?rnd(.15,.30):rnd(.70,.85);
-  const tkr=fieldP(team).find(p=>['LW','RW','CAM','CM'].includes(p.pos))||fieldP(team).find(p=>p!==holder);
-  if(tkr){tkr.x=cx;tkr.y=cy;match.ballHolder=tkr;match.ballX=cx;match.ballY=cy;}
-  return finishTick(`¡Gran disparo de ${holder.name}! ${gk.name} la manda a córner`,'event-shot');
+
+  // GOL
+  holder.match.goals++;
+  holder.match.rating = clamp(holder.match.rating + 1.5, 0, 10);
+  gk.match.rating     = clamp(gk.match.rating - .30, 0, 10);
+  team.score++;
+  updateMatchScore(); showGoalOverlay(); addedTime(2);
+
+  const msg = shotType === 'long'
+    ? `⚽ ¡GOLAZO DE ${holder.name.toUpperCase()}! Desde fuera del área (${match.teamA.score}–${match.teamB.score})`
+    : adv > .90 && chance(.35)
+      ? `⚽ ¡GOL! ${holder.name.toUpperCase()} a placer (${match.teamA.score}–${match.teamB.score})`
+      : `⚽ ¡GOL DE ${holder.name.toUpperCase()}! ${gk.name} no llega (${match.teamA.score}–${match.teamB.score})`;
+  resetKickoff(opp.side);
+  return finishTick(msg, 'event-goal');
 }
 
 function executeDribble(holder,team,opp,defender){

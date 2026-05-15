@@ -105,7 +105,7 @@ function renderTeamsPanel() {
       </div>
     </div>
     ${renderGroup(starters, 'TITULARES')}
-    ${renderGroup(bench, 'SUPLENTES / BANQUILLO')}`;
+    ${renderGroup(bench, t('bench'))}`;
   }
 
   document.getElementById('teamsPanel').innerHTML = selectorHtml + squadHtml;

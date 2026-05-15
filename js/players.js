@@ -310,14 +310,14 @@ function createSquad(quality, formation, isOpp=false, prefix='') {
     const p = createPlayer(quality, fp.pos, prefix+'s'+i, isOpp);
     return p;
   });
-  // 7 subs
-  const subPos = ['GK','CB','LB','CM','LW','ST','CAM'];
+  // 9 suplentes con posiciones variadas y equilibradas
+  const subPos = ['GK','CB','CB','LB','RB','CDM','CM','LW','ST'];
   const subs = subPos.map((sp,i)=>{
-    const p = createPlayer(quality-rnd(3,8), sp, prefix+'b'+i, isOpp);
+    const p = createPlayer(quality - rnd(4, 10), sp, prefix+'b'+i, isOpp);
     p.inSquad = false;
     return p;
   });
-  return [...starters,...subs];
+  return [...starters, ...subs];
 }
 
 // ============================================================

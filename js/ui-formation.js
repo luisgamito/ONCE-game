@@ -42,7 +42,7 @@ function renderFormationPitch() {
   // Render bench
   const bench = myTeam.squad.filter(p=>!p.inSquad);
   document.getElementById('benchBar').innerHTML = bench.length === 0
-    ? '<div class="bench-empty">Banquillo vacío</div>'
+    ? `<div class="bench-empty">${t('benchEmpty')}</div>`
     : bench.map(p=>{
       const overall = calcOverall(p);
       const injured = p.injury && p.injury.jornadasLeft > 0;
