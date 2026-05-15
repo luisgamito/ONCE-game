@@ -336,8 +336,8 @@ const TEAMS_PER_DIV = 18;
 const ROUNDS_PER_SEASON = 34;
 
 const DIV_CFG = {
-  1: { name:(_lang&&_lang==='en'?'First Division':'Primera División'),  baseQuality:78, qualitySpread:8, startBudget:8000000 },
-  2: { name:(_lang&&_lang==='en'?'Second Division':'Segunda División'),  baseQuality:65, qualitySpread:8, startBudget:2000000 }
+  1: { name:'Primera División',  baseQuality:78, qualitySpread:8, startBudget:8000000 },
+  2: { name:'Segunda División',  baseQuality:65, qualitySpread:8, startBudget:2000000 }
 };
 
 const LEAGUE_PRIZES = {
