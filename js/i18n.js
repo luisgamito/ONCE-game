@@ -440,6 +440,13 @@ const LANG = {
   }
 };
 
+
+function divName(name) {
+  if (_lang !== 'en') return name;
+  if (name.includes('Primera')) return 'First Division';
+  if (name.includes('Segunda')) return 'Second Division';
+  return name;
+}
 function t(key, ...args) {
   const val = LANG[_lang]?.[key] ?? LANG['es']?.[key] ?? key;
   return typeof val === 'function' ? val(...args) : val;

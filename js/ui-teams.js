@@ -97,14 +97,14 @@ function renderTeamsPanel() {
       <div style="width:44px;height:44px;border-radius:50%;background:${teamColor};color:${textCol};display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;flex-shrink:0">${team.abbr||team.name.slice(0,3).toUpperCase()}</div>
       <div style="flex:1">
         <div style="font-size:15px;font-weight:700;color:var(--white)">${team.name}${isPlayer ? ' <span style="font-size:10px;color:var(--accent);letter-spacing:1px">TU EQUIPO</span>' : ''}</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Media ${avgOverall} · ${team.squad.length} jugadores · ${G.league.divisions[team.division||1].name}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Overall ${avgOverall} · ${team.squad.length} jugadores · ${G.league.divisions[team.division||1].name}</div>
       </div>
       <div style="text-align:right">
         <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:${starsColor(avgOverall)}">${starsFromOverall(avgOverall)}</div>
         <div style="font-size:10px;color:var(--text-muted)">calidad general</div>
       </div>
     </div>
-    ${renderGroup(starters, 'TITULARES')}
+    ${renderGroup(starters, 'STARTERS')}
     ${renderGroup(bench, t('bench'))}`;
   }
 

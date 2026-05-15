@@ -120,7 +120,7 @@ function counterRivalOffer(offerId) {
     saveGame();
     showRivalOfferToast({
       title: '✗ ' + (_lang==='en'?'COUNTER REJECTED':'CONTRAOFERTA RECHAZADA'),
-      body: _lang==='en' ? `${offer.rivalName} rejected the ${fmt(counterAmt)} bid for ${offer.playerName}. Negotiations have ended.` : `${offer.rivalName} no acepta pagar ${fmt(counterAmt)} por ${offer.playerName}. Las negociaciones se rompen.`,
+      body: _lang==='en' ? `${offer.rivalName} rejected the ${fmt(counterAmt)} bid for ${offer.playerName}. Negotiations have ended.` : `${offer.rivalName} rejected the offer of ${fmt(counterAmt)} for ${offer.playerName}. Negotiations have ended.`,
       color: 'var(--red)', duration: 4000, noButtons: true
     });
   }
@@ -204,7 +204,7 @@ function listPlayerForSale(pid) {
         <div class="neg-actions">
           <button class="btn accent" onclick="confirmListing('${pid}')">📢 OFRECER</button>
           ${p.listedForSale ? `<button class="btn" style="border-color:var(--red);color:var(--red)" onclick="withdrawListing('${pid}')">✕ RETIRAR</button>` : ''}
-          <button class="btn" onclick="document.getElementById('listingModal').remove()">CANCELAR</button>
+          <button class="btn" onclick="document.getElementById('listingModal').remove()">CANCEL</button>
         </div>
       </div>
     </div>`;

@@ -35,7 +35,7 @@ function openPlayerModal(playerId) {
   }
   document.getElementById('pm-meta').textContent = `${p.pos} · ${p.age} años · MEDIA ${overall}${potText} · Valor: ${fmt(p.value)}`;
 
-  const attrKeys = [['speed','Velocidad'],['technique','Técnica'],['shooting','Disparo'],['defense','Defensa'],['physical','Físico'],['vision','Visión'],['mentality','Mentalidad'],['positioning','Posición'],['reflexes','Reflejos']];
+  const attrKeys = [['speed','Speed'],['technique','Technique'],['shooting','Shooting'],['defense','Defence'],['physical','Physical'],['vision','Vision'],['mentality','Mentality'],['positioning','Positioning'],['reflexes','Reflexes']];
   document.getElementById('pm-attrs').innerHTML = attrKeys.map(([k,label])=>{
     const v = p.attr[k];
     if (v == null) return '';
@@ -62,9 +62,9 @@ function openPlayerModal(playerId) {
   const c = p.career;
   const gp = s.gamesPlayed||0;
   document.getElementById('pm-season-stats').innerHTML = [
-    {v:s.goals,l:'Goles temp.'},{v:s.assists,l:'Asist. temp.'},
+    {v:s.goals,l:'Goals temp.'},{v:s.assists,l:'Asist. temp.'},
     {v:gp>0?(s.ratingSum/gp).toFixed(1):'-',l:'Val. media'},
-    {v:`${c?.goals||0}`,l:'Goles carrera'}
+    {v:`${c?.goals||0}`,l:'Goals carrera'}
   ].map(({v,l})=>`<div class="stat-block"><div class="sb-val">${v}</div><div class="sb-label">${l}</div></div>`).join('');
 
   const pers = p.personality;
@@ -86,8 +86,8 @@ function openPlayerModal(playerId) {
       <div style="font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:8px">CONTRATO</div>
       <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">
         ${p.contract
-          ? `<strong style="color:var(--text)">${contractLabel(p)}</strong><br><span style="color:var(--text-muted)">Rescisión: ${fmt(compensation)}</span>`
-          : 'Sin contrato formal.'}
+          ? `<strong style="color:var(--text)">${contractLabel(p)}</strong><br><span style="color:var(--text-muted)">Release fee: ${fmt(compensation)}</span>`
+          : 'No formal contract.'}
       </div>
       ${saleInfo}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">

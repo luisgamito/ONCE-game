@@ -167,12 +167,12 @@ function openContractModal(ctx) {
   document.getElementById('cmSalarySlider').max  = Math.round(baseSalary * 1.6 / 500) * 500;
   document.getElementById('cmSalarySlider').step = 500;
   document.getElementById('cmSalarySlider').value = suggestedSalary;
-  document.getElementById('cmSalaryVal').textContent = fmt(suggestedSalary) + '/sem';
+  document.getElementById('cmSalaryVal').textContent = fmt(suggestedSalary) + '/wk';
 
   // Coste anual orientativo
   updateContractCostPreview();
 
-  // Duración
+  // Duration
   document.getElementById('cmYearsSlider').value = ctx.mode === 'reneg'
     ? Math.min(4, (p.contract?.yearsLeft || 2) + 1)
     : 3;
@@ -181,13 +181,13 @@ function openContractModal(ctx) {
   // Presupuesto salarial disponible
   const remaining = (G.club.wageBudget || 0) - totalWageBill() + annualWage(p);
   document.getElementById('cmWageInfo').innerHTML =
-    `Presupuesto salarial restante: <strong style="color:var(--accent)">${fmt(Math.max(0, remaining))}</strong>/año`;
+    `Remaining wage budget: <strong style="color:var(--accent)">${fmt(Math.max(0, remaining))}</strong>/año`;
 
   if (ctx.mode === 'reneg') {
     document.getElementById('cmTitle').textContent = _lang==='en'?'RENEGOTIATE CONTRACT':'RENEGOCIAR CONTRATO';
     document.getElementById('cmCurrentContract').style.display = 'block';
     document.getElementById('cmCurrentContract').textContent =
-      `Contrato actual: ${fmt(p.contract?.salary || 0)}/sem · ${p.contract?.yearsLeft || 0} año${(p.contract?.yearsLeft||0)!==1?'s':''} restante${(p.contract?.yearsLeft||0)!==1?'s':''}`;
+      `Current contract: ${fmt(p.contract?.salary || 0)}/sem · ${p.contract?.yearsLeft || 0} año${(p.contract?.yearsLeft||0)!==1?'s':''} restante${(p.contract?.yearsLeft||0)!==1?'s':''}`;
   } else {
     document.getElementById('cmTitle').textContent = t('listingTitle').replace('TRANSFER','CONTRACT').replace('MERCADO','CONTRATO');
     document.getElementById('cmCurrentContract').style.display = 'none';
@@ -198,7 +198,7 @@ function openContractModal(ctx) {
 
 function onCmSalarySlider() {
   const v = parseInt(document.getElementById('cmSalarySlider').value);
-  document.getElementById('cmSalaryVal').textContent = fmt(v) + '/sem';
+  document.getElementById('cmSalaryVal').textContent = fmt(v) + '/wk';
   updateContractCostPreview();
 }
 
@@ -254,7 +254,7 @@ function confirmContract() {
     if (typeof updateBudgetSidebar === 'function') updateBudgetSidebar();
     showRivalOfferToast({
       title: t('signingDone'),
-      body: `${p.name} ${_lang==='en'?'signed for':'fichado por'} ${fmt(price)} · ${years}${_lang==='en'?'yr':'a'} · ${fmt(salary)}${_lang==='en'?'/wk':'/sem'}`,
+      body: `${p.name} ${_lang==='en'?'signed for':'fichado por'} ${fmt(price)} · ${years}${_lang==='en'?'yr':'a'} · ${fmt(salary)}${_lang==='en'?'/wk':'/wk'}`,
       color: 'var(--green)', duration: 5000, noButtons: true
     });
   } else {
@@ -267,7 +267,7 @@ function confirmContract() {
     if (typeof updateBudgetSidebar === 'function') updateBudgetSidebar();
     showRivalOfferToast({
       title: _lang==='en'?'✓ CONTRACT RENEWED':'✓ CONTRATO RENOVADO',
-      body: `${p.name} · ${fmt(salary)}${_lang==='en'?'/wk':'/sem'} · ${years} ${_lang==='en'?'year'+(years!==1?'s':''):'año'+(years!==1?'s':'')}`,
+      body: `${p.name} · ${fmt(salary)}${_lang==='en'?'/wk':'/wk'} · ${years} ${_lang==='en'?'year'+(years!==1?'s':''):_lang==='en'?'year':'year'+(years!==1?'s':'')}`,
       color: 'var(--green)', duration: 4000, noButtons: true
     });
   }

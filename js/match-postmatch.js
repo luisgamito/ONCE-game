@@ -43,11 +43,11 @@ function showPostMatch(){
 
   // Match stats
   const stats=[
-    {n:'Posesión',own:Math.round(myT.possession/(myT.possession+oppT.possession||1)*100)+'%',opp:Math.round(oppT.possession/(myT.possession+oppT.possession||1)*100)+'%',ov:myT.possession,op:oppT.possession},
+    {n:'Possession',own:Math.round(myT.possession/(myT.possession+oppT.possession||1)*100)+'%',opp:Math.round(oppT.possession/(myT.possession+oppT.possession||1)*100)+'%',ov:myT.possession,op:oppT.possession},
     {n:'Disparos',own:myT.shots,opp:oppT.shots,ov:myT.shots,op:oppT.shots},
-    {n:'A puerta',own:myT.shotsOnTarget||0,opp:oppT.shotsOnTarget||0,ov:myT.shotsOnTarget||0,op:oppT.shotsOnTarget||0},
-    {n:'Faltas',own:myT.fouls,opp:oppT.fouls,ov:myT.fouls,op:oppT.fouls},
-    {n:'Córners',own:myT.corners,opp:oppT.corners,ov:myT.corners,op:oppT.corners}
+    {n:'On target',own:myT.shotsOnTarget||0,opp:oppT.shotsOnTarget||0,ov:myT.shotsOnTarget||0,op:oppT.shotsOnTarget||0},
+    {n:'Fouls',own:myT.fouls,opp:oppT.fouls,ov:myT.fouls,op:oppT.fouls},
+    {n:'Corners',own:myT.corners,opp:oppT.corners,ov:myT.corners,op:oppT.corners}
   ];
   document.getElementById('pmcMatchStats').innerHTML=stats.map(s=>{
     const tot=(s.ov||0)+(s.op||0)||1;
@@ -93,7 +93,7 @@ function showSeasonSummary() {
     description = `Tu club gana la ${myDiv.name}`;
   } else {
     outcome = `${s.finalPos}º LUGAR`; color = 'var(--accent)';
-    description = `Temporada completada en ${myDiv.name}`;
+    description = `Season completada en ${myDiv.name}`;
   }
   document.getElementById('ssOutcome').textContent = outcome;
   document.getElementById('ssOutcome').style.color = color;
@@ -157,8 +157,8 @@ function showSeasonSummary() {
     ${s.promoted || s.relegated ? `
       <div style="margin-top:16px;padding:12px;background:${s.promoted?'rgba(0,230,118,0.06)':'rgba(255,61,90,0.06)'};border:1px solid ${s.promoted?'var(--green)':'var(--red)'};font-size:12px">
         ${s.promoted
-          ? `<strong style="color:var(--green)">+${fmt(PROMOTION_BONUS)}</strong> bonus por ascenso. La próxima temporada juegas en ${G.league.divisions[1].name}.`
-          : `Próxima temporada juegas en ${G.league.divisions[2].name}. Tendrás que reconstruir.`}
+          ? `<strong style="color:var(--green)">+${fmt(PROMOTION_BONUS)}</strong> promotion bonus. Next season you play in ${divName(divName(G.league.divisions[1].name))}.`
+          : `Próxima temporada juegas en ${divName(divName(G.league.divisions[2].name))}. Time to rebuild.`}
       </div>` : ''}
   `;
   document.getElementById('seasonSummaryOverlay').classList.add('show');

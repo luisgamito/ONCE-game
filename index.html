@@ -103,7 +103,7 @@
         </div>
       </div>
       <div class="neg-rounds" id="negRounds">—</div>
-      <div class="neg-response pending" id="negResponse" data-i18n="negPending">Ajusta tu oferta y envíala al club vendedor.</div>
+      <div class="neg-response pending" id="negResponse" data-i18n="negPending">Adjust your offer and send it to the selling club.</div>
       <div class="neg-actions">
         <button class="btn accent" onclick="sendNegOffer()" id="negBtnSend">ENVIAR OFERTA</button>
         <button class="btn" onclick="closeNegModal()">CANCELAR</button>
@@ -134,7 +134,7 @@
         </tr></thead>
         <tbody id="pmcPlayersTbody"></tbody>
       </table>
-      <div class="section-title" data-i18n="matchStats">Estadísticas del Partido</div>
+      <div class="section-title" data-i18n="matchStats">Match Statistics</div>
       <div id="pmcMatchStats"></div>
     </div>
     <div class="pmc-foot" style="display:flex;gap:10px;justify-content:flex-end">
@@ -185,7 +185,7 @@
   <div class="modal">
     <div class="modal-head">
       <div>
-        <div style="font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--accent)" data-i18n="substitution">SUSTITUCIÓN</div>
+        <div style="font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--accent)" data-i18n="substitution">SUBSTITUTION</div>
         <div id="sub-info" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
       </div>
       <button class="modal-close" onclick="closeSubModal()">✕</button>
@@ -361,7 +361,7 @@
         </div>
 
         <!-- 11 INICIAL -->
-        <div style="font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">ONCE INICIAL</div>
+        <div style="font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">STARTING XI</div>
         <div id="squadStarters" style="display:flex;flex-direction:column;gap:4px;margin-bottom:18px"></div>
 
         <!-- BANQUILLO -->
@@ -424,11 +424,11 @@
       <!-- PANEL: TRANSFERS -->
       <div class="hub-panel" id="panel-transfers">
         <div class="budget-bar">
-          <span class="budget-label">PRESUPUESTO FICHAJES</span>
+          <span class="budget-label">TRANSFER BUDGET</span>
           <span class="budget-val" id="budgetVal">—</span>
         </div>
         <div class="budget-bar" style="margin-top:4px;margin-bottom:12px">
-          <span class="budget-label" style="color:var(--text-muted)">MASA SALARIAL</span>
+          <span class="budget-label" style="color:var(--text-muted)">WAGE BUDGET</span>
           <span id="wageBudgetVal" style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim)">—</span>
           <span id="wageUsedVal" style="font-size:11px;color:var(--text-muted);margin-left:8px"></span>
         </div>
@@ -491,7 +491,7 @@
           <div id="fpPlayers"></div>
         </div>
         <div class="bench-label">
-          <span class="bench-label-text">Banquillo (arrastra para sustituir)</span>
+          <span class="bench-label-text">Bench (drag to swap)</span>
         </div>
         <div class="bench-bar" id="benchBar"></div>
       </div>
@@ -611,7 +611,7 @@
           <div class="subs-remaining" id="subsRemaining">5 cambios disponibles</div>
           <div style="padding:0 10px">
             <div id="subsPlanned"></div>
-            <button class="btn-sub-action" onclick="openSubModal()">+ PROGRAMAR SUSTITUCIÓN</button>
+            <button class="btn-sub-action" onclick="openSubModal()">+ PROGRAMAR SUBSTITUTION</button>
           </div>
         </div>
       </div>
