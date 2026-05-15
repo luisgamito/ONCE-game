@@ -1,14 +1,37 @@
 // PLAYER GENERATION
 // ============================================================
 function genAttrs(quality, pos) {
-  const sp = 16;
+  const sp = 14; // spread un poco más pequeño para más consistencia
   const a = {};
   ['speed','technique','physical','vision','positioning','mentality','shooting','defense','reflexes'].forEach(k=>{
-    a[k] = clamp(Math.round(quality+rnd(-sp/2,sp/2)),30,99);
+    a[k] = clamp(Math.round(quality + rnd(-sp/2, sp/2)), 30, 99);
   });
-  if (pos==='GK') { a.reflexes=clamp(a.reflexes+12,50,99); a.positioning=clamp(a.positioning+8,50,99); a.shooting=Math.max(20,a.shooting-25); }
-  if (['ST','LW','RW','CAM'].includes(pos)) { a.shooting=clamp(a.shooting+8,35,99); a.technique=clamp(a.technique+5,35,99); }
-  if (['CB','CDM','LB','RB'].includes(pos)) { a.defense=clamp(a.defense+8,35,99); }
+  // Bonuses por posición — más marcados para que los roles sean distintos
+  if (pos==='GK') {
+    a.reflexes   = clamp(a.reflexes   + 15, 50, 99);
+    a.positioning= clamp(a.positioning+ 10, 50, 99);
+    a.shooting   = Math.max(20, a.shooting - 30);
+    a.defense    = clamp(a.defense + 5, 30, 99);
+  }
+  if (['ST','LW','RW','CAM'].includes(pos)) {
+    a.shooting   = clamp(a.shooting   + 12, 40, 99);
+    a.technique  = clamp(a.technique  +  8, 40, 99);
+    a.speed      = clamp(a.speed      +  6, 40, 99);
+    a.defense    = Math.max(25, a.defense - 8);
+  }
+  if (['CB','CDM'].includes(pos)) {
+    a.defense    = clamp(a.defense    + 12, 40, 99);
+    a.physical   = clamp(a.physical   +  8, 40, 99);
+    a.shooting   = Math.max(25, a.shooting - 10);
+  }
+  if (['LB','RB'].includes(pos)) {
+    a.defense    = clamp(a.defense    +  8, 40, 99);
+    a.speed      = clamp(a.speed      +  6, 40, 99);
+  }
+  if (['CM','LM','RM'].includes(pos)) {
+    a.technique  = clamp(a.technique  +  6, 40, 99);
+    a.vision     = clamp(a.vision     +  6, 40, 99);
+  }
   return a;
 }
 

@@ -664,24 +664,43 @@ function renderStats() {
 // Winter window: jornadas 16-17 (mid-season)
 // End of season: handled via season summary (budget available for next season)
 function isTransferWindowOpen() {
-  const myDiv = getMyDivision();
-  const j = myDiv.currentJornada;
-  return j === 0 || j === 16 || j === 17;
+  const j = getMyDivision().currentJornada;
+  return getTransferWindowInfo(j).open;
 }
 
 function getTransferWindowStatus() {
   const myDiv = getMyDivision();
   const j = myDiv.currentJornada;
-  if (j === 0) return { open: true, label: 'VENTANA PRE-TEMPORADA', desc: 'La ventana de fichajes de pretemporada está abierta.' };
-  if (j === 16 || j === 17) return { open: true, label: 'MERCADO DE INVIERNO', desc: 'El mercado de invierno está abierto (jornadas 16-17).' };
-  let nextJ;
-  if (j < 16) nextJ = 16;
-  else nextJ = myDiv.calendar.length;
+  const info = getTransferWindowInfo(j);
+  const season = G.season || 1;
+
+  if (info.open) {
+    const closeJ = info.window === 'summer' ? 4 : info.window === 'winter' ? 18 : myDiv.calendar.length;
+    const closeDate = jornadaDateStr(closeJ, season, _lang);
+    const labels = {
+      summer:    { es: '🌞 MERCADO DE VERANO', en: '🌞 SUMMER WINDOW' },
+      winter:    { es: '❄️ MERCADO DE INVIERNO', en: '❄️ WINTER WINDOW' },
+      endseason: { es: '🔄 MERCADO FIN DE TEMPORADA', en: '🔄 END OF SEASON WINDOW' }
+    };
+    const label = (labels[info.window]?.[_lang] || labels[info.window]?.es || 'MERCADO ABIERTO');
+    return {
+      open: true,
+      label,
+      desc: `Cierre: ${closeDate}`,
+      window: info.window
+    };
+  }
+
+  // Calcular próxima ventana
+  let nextJ = j < 17 ? 17 : 34;
+  const nextDate = jornadaDateStr(nextJ, season, _lang);
   const jLeft = nextJ - j;
   return {
     open: false,
-    label: 'VENTANA CERRADA',
-    desc: `El mercado está cerrado. Próxima ventana en ${jLeft} jornada${jLeft !== 1 ? 's' : ''}.`
+    label: _lang === 'en' ? '🔒 WINDOW CLOSED' : '🔒 VENTANA CERRADA',
+    desc: _lang === 'en'
+      ? `Next window opens ${nextDate} (${jLeft} matchday${jLeft!==1?'s':''} away)`
+      : `Próxima ventana: ${nextDate} (faltan ${jLeft} jornada${jLeft!==1?'s':''})`
   };
 }
 
@@ -700,30 +719,28 @@ function renderTransferList() {
   }
   const status = getTransferWindowStatus();
   const badge = document.getElementById('transferWindowBadge');
-  const msg = document.getElementById('transferWindowMsg');
+  const msg   = document.getElementById('transferWindowMsg');
+  const myDiv = getMyDivision();
+  const currentDate = jornadaDateStr(myDiv.currentJornada, G.season, _lang);
 
   if (status.open) {
     badge.textContent = status.label;
-    badge.style.background = 'rgba(0,230,118,0.15)';
-    badge.style.color = 'var(--green)';
-    badge.style.border = '1px solid rgba(0,230,118,0.3)';
-    msg.innerHTML = '';
+    badge.style.cssText = 'background:rgba(0,230,118,0.12);color:var(--green);border:1px solid rgba(0,230,118,0.3);padding:4px 12px;display:inline-block;font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;margin-bottom:6px';
+    msg.innerHTML = `<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">${currentDate} · ${status.desc}</div>`;
   } else {
     badge.textContent = status.label;
-    badge.style.background = 'rgba(255,61,90,0.1)';
-    badge.style.color = 'var(--red)';
-    badge.style.border = '1px solid rgba(255,61,90,0.25)';
+    badge.style.cssText = 'background:rgba(255,61,90,0.08);color:var(--red);border:1px solid rgba(255,61,90,0.25);padding:4px 12px;display:inline-block;font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;margin-bottom:6px';
     msg.innerHTML = `<div style="padding:20px;text-align:center;background:var(--bg3);border:1px solid var(--border)">
-      <div style="font-family:var(--font-display);font-size:14px;color:var(--text-muted);letter-spacing:1px">🔒 ${status.desc}</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Podrás fichar jugadores en pretemporada y en el mercado de invierno (J10-J11).</div>
+      <div style="font-size:12px;color:var(--text-muted)">📅 ${currentDate}</div>
+      <div style="font-family:var(--font-display);font-size:13px;color:var(--text-dim);margin-top:6px">${status.desc}</div>
     </div>`;
     document.getElementById('transferList').innerHTML = '';
     return;
   }
 
-  const myDiv = getMyDivision();
   const cfg = DIV_CFG[G.league.myDivision];
-  const windowKey = `${G.season}_${myDiv.currentJornada < 10 ? 'pre' : 'winter'}`;
+  const windowInfo = getTransferWindowInfo(myDiv.currentJornada);
+  const windowKey = `${G.season}_${windowInfo.window || 'pre'}`;
   if (!G._transferPool || G._transferWindowKey !== windowKey) {
     G._transferPool = [];
 

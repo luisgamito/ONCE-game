@@ -28,7 +28,10 @@ function renderFormationPitch() {
     return `<div class="fp-player ${statusClass}"
         data-pid="${p.id}" data-slot="${i}"
         draggable="${(injured||suspended)?'false':'true'}"
-        style="left:${left};top:${top};background:${color};color:${textColor}">
+        style="left:${left};top:${top};background:${color};color:${textColor};cursor:pointer"
+        onclick="fpPlayerClick(event,'${p.id}')"
+        ondragstart="fpDragStart(event,'${p.id}',${i})"
+        ondragend="fpDragEnd(event)">
       <span class="fp-overall">${overall}</span>
       ${p.pos.slice(0,2)}
       <span class="fp-name">${shortName}</span>
@@ -57,36 +60,50 @@ function renderFormationPitch() {
       </div>`;
     }).join('');
 
-  // Wire up drag-and-drop
+  // Wire up drag-and-drop (solo desktop)
   setupFormationDragDrop();
 }
 
-let dragState = null; // { sourceEl, sourceType: 'pitch'|'bench', sourcePid }
+// Click en chapita del campo → abrir el mismo menú contextual que en la lista
+function fpPlayerClick(e, pid) {
+  e.stopPropagation();
+  // Reusar el menú contextual de squadRowClick pasando el elemento como referencia
+  squadRowClick(e, pid);
+}
+
+// Variables de drag del campo
+let fpDragPid = null;
+let fpDragSlot = null;
+
+function fpDragStart(e, pid, slot) {
+  fpDragPid = pid;
+  fpDragSlot = slot;
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', pid); } catch(_) {}
+  setTimeout(() => {
+    const el = document.querySelector(`.fp-player[data-pid="${pid}"]`);
+    if (el) el.classList.add('dragging');
+  }, 0);
+}
+
+function fpDragEnd(e) {
+  document.querySelectorAll('.fp-player').forEach(p => p.classList.remove('dragging','drop-target'));
+  document.getElementById('benchBar')?.classList.remove('drag-over');
+  fpDragPid = null; fpDragSlot = null;
+}
+
+let dragState = null; // mantener compatibilidad
 
 function setupFormationDragDrop() {
   const pitchEl = document.getElementById('formationPitch');
   const benchEl = document.getElementById('benchBar');
   if (!pitchEl || !benchEl) return;
 
-  // Pitch players (starters)
+  // Drop sobre otra chapita del campo (intercambiar titulares)
   pitchEl.querySelectorAll('.fp-player').forEach(el => {
-    el.addEventListener('dragstart', e => {
-      if (el.classList.contains('injured') || el.classList.contains('suspended')) { e.preventDefault(); return; }
-      dragState = { sourceEl: el, sourceType: 'pitch', sourcePid: el.dataset.pid };
-      el.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      try { e.dataTransfer.setData('text/plain', el.dataset.pid); } catch(_) {}
-    });
-    el.addEventListener('dragend', () => {
-      el.classList.remove('dragging');
-      pitchEl.querySelectorAll('.fp-player').forEach(p => p.classList.remove('drop-target'));
-      benchEl.classList.remove('drag-over');
-      dragState = null;
-    });
     el.addEventListener('dragover', e => {
-      if (dragState && el !== dragState.sourceEl && !el.classList.contains('injured') && !el.classList.contains('suspended')) {
+      if (fpDragPid && el.dataset.pid !== fpDragPid && !el.classList.contains('injured') && !el.classList.contains('suspended')) {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
         el.classList.add('drop-target');
       }
     });
@@ -94,96 +111,63 @@ function setupFormationDragDrop() {
     el.addEventListener('drop', e => {
       e.preventDefault();
       el.classList.remove('drop-target');
-      if (!dragState) return;
-      // Swap pitch ↔ pitch (rearrange) OR bench → pitch (replace)
-      const targetPid = el.dataset.pid;
-      swapPlayers(dragState.sourcePid, targetPid);
+      if (!fpDragPid || el.dataset.pid === fpDragPid) return;
+      squadSwapStarters(fpDragPid, el.dataset.pid);
+      fpDragPid = null;
     });
   });
 
-  // Bench players
+  // Drop sobre chip del banquillo (titular → banquillo, suplente entra)
   benchEl.querySelectorAll('.bench-player').forEach(el => {
-    el.addEventListener('dragstart', e => {
-      if (el.classList.contains('injured') || el.classList.contains('suspended')) { e.preventDefault(); return; }
-      dragState = { sourceEl: el, sourceType: 'bench', sourcePid: el.dataset.pid };
-      el.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      try { e.dataTransfer.setData('text/plain', el.dataset.pid); } catch(_) {}
+    el.addEventListener('dragover', e => {
+      if (fpDragPid && !el.classList.contains('injured') && !el.classList.contains('suspended')) {
+        e.preventDefault();
+        el.classList.add('drop-target');
+      }
     });
-    el.addEventListener('dragend', () => {
-      el.classList.remove('dragging');
-      pitchEl.querySelectorAll('.fp-player').forEach(p => p.classList.remove('drop-target'));
-      benchEl.classList.remove('drag-over');
-      dragState = null;
+    el.addEventListener('dragleave', () => el.classList.remove('drop-target'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('drop-target');
+      if (!fpDragPid) return;
+      const inId = el.dataset.pid;
+      squadReplace(fpDragPid, inId);
+      fpDragPid = null;
     });
   });
 
-  // Drop on bench (move starter → bench)
+  // Drop en zona del banquillo (titular va al banco, primer suplente disponible entra)
   benchEl.addEventListener('dragover', e => {
-    if (dragState && dragState.sourceType === 'pitch') {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      benchEl.classList.add('drag-over');
-    }
+    if (fpDragPid) { e.preventDefault(); benchEl.classList.add('drag-over'); }
   });
   benchEl.addEventListener('dragleave', e => {
-    if (e.target === benchEl) benchEl.classList.remove('drag-over');
+    if (e.target === benchEl || !benchEl.contains(e.relatedTarget)) benchEl.classList.remove('drag-over');
   });
   benchEl.addEventListener('drop', e => {
     e.preventDefault();
     benchEl.classList.remove('drag-over');
-    if (!dragState || dragState.sourceType !== 'pitch') return;
-    // Move starter to bench (replace with first available bench player)
-    const myTeam = getMyTeam();
-    const starter = myTeam.squad.find(p => p.id === dragState.sourcePid);
-    const benchAvailable = myTeam.squad.find(p => !p.inSquad && (!p.injury || p.injury.jornadasLeft <= 0));
-    if (!starter) return;
-    if (!benchAvailable) {
-      alert('No hay suplentes disponibles para reemplazar');
-      return;
-    }
-    starter.inSquad = false;
-    benchAvailable.inSquad = true;
-    // Reorder: keep formation slot order
-    refreshSquadOrder();
-    saveGame();
-    renderFormationPitch();
+    if (!fpDragPid) return;
+    squadToBench(fpDragPid);
+    fpDragPid = null;
   });
-}
 
-function swapPlayers(sourcePid, targetPid) {
-  const myTeam = getMyTeam();
-  const source = myTeam.squad.find(p => p.id === sourcePid);
-  const target = myTeam.squad.find(p => p.id === targetPid);
-  if (!source || !target) return;
+  // DROP de chapita de banquillo sobre el campo (suplente reemplaza titular)
+  benchEl.querySelectorAll('.bench-player').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      if (el.classList.contains('injured') || el.classList.contains('suspended')) { e.preventDefault(); return; }
+      fpDragPid = el.dataset.pid;
+      fpDragSlot = null;
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', el.dataset.pid); } catch(_) {}
+      el.classList.add('dragging');
+    });
+    el.addEventListener('dragend', () => { el.classList.remove('dragging'); fpDragPid = null; });
+  });
 
-  // Case 1: Both starters — swap their slots in the squad array
-  if (source.inSquad && target.inSquad) {
-    const idxS = myTeam.squad.indexOf(source);
-    const idxT = myTeam.squad.indexOf(target);
-    [myTeam.squad[idxS], myTeam.squad[idxT]] = [myTeam.squad[idxT], myTeam.squad[idxS]];
-  }
-  // Case 2: Bench player replaces a starter (drag bench → pitch player)
-  else if (!source.inSquad && target.inSquad) {
-    source.inSquad = true;
-    target.inSquad = false;
-    // Put source exactly where target was in the array
-    const idxT = myTeam.squad.indexOf(target);
-    myTeam.squad.splice(myTeam.squad.indexOf(source), 1); // remove from bench position
-    myTeam.squad.splice(idxT, 0, source);                 // insert into target's slot
-  }
-  // Case 3: Starter dragged onto a bench chip (swap)
-  else if (source.inSquad && !target.inSquad) {
-    source.inSquad = false;
-    target.inSquad = true;
-    const idxS = myTeam.squad.indexOf(source);
-    myTeam.squad.splice(myTeam.squad.indexOf(target), 1);
-    myTeam.squad.splice(idxS, 0, target);
-  }
-
-  saveGame();
-  renderFormationPitch();
-  renderSquad();
+  // El campo acepta drops de suplentes
+  pitchEl.addEventListener('dragover', e => {
+    if (fpDragPid) { e.preventDefault(); }
+  });
 }
 
 function refreshSquadOrder() {

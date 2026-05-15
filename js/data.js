@@ -357,4 +357,81 @@ const PLAYER_PEAK_MIN = 26, PLAYER_PEAK_MAX = 30;
 const POTENTIAL_GROWTH_MAX = 14;
 const VETERAN_DECLINE_MAX = 18;
 
+// ============================================================
+// CALENDARIO DE FECHAS
+// ============================================================
+// La temporada arranca en agosto del año actual y termina en mayo/junio del siguiente.
+// Jornada 0 = pretemporada/mercado (julio-agosto)
+// J1 = 1ª semana de agosto → J34 = última semana de mayo del año siguiente
+
+const MONTH_NAMES_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MONTH_NAMES_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Devuelve la fecha estimada de una jornada en formato "15 Ago 2025"
+function jornadaToDate(jornada, season) {
+  // Temporada 1 arranca en 2025 (año base). Cada temporada +1 año.
+  const startYear = 2024 + (season || 1);
+  // J0 (pretemporada) = julio
+  // J1 = 1ª semana agosto, J4 ≈ fin agosto (cierre mercado verano)
+  // J17-18 = enero (mercado invierno)
+  // J34 = mayo/junio
+  const schedule = [
+    { j:  0, month: 6, day: 15 }, // 15 julio — pretemporada / mercado verano abre
+    { j:  1, month: 7, day:  4 }, // 4 agosto
+    { j:  2, month: 7, day: 11 },
+    { j:  3, month: 7, day: 18 },
+    { j:  4, month: 7, day: 25 }, // ≈ cierre mercado verano (31 ago)
+    { j:  5, month: 8, day:  8 },
+    { j:  6, month: 8, day: 15 },
+    { j:  7, month: 8, day: 22 },
+    { j:  8, month: 8, day: 29 },
+    { j:  9, month: 9, day:  6 },
+    { j: 10, month: 9, day: 13 },
+    { j: 11, month: 9, day: 20 },
+    { j: 12, month: 9, day: 27 },
+    { j: 13, month:10, day:  4 },
+    { j: 14, month:10, day: 18 },
+    { j: 15, month:10, day: 25 },
+    { j: 16, month:11, day:  1 },
+    { j: 17, month:11, day:  8 }, // nov/dic — mercado invierno
+    { j: 18, month:11, day: 22 },
+    { j: 19, month:11, day: 29 },
+    { j: 20, month:12, day:  6 },  // enero año siguiente
+    { j: 21, month: 0, day:  5, nextYear: true },
+    { j: 22, month: 0, day: 12, nextYear: true },
+    { j: 23, month: 0, day: 19, nextYear: true },
+    { j: 24, month: 0, day: 26, nextYear: true },
+    { j: 25, month: 1, day:  2, nextYear: true },
+    { j: 26, month: 1, day:  9, nextYear: true },
+    { j: 27, month: 1, day: 16, nextYear: true },
+    { j: 28, month: 1, day: 23, nextYear: true },
+    { j: 29, month: 2, day:  2, nextYear: true },
+    { j: 30, month: 2, day: 16, nextYear: true },
+    { j: 31, month: 2, day: 23, nextYear: true },
+    { j: 32, month: 3, day:  6, nextYear: true },
+    { j: 33, month: 3, day: 20, nextYear: true },
+    { j: 34, month: 4, day:  4, nextYear: true }, // mayo — fin de temporada
+  ];
+  const entry = schedule.find(s => s.j === jornada) || schedule[Math.min(jornada, schedule.length-1)];
+  const year = entry.nextYear ? startYear + 1 : startYear;
+  return { day: entry.day, month: entry.month, year };
+}
+
+function jornadaDateStr(jornada, season, lang) {
+  const d = jornadaToDate(jornada, season);
+  const names = (lang || 'es') === 'en' ? MONTH_NAMES_EN : MONTH_NAMES_ES;
+  return `${d.day} ${names[d.month]} ${d.year}`;
+}
+
+// Ventana de fichajes basada en calendario real
+// Mercado de verano: J0 hasta J4 (julio-agosto)
+// Mercado de invierno: J17-J18 (enero)
+// Mercado de final de temporada: tras J34 (julio)
+function getTransferWindowInfo(jornada) {
+  if (jornada <= 4) return { open: true, window: 'summer' };
+  if (jornada >= 17 && jornada <= 18) return { open: true, window: 'winter' };
+  if (jornada >= 34) return { open: true, window: 'endseason' };
+  return { open: false };
+}
+
 const LEVEL_CFG = { amateur:{quality:58,budget:500000,opp:54}, semipro:{quality:70,budget:2000000,opp:66}, pro:{quality:82,budget:10000000,opp:79} };

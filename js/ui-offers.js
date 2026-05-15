@@ -3,8 +3,7 @@
 
 // Se llama al inicio de cada jornada para generar posibles ofertas
 function generateRivalOffers() {
-  if (!G || !isTransferWindowOpen()) return;
-  const myTeam = getMyTeam();
+  if (!G || !isTransferWindowOpen()) return;  const myTeam = getMyTeam();
   if (!myTeam || myTeam.squad.length === 0) return;
 
   if (Math.random() > 0.30) return;

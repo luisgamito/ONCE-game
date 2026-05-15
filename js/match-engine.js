@@ -668,9 +668,9 @@ function executeShot(holder,team,opp,shotType='normal'){
   if (chance(.07)) gkEx = rnd(0, .25); // error del portero
   const gkP = gkSk * .55 + gkEx * .45;
 
-  // Probabilidad de gol: ss vs portero. +0.35 para elevar la tasa base
-  let gp = clamp(ss - gkP * .55 + rnd(-.05, .08) + .35, 0, 1);
-  if (shotType === 'long') gp *= .75;
+  // Probabilidad de gol: ss vs portero. Threshold 0.42 → más goles
+  let gp = clamp(ss - gkP * .45 + rnd(-.04, .10) + .38, 0, 1);
+  if (shotType === 'long') gp *= .70;
 
   if (gp > .50) {
     holder.match.goals++;
