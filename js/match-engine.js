@@ -20,7 +20,7 @@ function startMatch() {
     myIsHome = event.fixture.home==='player';
     competition = 'league';
     const myDiv = getMyDivision();
-    eventLabel = `${t('matchdayLabel',myDiv.currentMatchday+1)} · ${divName(myDiv.name)}`;
+    eventLabel = `${t('matchdayLabel',myDiv.currentJornada+1)} · ${divName(myDiv.name)}`;
   } else {
     oppId = event.tie.home==='player' ? event.tie.away : event.tie.home;
     myIsHome = event.tie.home==='player';
@@ -899,7 +899,7 @@ function saveMatchResult(){
     const newOverall = calcOverall(p);
     // Guardar mejora para mostrar en la UI
     if (newOverall > prevOverall) {
-      p.lastLevelUp = { season: G.season, jornada: getMyDivision().currentMatchday, gain: newOverall - prevOverall };
+      p.lastLevelUp = { season: G.season, jornada: getMyDivision().currentJornada, gain: newOverall - prevOverall };
     }
   });
 
@@ -927,7 +927,7 @@ function saveMatchResult(){
 function saveLeagueMatchResult(myScore, oppScore){
   const myTeam = getMyTeam();
   const myDiv = getMyDivision();
-  const j = myDiv.currentMatchday;
+  const j = myDiv.currentJornada;
 
   const round = myDiv.calendar[j];
   const fix = round.find(x=>x.home==='player'||x.away==='player');
@@ -953,12 +953,12 @@ function saveLeagueMatchResult(myScore, oppScore){
   // Simulate the OTHER division's jornada too (synchronously)
   const otherDivLevel = G.league.myDivision === 1 ? 2 : 1;
   const otherDiv = G.league.divisions[otherDivLevel];
-  if (otherDiv.currentMatchday < otherDiv.calendar.length) {
-    const otherRound = otherDiv.calendar[otherDiv.currentMatchday];
+  if (otherDiv.currentJornada < otherDiv.calendar.length) {
+    const otherRound = otherDiv.calendar[otherDiv.currentJornada];
     otherRound.forEach(fx => {
       if (!fx.played) simulateAIFixture(fx);
     });
-    otherDiv.currentMatchday++;
+    otherDiv.currentJornada++;
   }
 
   // Record to history
@@ -973,13 +973,13 @@ function saveLeagueMatchResult(myScore, oppScore){
   });
 
   // Advance my jornada
-  myDiv.currentMatchday++;
+  myDiv.currentJornada++;
 
   // Maybe play cup tie now (after every 2-3 league rounds)
   maybeAdvanceCup();
 
   // Season end check
-  if (myDiv.currentMatchday >= myDiv.calendar.length) {
+  if (myDiv.currentJornada >= myDiv.calendar.length) {
     handleSeasonEnd();
   }
 }
@@ -1097,7 +1097,7 @@ function maybeAdvanceCup() {
   const cup = G.league.cup;
   if (cup.completed) return;
   const myDiv = getMyDivision();
-  const j = myDiv.currentMatchday;
+  const j = myDiv.currentJornada;
 
   // For each cup round whose trigger jornada has passed, and player isn't in it, auto-sim
   for (let r = cup.currentRound; r < cup.rounds.length; r++) {
@@ -1312,7 +1312,7 @@ function startNewSeason() {
     const div = G.league.divisions[lvl];
     div.teams.forEach(t => { t.stats = {pts:0,pj:0,g:0,e:0,p:0,gf:0,gc:0,dg:0}; });
     div.calendar = generateCalendar(div.teams.map(t=>t.id));
-    div.currentMatchday = 0;
+    div.currentJornada = 0;
   });
   // Reset player season stats
   getAllTeams().forEach(team => {

@@ -6,7 +6,7 @@ function initHub() {
   document.getElementById('hubBadge').textContent = G.club.abbr;
   document.getElementById('hubBadge').style.color = isDark(G.club.color)?'#fff':'#000';
   document.getElementById('hubTeamName').textContent = G.club.name;
-  document.getElementById('hubSeason').textContent = `${t('matchdayShort', myDiv.currentMatchday+1)} · ${divName(myDiv.name)} · S${G.season}`;
+  document.getElementById('hubSeason').textContent = `${t('matchdayShort', myDiv.currentJornada+1)} · ${divName(myDiv.name)} · S${G.season}`;
   document.getElementById('hubFormationSelect').value = G.club.formation;
   updateTacticChips('hubTacticRow', G.club.tactic);
 
@@ -44,7 +44,7 @@ function updateBudgetSidebar() {
   const myDiv2 = getMyDivision();
   const dateEl = document.getElementById('sidebarDateLine');
   if (dateEl && myDiv2) {
-    const j = myDiv2.currentMatchday;
+    const j = myDiv2.currentJornada;
     const dateStr = jornadaDateStr(j, G.season, _lang);
     const jLabel = j === 0 ? (_lang === 'en' ? 'Pre-season' : 'Preseason') : (_lang === 'en' ? `Matchday ${j}` : `Matchday ${j}`);
     dateEl.innerHTML = `<span style="color:var(--text-dim)">${jLabel}</span> <span style="color:var(--text-muted)">·</span> <span style="color:var(--text-muted)">${dateStr}</span>`;
@@ -87,7 +87,7 @@ function getMyTeam() {
 
 function getNextFixture() {
   const div = getMyDivision();
-  const j = div.currentMatchday;
+  const j = div.currentJornada;
   if (j>=div.calendar.length) return null;
   const round = div.calendar[j];
   return round.find(f=> f.home==='player'||f.away==='player');
@@ -109,7 +109,7 @@ function shouldPlayCupNext() {
   const cup = G.league.cup;
   if (!cup || cup.completed) return false;
   const myDiv = getMyDivision();
-  const j = myDiv.currentMatchday;
+  const j = myDiv.currentJornada;
 
   // For each cup round not yet started, check if we've reached its trigger jornada
   for (let r = cup.currentRound; r < cup.rounds.length; r++) {
@@ -165,7 +165,7 @@ function getNextEvent() {
 function renderNextMatch() {
   const event = getNextEvent();
   const myDiv = getMyDivision();
-  document.getElementById('homeMatchday').textContent = `${t('matchdayLabel', myDiv.currentMatchday+1)} · ${divName(myDiv.name)}`;
+  document.getElementById('homeJornada').textContent = `${t('matchdayLabel', myDiv.currentJornada+1)} · ${divName(myDiv.name)}`;
   if (!event) {
     document.getElementById('nextMatchTeams').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Season completada</div>';
     document.getElementById('nextMatchMeta').innerHTML = '';
@@ -176,7 +176,7 @@ function renderNextMatch() {
     const f = event.fixture;
     homeT = getTeamById(f.home); awayT = getTeamById(f.away);
     isHome = f.home==='player';
-    label = `Matchday ${myDiv.currentMatchday+1}`;
+    label = `Matchday ${myDiv.currentJornada+1}`;
   } else {
     const t = event.tie;
     homeT = getTeamById(t.home); awayT = getTeamById(t.away);
@@ -336,11 +336,11 @@ function renderCalendario() {
         <span style="flex:1;text-align:right">${h?.name||'?'}</span>
         <span style="font-family:var(--font-mono);font-weight:600">${f.played?f.scoreH+'-'+f.scoreA:'vs'}</span>
         <span style="flex:1">${a?.name||'?'}</span>
-        ${j===myDiv.currentMatchday&&!f.played?`<span style="font-size:9px;color:var(--accent);letter-spacing:1px">${t('nextMatch')}</span>`:''}
+        ${j===myDiv.currentJornada&&!f.played?`<span style="font-size:9px;color:var(--accent);letter-spacing:1px">${t('nextMatch')}</span>`:''}
       </div>`;
     }).join('');
     return `<div class="card" style="margin-bottom:8px">
-      <div class="card-header"><span class="card-title">Matchday ${j+1}</span>${j<myDiv.currentMatchday?'<span style="font-size:10px;color:var(--green)">✓ Played</span>':''}</div>
+      <div class="card-header"><span class="card-title">Matchday ${j+1}</span>${j<myDiv.currentJornada?'<span style="font-size:10px;color:var(--green)">✓ Played</span>':''}</div>
       ${roundFixtures}
     </div>`;
   }).join('');
@@ -678,13 +678,13 @@ function renderStats() {
 // Winter window: jornadas 16-17 (mid-season)
 // End of season: handled via season summary (budget available for next season)
 function isTransferWindowOpen() {
-  const j = getMyDivision().currentMatchday;
+  const j = getMyDivision().currentJornada;
   return getTransferWindowInfo(j).open;
 }
 
 function getTransferWindowStatus() {
   const myDiv = getMyDivision();
-  const j = myDiv.currentMatchday;
+  const j = myDiv.currentJornada;
   const info = getTransferWindowInfo(j);
   const season = G.season || 1;
 
@@ -735,7 +735,7 @@ function renderTransferList() {
   const badge = document.getElementById('transferWindowBadge');
   const msg   = document.getElementById('transferWindowMsg');
   const myDiv = getMyDivision();
-  const currentDate = jornadaDateStr(myDiv.currentMatchday, G.season, _lang);
+  const currentDate = jornadaDateStr(myDiv.currentJornada, G.season, _lang);
 
   if (status.open) {
     badge.textContent = status.label;
@@ -753,7 +753,7 @@ function renderTransferList() {
   }
 
   const cfg = DIV_CFG[G.league.myDivision];
-  const windowInfo = getTransferWindowInfo(myDiv.currentMatchday);
+  const windowInfo = getTransferWindowInfo(myDiv.currentJornada);
   const windowKey = `${G.season}_${windowInfo.window || 'pre'}`;
   if (!G._transferPool || G._transferWindowKey !== windowKey) {
     G._transferPool = [];
