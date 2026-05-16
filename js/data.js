@@ -147,7 +147,7 @@ const TACTICS_CFG = {
     overlap:.55, patience:.85, offsideTrap:.50, resultMod:.01
   },
   possession: {
-    name:'Posesión', icon:'⚙️', mentality:'balanced',
+    name:'Possession', icon:'⚙️', mentality:'balanced',
     desc:'Circulación corta y paciente, dominio del balón, espera abrir huecos.',
     defLine:.50, lineEngage:.55, pressIntensity:.45, counterPress:.55, compactness:.65,
     widthDef:.55, widthAtt:.50, tempo:.55, directness:.25, passLength:.20,
@@ -360,8 +360,8 @@ const VETERAN_DECLINE_MAX = 18;
 // ============================================================
 // CALENDARIO DE FECHAS
 // ============================================================
-// La temporada arranca en agosto del año actual y termina en mayo/junio del siguiente.
-// Jornada 0 = pretemporada/mercado (julio-agosto)
+// La season arranca en agosto del año actual y termina en mayo/junio del siguiente.
+// Matchday 0 = preseason/mercado (julio-agosto)
 // J1 = 1ª semana de agosto → J34 = última semana de mayo del año siguiente
 
 const MONTH_NAMES_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -369,14 +369,14 @@ const MONTH_NAMES_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','O
 
 // Devuelve la fecha estimada de una jornada en formato "15 Ago 2025"
 function jornadaToDate(jornada, season) {
-  // Temporada 1 arranca en 2025 (año base). Cada temporada +1 año.
+  // Season 1 arranca en 2025 (año base). Cada season +1 año.
   const startYear = 2024 + (season || 1);
-  // J0 (pretemporada) = julio
+  // J0 (preseason) = julio
   // J1 = 1ª semana agosto, J4 ≈ fin agosto (cierre mercado verano)
   // J17-18 = enero (mercado invierno)
   // J34 = mayo/junio
   const schedule = [
-    { j:  0, month: 6, day: 15 }, // 15 julio — pretemporada / mercado verano abre
+    { j:  0, month: 6, day: 15 }, // 15 julio — preseason / mercado verano abre
     { j:  1, month: 7, day:  4 }, // 4 agosto
     { j:  2, month: 7, day: 11 },
     { j:  3, month: 7, day: 18 },
@@ -410,7 +410,7 @@ function jornadaToDate(jornada, season) {
     { j: 31, month: 2, day: 23, nextYear: true },
     { j: 32, month: 3, day:  6, nextYear: true },
     { j: 33, month: 3, day: 20, nextYear: true },
-    { j: 34, month: 4, day:  4, nextYear: true }, // mayo — fin de temporada
+    { j: 34, month: 4, day:  4, nextYear: true }, // mayo — fin de season
   ];
   const entry = schedule.find(s => s.j === jornada) || schedule[Math.min(jornada, schedule.length-1)];
   const year = entry.nextYear ? startYear + 1 : startYear;
@@ -426,7 +426,7 @@ function jornadaDateStr(jornada, season, lang) {
 // Ventana de fichajes basada en calendario real
 // Mercado de verano: J0 hasta J4 (julio-agosto)
 // Mercado de invierno: J17-J18 (enero)
-// Mercado de final de temporada: tras J34 (julio)
+// Mercado de final de season: tras J34 (julio)
 function getTransferWindowInfo(jornada) {
   if (jornada <= 4) return { open: true, window: 'summer' };
   if (jornada >= 17 && jornada <= 18) return { open: true, window: 'winter' };

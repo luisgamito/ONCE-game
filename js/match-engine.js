@@ -20,7 +20,7 @@ function startMatch() {
     myIsHome = event.fixture.home==='player';
     competition = 'league';
     const myDiv = getMyDivision();
-    eventLabel = `${t('matchdayLabel',myDiv.currentJornada+1)} · ${divName(myDiv.name)}`;
+    eventLabel = `${t('matchdayLabel',myDiv.currentMatchday+1)} · ${divName(myDiv.name)}`;
   } else {
     oppId = event.tie.home==='player' ? event.tie.away : event.tie.home;
     myIsHome = event.tie.home==='player';
@@ -30,7 +30,7 @@ function startMatch() {
 
   const myTeam = getMyTeam();
   const oppTeam = getTeamById(oppId);
-  if (!oppTeam) { alert('Error: rival no encontrado'); return; }
+  if (!oppTeam) { alert('Error: opponent not found'); return; }
 
   // Comprobar si hay jugadores no disponibles en el 11 inicial
   const unavailableInSquad = myTeam.squad.filter(p =>
@@ -51,7 +51,7 @@ function startMatch() {
     return;
   }
 
-  // Filtrar para el partido solo jugadores disponibles
+  // Filter only available players for the match
   const availableStarters = myTeam.squad.filter(p =>
     p.inSquad &&
     !(p.injury && p.injury.jornadasLeft > 0) &&
@@ -634,8 +634,8 @@ function executeShot(holder, team, opp, shotType='normal') {
   holder.match.shots++; team.shots++;
 
   const adv = advance(holder);
-  const dF  = clamp((adv - .50) / .50, .05, 1.0); // 0 en mediocampo, 1 en línea de fondo
-  const aF  = clamp(1 - Math.abs(holder.y - .5) * 1.5, .20, 1.0); // ángulo central mejor
+  const dF  = clamp((adv - .50) / .50, .05, 1.0); // 0 at midfield, 1 at goal line
+  const aF  = clamp(1 - Math.abs(holder.y - .5) * 1.5, .20, 1.0); // better angle from center
 
   // Habilidad del atacante (0-1)
   const atkSk = (effectiveAttr(holder, 'shooting') * .60 +
@@ -899,7 +899,7 @@ function saveMatchResult(){
     const newOverall = calcOverall(p);
     // Guardar mejora para mostrar en la UI
     if (newOverall > prevOverall) {
-      p.lastLevelUp = { season: G.season, jornada: getMyDivision().currentJornada, gain: newOverall - prevOverall };
+      p.lastLevelUp = { season: G.season, jornada: getMyDivision().currentMatchday, gain: newOverall - prevOverall };
     }
   });
 
@@ -927,7 +927,7 @@ function saveMatchResult(){
 function saveLeagueMatchResult(myScore, oppScore){
   const myTeam = getMyTeam();
   const myDiv = getMyDivision();
-  const j = myDiv.currentJornada;
+  const j = myDiv.currentMatchday;
 
   const round = myDiv.calendar[j];
   const fix = round.find(x=>x.home==='player'||x.away==='player');
@@ -953,12 +953,12 @@ function saveLeagueMatchResult(myScore, oppScore){
   // Simulate the OTHER division's jornada too (synchronously)
   const otherDivLevel = G.league.myDivision === 1 ? 2 : 1;
   const otherDiv = G.league.divisions[otherDivLevel];
-  if (otherDiv.currentJornada < otherDiv.calendar.length) {
-    const otherRound = otherDiv.calendar[otherDiv.currentJornada];
+  if (otherDiv.currentMatchday < otherDiv.calendar.length) {
+    const otherRound = otherDiv.calendar[otherDiv.currentMatchday];
     otherRound.forEach(fx => {
       if (!fx.played) simulateAIFixture(fx);
     });
-    otherDiv.currentJornada++;
+    otherDiv.currentMatchday++;
   }
 
   // Record to history
@@ -973,13 +973,13 @@ function saveLeagueMatchResult(myScore, oppScore){
   });
 
   // Advance my jornada
-  myDiv.currentJornada++;
+  myDiv.currentMatchday++;
 
   // Maybe play cup tie now (after every 2-3 league rounds)
   maybeAdvanceCup();
 
   // Season end check
-  if (myDiv.currentJornada >= myDiv.calendar.length) {
+  if (myDiv.currentMatchday >= myDiv.calendar.length) {
     handleSeasonEnd();
   }
 }
@@ -1097,7 +1097,7 @@ function maybeAdvanceCup() {
   const cup = G.league.cup;
   if (cup.completed) return;
   const myDiv = getMyDivision();
-  const j = myDiv.currentJornada;
+  const j = myDiv.currentMatchday;
 
   // For each cup round whose trigger jornada has passed, and player isn't in it, auto-sim
   for (let r = cup.currentRound; r < cup.rounds.length; r++) {
@@ -1195,7 +1195,7 @@ function handleSeasonEnd() {
     G.club.wageBudget = 0;
     G.club.budget = Math.max(0, G.club.budget - deficit);
   }
-  // Reponer presupuesto salarial para la siguiente temporada (basado en nómina actual + margen)
+  // Reponer presupuesto salarial para la siguiente season (basado en nómina actual + margen)
   const newBill = myTeam.squad.reduce((s, p) => s + annualWage(p), 0);
   const wageRefill = Math.round(newBill * 1.12 / 50000) * 50000;
   G.club.wageBudget = Math.max(G.club.wageBudget + wageRefill * 0.3, wageRefill);
@@ -1312,7 +1312,7 @@ function startNewSeason() {
     const div = G.league.divisions[lvl];
     div.teams.forEach(t => { t.stats = {pts:0,pj:0,g:0,e:0,p:0,gf:0,gc:0,dg:0}; });
     div.calendar = generateCalendar(div.teams.map(t=>t.id));
-    div.currentJornada = 0;
+    div.currentMatchday = 0;
   });
   // Reset player season stats
   getAllTeams().forEach(team => {
@@ -1395,7 +1395,7 @@ function decrementInjuries() {
 function simulateAIFixture(fx){
   const h=getTeamById(fx.home),a=getTeamById(fx.away);
   if(!h||!a)return;
-  // Calidad base ± varianza
+  // Quality base ± varianza
   let hq = h.quality + rndI(-5,5);
   let aq = a.quality + rndI(-5,5);
 

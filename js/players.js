@@ -324,9 +324,9 @@ function createSquad(quality, formation, isOpp=false, prefix='') {
 // SALARIOS Y CONTRATOS
 // ============================================================
 
-// Salario semanal basado en media y edad. Escala de ~500 a ~50.000/semana
+// Weekly wage basado en media y edad. Escala de ~500 a ~50.000/wkana
 function calcWeeklySalary(overall, age) {
-  // Escala: media 50 → ~800/sem, media 65 → ~2500/sem, media 80 → ~8000/sem
+  // Escala: media 50 → ~800/wk, media 65 → ~2500/wk, media 80 → ~8000/wk
   const base = Math.pow(Math.max(overall - 45, 1) / 55, 2.0) * 12000;
   const ageMod = age < 24 ? 0.75 : age < 28 ? 1.0 : age < 32 ? 0.90 : 0.75;
   return Math.max(300, Math.round(base * ageMod / 100) * 100);
@@ -358,20 +358,20 @@ function genContract(overall, age) {
 function rescissionCost(p) {
   if (!p.contract) return Math.round(p.value * 0.25 / 1000) * 1000;
   const yearsLeft = p.contract.yearsLeft || 0;
-  // Pagar entre 6 y 18 meses de salario según años restantes
+  // Pagar entre 6 y 18 meses de salario según years remainings
   const months = Math.min(18, Math.max(6, yearsLeft * 7));
   return Math.round((p.contract.salary * 4 * months) / 1000) * 1000;
 }
 
 // Texto descriptivo del contrato
 function contractLabel(p) {
-  if (!p.contract) return 'Sin contrato';
+  if (!p.contract) return 'No contract';
   const y = p.contract.yearsLeft || 0;
-  return `${fmt(p.contract.salary)}/sem · ${y} año${y!==1?'s':''} restante${y!==1?'s':''}`;
+  return `${fmt(p.contract.salary)}/wk · ${y} year${y!==1?'s':''} remaining`;
 }
 function createMatchTeam(squad, formation, tactic, name, side) {
   const pos = FORMATIONS[formation]||FORMATIONS['4-4-2'];
-  // Lesionados Y suspendidos no pueden jugar
+  // Injured AND suspended no pueden jugar
   const available = squad.filter(p => {
     const injured = p.injury && p.injury.jornadasLeft > 0;
     const suspended = p.suspension && p.suspension > 0;

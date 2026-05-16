@@ -84,7 +84,7 @@ function createDivision(divLevel, namesPool, abbrsPool, includePlayer = false, p
       division: divLevel
     });
   }
-  return { id:'div'+divLevel, level:divLevel, name:cfg.name, teams, calendar:generateCalendar(teams.map(t=>t.id)), currentJornada:0 };
+  return { id:'div'+divLevel, level:divLevel, name:cfg.name, teams, calendar:generateCalendar(teams.map(t=>t.id)), currentMatchday:0 };
 }
 
 // Copa: 36 equipos (18 div1 + 18 div2)
@@ -143,7 +143,7 @@ function createLeague(playerDivision, playerFormation, playerTactic, playerSquad
   return {
     divisions: { 1: div1, 2: div2 },
     cup,
-    currentJornada: 0,
+    currentMatchday: 0,
     season: 1,
     myDivision: playerDivision
   };

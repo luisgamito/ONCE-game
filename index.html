@@ -276,22 +276,22 @@
         <select id="setupTactic">
           <optgroup id="optgroupPos" label="Possession">
             <option value="tikitaka">🔵 Tiki-Taka</option>
-            <option value="possession">⚙️ Posesión</option>
-            <option value="positional">♟️ Juego de posición</option>
+            <option value="possession">⚙️ Possession</option>
+            <option value="positional">♟️ Positional Play</option>
             <option value="vertical">⬆️ Vertical</option>
           </optgroup>
           <optgroup id="optgroupPres" label="Pressing">
             <option value="gegenpressing">🔥 Gegenpressing</option>
-            <option value="pressing" selected>🟠 Presión alta</option>
+            <option value="pressing" selected>🟠 High Press</option>
           </optgroup>
           <optgroup id="optgroupDef" label="Defensive">
-            <option value="counter">⚡ Contraataque</option>
-            <option value="parking">🧱 Bloque bajo</option>
+            <option value="counter">⚡ Counter-attack</option>
+            <option value="parking">🧱 Low Block</option>
           </optgroup>
           <optgroup id="optgroupOth" label="Other">
-            <option value="direct">🎯 Juego directo</option>
-            <option value="wing">↔️ Juego por bandas</option>
-            <option value="balanced">⚖️ Equilibrado</option>
+            <option value="direct">🎯 Direct Play</option>
+            <option value="wing">↔️ Wing Play</option>
+            <option value="balanced">⚖️ Balanced</option>
           </optgroup>
         </select>
       </div>
@@ -561,7 +561,7 @@
         <div class="match-tab active" onclick="switchMatchTab('log')">LOG</div>
         <div class="match-tab" onclick="switchMatchTab('stats')">STATS</div>
         <div class="match-tab" onclick="switchMatchTab('squad')">JUGADORES</div>
-        <div class="match-tab" onclick="switchMatchTab('manage')">GESTIÓN</div>
+        <div class="match-tab" onclick="switchMatchTab('manage')">MANAGEMENT</div>
       </div>
 
       <!-- LOG -->
@@ -591,7 +591,7 @@
       <!-- MANAGE -->
       <div class="match-panel" id="mpanel-manage">
         <div class="manage-scroll">
-          <div class="sidebar-label" style="padding:10px 10px 0">CAMBIO DE TÁCTICA</div>
+          <div class="sidebar-label" style="padding:10px 10px 0">TACTIC CHANGE</div>
           <div style="padding:8px 10px">
             <div class="tactic-live-row" id="tacticLiveRow">
               <div class="tactic-chip" data-tactic="tikitaka" title="Tiki-Taka: total possession with immediate press" data-i18n="tacTikitaka">🔵 Tiki-Taka</div>
@@ -607,7 +607,7 @@
               <div class="tactic-chip" data-tactic="balanced" title="Balanced: no extremes, solid" data-i18n="tacBalanced">⚖️ Balanced</div>
             </div>
           </div>
-          <div class="sidebar-label" style="padding:10px 10px 0">SUSTITUCIONES</div>
+          <div class="sidebar-label" style="padding:10px 10px 0">SUBSTITUTIONS</div>
           <div class="subs-remaining" id="subsRemaining">5 cambios disponibles</div>
           <div style="padding:0 10px">
             <div id="subsPlanned"></div>

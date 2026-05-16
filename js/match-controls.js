@@ -41,7 +41,7 @@ function switchMatchTab(t){
   document.getElementById(`mpanel-${t}`).classList.add('active');
 }
 function abandonMatch(){
-  if(!confirm('¿Abandonar el partido? El resultado se registrará 0-3'))return;
+  if(!confirm('Abandon match? The result will be recorded as 0-3'))return;
   clearInterval(simInterval);isPlaying=false;
   match.state='finished';
   match.teamA.score=match.myIsHome?0:3;

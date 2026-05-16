@@ -83,16 +83,16 @@ function showSeasonSummary() {
   const myTeam = getMyTeam();
   let outcome, description, color;
   if (s.promoted) {
-    outcome = '¡ASCENSO!'; color = 'var(--green)';
-    description = `Tu club asciende a Primera División tras quedar ${s.finalPos}º`;
+    outcome = 'PROMOTED!'; color = 'var(--green)';
+    description = `Promoted to First Division after finishing ${s.finalPos}${ord(s.finalPos)}`;
   } else if (s.relegated) {
     outcome = 'DESCENSO'; color = 'var(--red)';
-    description = `Tu club desciende a Segunda División tras quedar ${s.finalPos}º`;
+    description = `Relegated to Second Division after finishing ${s.finalPos}${ord(s.finalPos)}`;
   } else if (s.finalPos === 1) {
-    outcome = '¡CAMPEÓN!'; color = 'var(--gold)';
+    outcome = 'CHAMPIONS!'; color = 'var(--gold)';
     description = `Tu club gana la ${myDiv.name}`;
   } else {
-    outcome = `${s.finalPos}º LUGAR`; color = 'var(--accent)';
+    outcome = `${s.finalPos}${ord(s.finalPos)} PLACE`; color = 'var(--accent)';
     description = `Season completada en ${myDiv.name}`;
   }
   document.getElementById('ssOutcome').textContent = outcome;
@@ -102,7 +102,7 @@ function showSeasonSummary() {
   // Body: prize money, top scorer, key events
   const topScorer = [...myTeam.squad].sort((a,b)=>b.season.goals-a.season.goals)[0];
   const cup = G.league.cup;
-  const cupResult = cup.completed && cup.winner === 'player' ? '🏆 CAMPEÓN DE COPA' : '';
+  const cupResult = cup.completed && cup.winner === 'player' ? '🏆 CUP WINNERS' : '';
 
   document.getElementById('ssBody').innerHTML = `
     <div class="records-grid" style="margin-bottom:16px">
@@ -125,40 +125,40 @@ function showSeasonSummary() {
       <div class="pmc-mvp">
         <div class="pmc-mvp-badge">${topScorer.pos}</div>
         <div class="pmc-mvp-info">
-          <div class="pmc-mvp-label">⚽ ${topScorer.season.goals} GOLES EN ${topScorer.season.gamesPlayed} PARTIDOS</div>
+          <div class="pmc-mvp-label">⚽ ${topScorer.season.goals} GOALS IN ${topScorer.season.gamesPlayed} MATCHES</div>
           <div class="pmc-mvp-name">${topScorer.name}</div>
-          <div class="pmc-mvp-detail">${topScorer.age} años · MEDIA ${calcOverall(topScorer)}</div>
+          <div class="pmc-mvp-detail">${topScorer.age} yrs · OVR ${calcOverall(topScorer)}</div>
         </div>
       </div>` : ''}
-    <div class="section-title">Finanzas de temporada</div>
+    <div class="section-title">Finanzas de season</div>
     <div style="background:var(--bg3);padding:12px;border:1px solid var(--border);font-size:12px;color:var(--text-dim)">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <span>Nómina pagada:</span>
+        <span>Wages paid:</span>
         <span style="color:var(--red);font-family:var(--font-mono)">-${fmt(s.wagesPaid || 0)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <span>Premio de liga:</span>
+        <span>League prize:</span>
         <span style="color:var(--green);font-family:var(--font-mono)">+${fmt(s.leaguePrize)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:6px;margin-top:6px">
-        <span style="color:var(--text)">Presupuesto fichajes:</span>
+        <span style="color:var(--text)">Transfer budget:</span>
         <span style="color:var(--gold);font-family:var(--font-mono);font-weight:700">${fmt(G.club.budget)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:4px">
-        <span style="color:var(--text)">Presupuesto salarial:</span>
+        <span style="color:var(--text)">Wage budget:</span>
         <span style="color:var(--accent);font-family:var(--font-mono)">${fmt(G.club.wageBudget || 0)}</span>
       </div>
     </div>
     ${s.expiredContracts && s.expiredContracts.length > 0 ? `
       <div style="margin-top:12px;padding:10px 12px;background:rgba(255,85,113,0.06);border:1px solid rgba(255,85,113,0.25);font-size:11px">
-        <div style="color:var(--red);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px">⚠️ CONTRATOS EXPIRADOS</div>
+        <div style="color:var(--red);font-family:var(--font-display);letter-spacing:1px;margin-bottom:6px">⚠️ EXPIRED CONTRACTS</div>
         <div style="color:var(--text-dim)">${s.expiredContracts.join(', ')} ${t('expiredDesc', '').replace('undefined ', '')}</div>
       </div>` : ''}
     ${s.promoted || s.relegated ? `
       <div style="margin-top:16px;padding:12px;background:${s.promoted?'rgba(0,230,118,0.06)':'rgba(255,61,90,0.06)'};border:1px solid ${s.promoted?'var(--green)':'var(--red)'};font-size:12px">
         ${s.promoted
           ? `<strong style="color:var(--green)">+${fmt(PROMOTION_BONUS)}</strong> promotion bonus. Next season you play in ${divName(divName(G.league.divisions[1].name))}.`
-          : `Próxima temporada juegas en ${divName(divName(G.league.divisions[2].name))}. Time to rebuild.`}
+          : `Next season you play in ${divName(divName(G.league.divisions[2].name))}. Time to rebuild.`}
       </div>` : ''}
   `;
   document.getElementById('seasonSummaryOverlay').classList.add('show');

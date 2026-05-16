@@ -6,7 +6,7 @@ function initHub() {
   document.getElementById('hubBadge').textContent = G.club.abbr;
   document.getElementById('hubBadge').style.color = isDark(G.club.color)?'#fff':'#000';
   document.getElementById('hubTeamName').textContent = G.club.name;
-  document.getElementById('hubSeason').textContent = `${t('matchdayShort', myDiv.currentJornada+1)} · ${divName(myDiv.name)} · S${G.season}`;
+  document.getElementById('hubSeason').textContent = `${t('matchdayShort', myDiv.currentMatchday+1)} · ${divName(myDiv.name)} · S${G.season}`;
   document.getElementById('hubFormationSelect').value = G.club.formation;
   updateTacticChips('hubTacticRow', G.club.tactic);
 
@@ -44,9 +44,9 @@ function updateBudgetSidebar() {
   const myDiv2 = getMyDivision();
   const dateEl = document.getElementById('sidebarDateLine');
   if (dateEl && myDiv2) {
-    const j = myDiv2.currentJornada;
+    const j = myDiv2.currentMatchday;
     const dateStr = jornadaDateStr(j, G.season, _lang);
-    const jLabel = j === 0 ? (_lang === 'en' ? 'Pre-season' : 'Pretemporada') : (_lang === 'en' ? `Matchday ${j}` : `Jornada ${j}`);
+    const jLabel = j === 0 ? (_lang === 'en' ? 'Pre-season' : 'Preseason') : (_lang === 'en' ? `Matchday ${j}` : `Matchday ${j}`);
     dateEl.innerHTML = `<span style="color:var(--text-dim)">${jLabel}</span> <span style="color:var(--text-muted)">·</span> <span style="color:var(--text-muted)">${dateStr}</span>`;
   }
   const myTeam = getMyTeam();
@@ -87,7 +87,7 @@ function getMyTeam() {
 
 function getNextFixture() {
   const div = getMyDivision();
-  const j = div.currentJornada;
+  const j = div.currentMatchday;
   if (j>=div.calendar.length) return null;
   const round = div.calendar[j];
   return round.find(f=> f.home==='player'||f.away==='player');
@@ -109,7 +109,7 @@ function shouldPlayCupNext() {
   const cup = G.league.cup;
   if (!cup || cup.completed) return false;
   const myDiv = getMyDivision();
-  const j = myDiv.currentJornada;
+  const j = myDiv.currentMatchday;
 
   // For each cup round not yet started, check if we've reached its trigger jornada
   for (let r = cup.currentRound; r < cup.rounds.length; r++) {
@@ -165,9 +165,9 @@ function getNextEvent() {
 function renderNextMatch() {
   const event = getNextEvent();
   const myDiv = getMyDivision();
-  document.getElementById('homeJornada').textContent = `${t('matchdayLabel', myDiv.currentJornada+1)} · ${divName(myDiv.name)}`;
+  document.getElementById('homeMatchday').textContent = `${t('matchdayLabel', myDiv.currentMatchday+1)} · ${divName(myDiv.name)}`;
   if (!event) {
-    document.getElementById('nextMatchTeams').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Temporada completada</div>';
+    document.getElementById('nextMatchTeams').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Season completada</div>';
     document.getElementById('nextMatchMeta').innerHTML = '';
     return;
   }
@@ -176,7 +176,7 @@ function renderNextMatch() {
     const f = event.fixture;
     homeT = getTeamById(f.home); awayT = getTeamById(f.away);
     isHome = f.home==='player';
-    label = `Jornada ${myDiv.currentJornada+1}`;
+    label = `Matchday ${myDiv.currentMatchday+1}`;
   } else {
     const t = event.tie;
     homeT = getTeamById(t.home); awayT = getTeamById(t.away);
@@ -203,7 +203,7 @@ function renderNextMatch() {
     <div class="nm-meta-item"><div class="nm-meta-label">${t('competition')}</div><div class="nm-meta-val" style="color:${event.type==='cup'?'var(--gold)':'var(--accent)'}">${badge}</div></div>
     <div class="nm-meta-item"><div class="nm-meta-label">${event.type==='league'?t('matchdayLabel', event.jornada||1):t('roundLabel')}</div><div class="nm-meta-val">${label}</div></div>
     <div class="nm-meta-item"><div class="nm-meta-label">Campo</div><div class="nm-meta-val">${isHome?'LOCAL':'VISITANTE'}</div></div>
-    <div class="nm-meta-item"><div class="nm-meta-label">Temporada</div><div class="nm-meta-val">${G.season}</div></div>`;
+    <div class="nm-meta-item"><div class="nm-meta-label">Season</div><div class="nm-meta-val">${G.season}</div></div>`;
 }
 
 function renderRecentResults() {
@@ -229,7 +229,7 @@ function renderLeaguePos() {
   const myT = getMyTeam();
   document.getElementById('homeLeaguePos').innerHTML = `
     <div style="display:flex;align-items:center;gap:16px;padding:8px">
-      <div style="font-family:var(--font-display);font-size:48px;font-weight:700;color:${G.club.color}">${myPos}${_lang==='en'?(['st','nd','rd'][myPos-1]||'th'):'º'}</div>
+      <div style="font-family:var(--font-display);font-size:48px;font-weight:700;color:${G.club.color}">${myPos}${ord(myPos)}</div>
       <div>
         <div style="font-size:12px;color:var(--text-muted)">de ${sorted.length} equipos</div>
         <div style="font-family:var(--font-mono);font-size:13px;margin-top:4px">${myT.stats.pts} PTS &nbsp; ${myT.stats.gf}GF &nbsp; ${myT.stats.gc}GC</div>
@@ -336,11 +336,11 @@ function renderCalendario() {
         <span style="flex:1;text-align:right">${h?.name||'?'}</span>
         <span style="font-family:var(--font-mono);font-weight:600">${f.played?f.scoreH+'-'+f.scoreA:'vs'}</span>
         <span style="flex:1">${a?.name||'?'}</span>
-        ${j===myDiv.currentJornada&&!f.played?`<span style="font-size:9px;color:var(--accent);letter-spacing:1px">${t('nextMatch')}</span>`:''}
+        ${j===myDiv.currentMatchday&&!f.played?`<span style="font-size:9px;color:var(--accent);letter-spacing:1px">${t('nextMatch')}</span>`:''}
       </div>`;
     }).join('');
     return `<div class="card" style="margin-bottom:8px">
-      <div class="card-header"><span class="card-title">Jornada ${j+1}</span>${j<myDiv.currentJornada?'<span style="font-size:10px;color:var(--green)">✓ Played</span>':''}</div>
+      <div class="card-header"><span class="card-title">Matchday ${j+1}</span>${j<myDiv.currentMatchday?'<span style="font-size:10px;color:var(--green)">✓ Played</span>':''}</div>
       ${roundFixtures}
     </div>`;
   }).join('');
@@ -378,9 +378,9 @@ function renderSquad() {
     const slot      = formSlots[slotIdx] || { pos: p.pos };
 
     const statusIcon = injured   ? `<span title="${p.injury.type} — ${p.injury.jornadasLeft}" style="color:var(--red)">🩹</span>`
-                     : suspended ? `<span title="${_lang==='en'?'Suspended':'Sancionado'} — ${p.suspension}j" style="color:var(--red)">🟥</span>`
+                     : suspended ? `<span title="${_lang==='en'?'Suspended':'Suspended'} — ${p.suspension}j" style="color:var(--red)">🟥</span>`
                      : warned    ? `<span title="${t('warned')}" style="color:var(--yellow)">⚠️</span>`
-                     : p.listedForSale ? `<span title="${_lang==='en'?'Listed: ':'Ofrecido: '}${fmt(p.askingPrice)}" style="color:var(--accent)">💰</span>`
+                     : p.listedForSale ? `<span title="${_lang==='en'?'Listed: ':'Listed: '}${fmt(p.askingPrice)}" style="color:var(--accent)">💰</span>`
                      : '';
 
     const xpPct = p.age < 27 && p.potential > overall
@@ -389,8 +389,8 @@ function renderSquad() {
       ? `<div style="width:${Math.min(xpPct,100)}%;height:2px;background:var(--purple);border-radius:1px;margin-top:2px"></div>` : '';
 
     const contractStr = p.contract
-      ? `${fmt(p.contract.salary)}${_lang==='en'?'/wk':(_lang==='en'?'/wk':'/sem')} · ${p.contract.yearsLeft||0}${_lang==='en'?'y':'a'}`
-      : 'Sin contrato';
+      ? `${fmt(p.contract.salary)}/wk · ${p.contract.yearsLeft||0}y`
+      : 'No contract';
     const contractColor = (p.contract?.yearsLeft||0) <= 1 ? 'var(--red)' : 'var(--text-muted)';
 
     return `<div class="sq-row ${injured||suspended?'sq-unavailable':''}"
@@ -450,7 +450,7 @@ function squadRowClick(e, pid) {
   if (p.inSquad) {
     // Es TITULAR
     if (unavailable) {
-      // Lesionado o sancionado en el 11 → forzar reemplazo
+      // Injured o sancionado en el 11 → forzar reemplazo
       const reason = injured ? t('ctxInjured', p.injury.jornadasLeft+'j') : t('ctxSuspended', p.suspension+'j');
       items.push(`<div class="ctx-label" style="color:var(--red)">${reason} — reemplazar:</div>`);
       const availBench = myTeam.squad.filter(pl => !pl.inSquad && !(pl.injury?.jornadasLeft > 0) && !(pl.suspension > 0));
@@ -467,7 +467,7 @@ function squadRowClick(e, pid) {
         });
       }
     } else {
-      // Titular sano → opciones normales
+      // Starter sano → opciones normales
       const slotIdx = starters.findIndex(pl => pl.id === pid);
       const slot = formSlots[slotIdx] || { pos: p.pos };
       items.push(`<div class="ctx-label">${t('ctxStarter', slot.pos)}</div>`);
@@ -528,7 +528,7 @@ function squadRowClick(e, pid) {
   }
 
   items.push(`<div class="ctx-divider"></div>`);
-  // Ofrecer al mercado (solo en ventana abierta)
+  // List for transfer (solo on salena abierta)
   if (isTransferWindowOpen()) {
     const saleLabel = p.listedForSale ? t('ctxEditListing') : t('ctxListForSale');
     items.push(`<div class="ctx-item" onclick="closeSquadCtx();listPlayerForSale('${pid}')">${saleLabel}</div>`);
@@ -678,13 +678,13 @@ function renderStats() {
 // Winter window: jornadas 16-17 (mid-season)
 // End of season: handled via season summary (budget available for next season)
 function isTransferWindowOpen() {
-  const j = getMyDivision().currentJornada;
+  const j = getMyDivision().currentMatchday;
   return getTransferWindowInfo(j).open;
 }
 
 function getTransferWindowStatus() {
   const myDiv = getMyDivision();
-  const j = myDiv.currentJornada;
+  const j = myDiv.currentMatchday;
   const info = getTransferWindowInfo(j);
   const season = G.season || 1;
 
@@ -700,7 +700,7 @@ function getTransferWindowStatus() {
     return {
       open: true,
       label,
-      desc: `Cierre: ${closeDate}`,
+      desc: `Closes: ${closeDate}`,
       window: info.window
     };
   }
@@ -735,7 +735,7 @@ function renderTransferList() {
   const badge = document.getElementById('transferWindowBadge');
   const msg   = document.getElementById('transferWindowMsg');
   const myDiv = getMyDivision();
-  const currentDate = jornadaDateStr(myDiv.currentJornada, G.season, _lang);
+  const currentDate = jornadaDateStr(myDiv.currentMatchday, G.season, _lang);
 
   if (status.open) {
     badge.textContent = status.label;
@@ -753,7 +753,7 @@ function renderTransferList() {
   }
 
   const cfg = DIV_CFG[G.league.myDivision];
-  const windowInfo = getTransferWindowInfo(myDiv.currentJornada);
+  const windowInfo = getTransferWindowInfo(myDiv.currentMatchday);
   const windowKey = `${G.season}_${windowInfo.window || 'pre'}`;
   if (!G._transferPool || G._transferWindowKey !== windowKey) {
     G._transferPool = [];
@@ -834,7 +834,7 @@ function renderTransferList() {
     return `<div class="transfer-item">
       <div>
         <div class="ti-name">${p.name}${potHint}</div>
-        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age}</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}${_lang==='en'?'/wk':(_lang==='en'?'/wk':'/sem')}</span>${wageWarn}</div>
+        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age}</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}${_lang==='en'?'/wk':(_lang==='en'?'/wk':'/wk')}</span>${wageWarn}</div>
       </div>
       <div class="ti-price">${fmt(p.value)}</div>
       <button class="btn-sign" onclick="openNegModal(${realIdx})" ${canAfford?'':'style="opacity:0.4;cursor:not-allowed"'} ${canAfford?'':'disabled'}>NEGOCIAR</button>

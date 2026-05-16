@@ -22,7 +22,7 @@ function openPlayerModal(playerId) {
     : suspended
     ? `<span style="color:var(--red);margin-left:8px">🟥 SANCIONADO — ${p.suspension} partido${p.suspension!==1?'s':''}</span>`
     : warned
-    ? `<span style="color:var(--yellow);margin-left:8px">⚠️ AMONESTADO — próxima amarilla = sanción</span>`
+    ? `<span style="color:var(--yellow);margin-left:8px">⚠️ BOOKED — next yellow = suspension</span>`
     : '';
   document.getElementById('pm-name').innerHTML = `${p.name}${injStatus}`;
   // Vague potential estimate (only show range for own players)
@@ -33,7 +33,7 @@ function openPlayerModal(playerId) {
     else if (gap > 6) potText = ' · POT ★★';
     else if (gap > 2) potText = ' · POT ★';
   }
-  document.getElementById('pm-meta').textContent = `${p.pos} · ${p.age} años · MEDIA ${overall}${potText} · Valor: ${fmt(p.value)}`;
+  document.getElementById('pm-meta').textContent = `${p.pos} · ${p.age} yrs · OVR ${overall}${potText} · Valor: ${fmt(p.value)}`;
 
   const attrKeys = [['speed','Speed'],['technique','Technique'],['shooting','Shooting'],['defense','Defence'],['physical','Physical'],['vision','Vision'],['mentality','Mentality'],['positioning','Positioning'],['reflexes','Reflexes']];
   document.getElementById('pm-attrs').innerHTML = attrKeys.map(([k,label])=>{
@@ -101,7 +101,7 @@ function openPlayerModal(playerId) {
         </button>` : ''}
         <button class="btn" style="border-color:var(--red);color:var(--red)"
           onclick="releasePlayer('${p.id}', ${compensation})">
-          ✕ RESCINDIR
+          ✕ RELEASE
         </button>
       </div>
     </div>`;
