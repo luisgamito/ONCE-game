@@ -53,9 +53,9 @@ function renderPendingOffers() {
         for <strong>${offer.playerName}</strong> (${offer.playerPos} · ${offer.playerOverall})
       </div>
       <div class="offer-toast-actions">
-        <button class="toast-btn accept" onclick="acceptRivalOffer('${offer.id}')">✓ ACCEPT</button>
-        <button class="toast-btn counter" onclick="counterRivalOffer('${offer.id}')">↔ COUNTER</button>
-        <button class="toast-btn reject" onclick="rejectRivalOffer('${offer.id}')">✕ REJECT</button>
+        <button class="toast-btn accept" onclick="acceptRivalOffer('${offer.id}')">✓ ACEPTAR</button>
+        <button class="toast-btn counter" onclick="counterRivalOffer('${offer.id}')">↔ PEDIR MÁS</button>
+        <button class="toast-btn reject" onclick="rejectRivalOffer('${offer.id}')">✕ RECHAZAR</button>
       </div>`;
     inbox.appendChild(toast);
   });
@@ -177,12 +177,12 @@ function listPlayerForSale(pid) {
       <div class="neg-player-header">
         <div class="neg-player-name">OFRECER AL MERCADO</div>
         <div class="neg-player-name" style="font-size:15px;margin-top:4px">${p.name}</div>
-        <div class="neg-player-meta">${p.pos} · ${p.age}a · OVR ${overall}</div>
+        <div class="neg-player-meta">${p.pos} · ${p.age}a · MEDIA ${overall}</div>
       </div>
       <div class="neg-body">
-        ${p.listedForSale ? `<div style="padding:8px 0;font-size:11px;color:var(--yellow)">⚠️ Already listed at ${fmt(p.askingPrice)}. You can change the price or remove the listing.</div>` : ''}
+        ${p.listedForSale ? `<div style="padding:8px 0;font-size:11px;color:var(--yellow)">⚠️ Ya está ofrecido a ${fmt(p.askingPrice)}. Puedes cambiar el precio o retirar la oferta.</div>` : ''}
         <div class="neg-price-row">
-          <span class="neg-price-label">Asking price</span>
+          <span class="neg-price-label">Precio mínimo</span>
           <span class="neg-price-val" id="listingPriceVal">${fmt(suggested)}</span>
         </div>
         <div class="neg-slider-wrap">
@@ -202,8 +202,8 @@ function listPlayerForSale(pid) {
           Los equipos rivales pueden hacer ofertas durante la ventana de fichajes.
         </div>
         <div class="neg-actions">
-          <button class="btn accent" onclick="confirmListing('${pid}')">📢 LIST</button>
-          ${p.listedForSale ? `<button class="btn" style="border-color:var(--red);color:var(--red)" onclick="withdrawListing('${pid}')">✕ REMOVE</button>` : ''}
+          <button class="btn accent" onclick="confirmListing('${pid}')">📢 OFRECER</button>
+          ${p.listedForSale ? `<button class="btn" style="border-color:var(--red);color:var(--red)" onclick="withdrawListing('${pid}')">✕ RETIRAR</button>` : ''}
           <button class="btn" onclick="document.getElementById('listingModal').remove()">CANCEL</button>
         </div>
       </div>

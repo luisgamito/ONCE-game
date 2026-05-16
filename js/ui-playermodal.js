@@ -33,9 +33,9 @@ function openPlayerModal(playerId) {
     else if (gap > 6) potText = ' · POT ★★';
     else if (gap > 2) potText = ' · POT ★';
   }
-  document.getElementById('pm-meta').textContent = `${p.pos} · ${p.age} yrs · OVR ${overall}${potText} · Valor: ${fmt(p.value)}`;
+  document.getElementById('pm-meta').textContent = `${p.pos} · ${p.age} yrs · MEDIA ${overall}${potText} · Valor: ${fmt(p.value)}`;
 
-  const attrKeys = [['speed','Speed'],['technique','Technique'],['shooting','Shooting'],['defense','Defence'],['physical','Physical'],['vision','Vision'],['mentality','Mentality'],['positioning','Positioning'],['reflexes','Reflexes']];
+  const attrKeys = [['speed','Velocidad'],['technique','Técnica'],['shooting','Disparo'],['defense','Defensa'],['physical','Físico'],['vision','Visión'],['mentality','Mentalidad'],['positioning','Posición'],['reflexes','Reflejos']];
   document.getElementById('pm-attrs').innerHTML = attrKeys.map(([k,label])=>{
     const v = p.attr[k];
     if (v == null) return '';
@@ -86,8 +86,8 @@ function openPlayerModal(playerId) {
       <div style="font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:8px">CONTRATO</div>
       <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">
         ${p.contract
-          ? `<strong style="color:var(--text)">${contractLabel(p)}</strong><br><span style="color:var(--text-muted)">Release fee: ${fmt(compensation)}</span>`
-          : 'No formal contract.'}
+          ? `<strong style="color:var(--text)">${contractLabel(p)}</strong><br><span style="color:var(--text-muted)">Rescisión: ${fmt(compensation)}</span>`
+          : 'Sin contrato formal.'}
       </div>
       ${saleInfo}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -101,7 +101,7 @@ function openPlayerModal(playerId) {
         </button>` : ''}
         <button class="btn" style="border-color:var(--red);color:var(--red)"
           onclick="releasePlayer('${p.id}', ${compensation})">
-          ✕ RELEASE
+          ✕ RESCINDIR
         </button>
       </div>
     </div>`;

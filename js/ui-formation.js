@@ -49,11 +49,11 @@ function renderFormationPitch() {
       const suspended = p.suspension && p.suspension > 0;
       const warned = !suspended && p.season && p.season.yellows > 0 && (p.season.yellows % 5 === 4);
       const shortName = p.name.split(' ')[1]||p.name.slice(0,8);
-      const statusSuffix = suspended ? ' · 🟥 SUSPENDED' : warned ? ' · ⚠️ BOOKED' : injured ? ' · INJURED' : '';
+      const statusSuffix = suspended ? ' · 🟥 SANCIONADO' : warned ? ' · ⚠️ AMONESTADO' : injured ? ' · LESIONADO' : '';
       return `<div class="bench-player ${injured?'injured':suspended?'suspended':''}"
           data-pid="${p.id}"
           draggable="${(injured||suspended)?'false':'true'}"
-          title="${p.name} · ${p.pos} · OVR ${overall}${statusSuffix}">
+          title="${p.name} · ${p.pos} · MEDIA ${overall}${statusSuffix}">
         <span class="bp-pos" style="color:${posColor(p.pos)}">${p.pos}</span>
         <span class="bp-name">${shortName}</span>
         <span class="bp-rating">${overall}</span>

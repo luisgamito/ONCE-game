@@ -12,7 +12,7 @@ let subPendingOut = null;
 
 function startMatch() {
   const event = getNextEvent();
-  if (!event) { alert('No more matches this season'); return; }
+  if (!event) { alert('No hay más partidos en esta temporada'); return; }
 
   let oppId, myIsHome, competition, eventLabel;
   if (event.type === 'league') {
@@ -511,7 +511,7 @@ function executePass(holder,team,opp,passType='normal'){
   team.passes++;holder.match.passes++;
   const cfg=effectiveTactic(team.tactic);
   const tm=fieldP(team).filter(p=>p!==holder);
-  if(!tm.length)return finishTick(`${holder.name} loses the ball`,'normal');
+  if(!tm.length)return finishTick(`${holder.name} pierde el balón`,'normal');
   const myAdv=team.side==='A'?holder.x:1-holder.x;
 
   let cands=tm.map(t=>{
@@ -549,11 +549,11 @@ function executePass(holder,team,opp,passType='normal'){
     return {p:t, sc, od, pd, isWide, isFwd};
   });
   cands.sort((a,b)=>b.sc-a.sc);
-  if(!cands.length)return finishTick(`${holder.name} loses the ball`,'normal');
+  if(!cands.length)return finishTick(`${holder.name} pierde el balón`,'normal');
 
   // Tactica con vision baja → escoge entre top opciones (más errático)
   let td = chance(.15) && cands.length>3 ? cands[Math.floor(rnd(1,Math.min(4,cands.length)))] : cands[0];
-  if(!td||!td.p)return finishTick(`${holder.name} loses the ball`,'normal');
+  if(!td||!td.p)return finishTick(`${holder.name} pierde el balón`,'normal');
 
   const tgt = td.p;
   const sk = (effectiveAttr(holder,'technique')*.5 + effectiveAttr(holder,'vision')*.5)/100;
@@ -590,10 +590,10 @@ function executePass(holder,team,opp,passType='normal'){
     holder.match.passSuccess++;
     match.ballHolder=tgt; match.ballX=tgt.x; match.ballY=tgt.y;
     let msg;
-    if(passType==='final' && ta>.82) msg = `${holder.name} plays the final ball → ${tgt.name}`;
+    if(passType==='final' && ta>.82) msg = `${holder.name} pone el último pase → ${tgt.name}`;
     else if(td.pd > .40) msg = `Long ball from ${holder.name} → ${tgt.name}`;
-    else if(fwd>.05) msg = `${holder.name} advances → ${tgt.name}`;
-    else if(fwd<-.05) msg = `${holder.name} plays back to ${tgt.name}`;
+    else if(fwd>.05) msg = `${holder.name} progresa → ${tgt.name}`;
+    else if(fwd<-.05) msg = `${holder.name} la atrasa a ${tgt.name}`;
     else msg = `${holder.name} → ${tgt.name}`;
     return finishTick(msg,'normal');
   }
@@ -609,7 +609,7 @@ function executePass(holder,team,opp,passType='normal'){
     }
   }
   match.ballHolder=tgt; match.ballX=tgt.x; match.ballY=tgt.y;
-  return finishTick(`${holder.name} finds ${tgt.name} under pressure`,'normal');
+  return finishTick(`${holder.name} entrega el balón con dificultad a ${tgt.name}`,'normal');
 }
 
 // Registrar transición
@@ -628,7 +628,7 @@ function executeShot(holder, team, opp, shotType='normal') {
     holder.match.goals++;
     holder.match.rating = clamp(holder.match.rating + 1.5, 0, 10);
     team.score++; updateMatchScore(); showGoalOverlay(); resetKickoff(opp.side);
-    return finishTick(`⚽ GOAL! ${holder.name.toUpperCase()} — empty net (${match.teamA.score}–${match.teamB.score})`, 'event-goal');
+    return finishTick(`⚽ ¡GOL DE ${holder.name.toUpperCase()}! Portería vacía (${match.teamA.score}–${match.teamB.score})`, 'event-goal');
   }
 
   holder.match.shots++; team.shots++;
@@ -651,7 +651,7 @@ function executeShot(holder, team, opp, shotType='normal') {
     const msg = shotType === 'long'
       ? `${holder.name} tries from distance — off target`
       : adv > .80
-        ? `Disparo de ${holder.name} — ${chance(.5) ? 'hits the post' : 'just wide'}`
+        ? `Disparo de ${holder.name} — ${chance(.5) ? 'al palo' : 'fuera por poco'}`
         : `${holder.name} shoots — off target`;
     return finishTick(msg, 'event-shot');
   }
@@ -680,7 +680,7 @@ function executeShot(holder, team, opp, shotType='normal') {
       const cy  = holder.y < .5 ? rnd(.12, .28) : rnd(.72, .88);
       const tkr = fieldP(team).find(p => ['LW','RW','CAM','CM'].includes(p.pos)) || fieldP(team).find(p => p !== holder);
       if (tkr) { tkr.x = cx; tkr.y = cy; match.ballHolder = tkr; match.ballX = cx; match.ballY = cy; }
-      return finishTick(`Great shot by ${holder.name}! ${gk.name} tips it over`, 'event-shot');
+      return finishTick(`¡Gran disparo de ${holder.name}! ${gk.name} lo manda a córner`, 'event-shot');
     }
     match.possession = opp.side; match.ballHolder = gk; match.ballX = gk.x; match.ballY = gk.y;
     return finishTick(`SAVE by ${gk.name}! ${holder.name}'s shot stopped`, 'event-save');
@@ -694,7 +694,7 @@ function executeShot(holder, team, opp, shotType='normal') {
   updateMatchScore(); showGoalOverlay(); addedTime(2);
 
   const msg = shotType === 'long'
-    ? `⚽ GOLAZO! ${holder.name.toUpperCase()} from outside the box (${match.teamA.score}–${match.teamB.score})`
+    ? `⚽ ¡GOLAZO DE ${holder.name.toUpperCase()}! Desde fuera del área (${match.teamA.score}–${match.teamB.score})`
     : adv > .90 && chance(.35)
       ? `⚽ GOAL! ${holder.name.toUpperCase()} finishes clinically (${match.teamA.score}–${match.teamB.score})`
       : `⚽ GOAL! ${holder.name.toUpperCase()} — ${gk.name} no llega (${match.teamA.score}–${match.teamB.score})`;
@@ -721,7 +721,7 @@ function executeDribble(holder,team,opp,defender){
     defender.match.tackles++;defender.match.rating=clamp(defender.match.rating+.10,0,10);
     return finishTick(`${defender.name} tackles ${holder.name}`,'normal');
   }
-  return finishTick(`${holder.name} loses control briefly`,'normal');
+  return finishTick(`${holder.name} pierde el control momentáneamente`,'normal');
 }
 
 function executeInterception(holder,team,opp,interceptor){
@@ -740,10 +740,10 @@ function executeFoul(holder,team,opp,fouler){
   let cardMsg='',logType='event-foul';
   if(fouler.cards.yellow>=1&&cr<.30){
     fouler.cards.yellow++;fouler.cards.red=true;fouler.onField=false;
-    opp.yellows++;opp.reds++;cardMsg=` 🟥 SECOND YELLOW! ${fouler.name} SENT OFF`;logType='event-card-red';addedTime(2);
+    opp.yellows++;opp.reds++;cardMsg=` 🟥 ¡SEGUNDA AMARILLA! ${fouler.name} EXPULSADO`;logType='event-card-red';addedTime(2);
   }else if(cr<.05){
     fouler.cards.red=true;fouler.onField=false;opp.reds++;
-    cardMsg=` 🟥 RED CARD! ${fouler.name} SENT OFF`;logType='event-card-red';addedTime(2);
+    cardMsg=` 🟥 ¡ROJA DIRECTA! ${fouler.name} EXPULSADO`;logType='event-card-red';addedTime(2);
   }else if(cr<.30){
     fouler.cards.yellow++;opp.yellows++;cardMsg=` 🟨 Tarjeta amarilla a ${fouler.name}`;logType='event-card-yellow';
   }
@@ -815,7 +815,7 @@ function checkPeriodEnd(){
       // Apply half-time subs
       applyPendingSubsHalfTime();
       resetKickoff(match.teamB.side);
-      addLog('⏱ HALF TIME — Second half underway','event-whistle');
+      addLog('⏱ DESCANSO — Reanuda el partido','event-whistle');
     }else{
       endMatch();
     }
@@ -830,7 +830,7 @@ function endMatch(){
   document.getElementById('btnPlay').disabled=true;
   document.getElementById('liveIndicator').className='live-indicator done';
   document.getElementById('liveIndicator').innerHTML='<div class="live-dot"></div>FINALIZADO';
-  addLog(`⚑ FULL TIME — ${match.teamA.name} ${match.teamA.score}–${match.teamB.score} ${match.teamB.name}`,'event-whistle');
+  addLog(`⚑ FIN DEL PARTIDO — ${match.teamA.name} ${match.teamA.score}–${match.teamB.score} ${match.teamB.name}`,'event-whistle');
   addEndBanner();
   try {
     saveMatchResult();
@@ -1065,7 +1065,7 @@ function advanceCupRound() {
     if (cup.winner === 'player') {
       G.club.budget += CUP_PRIZES.winner;
       G.cupHistory = G.cupHistory || [];
-      G.cupHistory.push({season: G.season, achievement: 'Champion'});
+      G.cupHistory.push({season: G.season, achievement: 'Campeón'});
     }
     return;
   }
@@ -1331,15 +1331,15 @@ function startNewSeason() {
 }
 
 const INJURY_TYPES = [
-  { name: 'Muscle strain',  minJ: 1, maxJ: 2,  severity: 'minor'   },
-  { name: 'Ankle sprain',  minJ: 2, maxJ: 4,  severity: 'minor'   },
-  { name: 'Contractura',          minJ: 1, maxJ: 3,  severity: 'minor'   },
-  { name: 'Rotura fibrilar',      minJ: 3, maxJ: 6,  severity: 'moderate'},
-  { name: 'Knee injury',    minJ: 4, maxJ: 8,  severity: 'moderate'},
-  { name: 'Esguince grave',       minJ: 4, maxJ: 7,  severity: 'moderate'},
-  { name: 'Rotura ligamentos',    minJ: 8, maxJ: 14, severity: 'serious'  },
-  { name: 'Fracture',             minJ: 8, maxJ: 16, severity: 'serious'  },
-  { name: 'Muscle tear',    minJ: 5, maxJ: 10, severity: 'serious'  },
+  { name: 'Sobrecarga muscular',  minJ: 1, maxJ: 2,  severity: 'leve'   },
+  { name: 'Esguince de tobillo',  minJ: 2, maxJ: 4,  severity: 'leve'   },
+  { name: 'Contractura',          minJ: 1, maxJ: 3,  severity: 'leve'   },
+  { name: 'Rotura fibrilar',      minJ: 3, maxJ: 6,  severity: 'moderada'},
+  { name: 'Lesión de rodilla',    minJ: 4, maxJ: 8,  severity: 'moderada'},
+  { name: 'Esguince grave',       minJ: 4, maxJ: 7,  severity: 'moderada'},
+  { name: 'Rotura ligamentos',    minJ: 8, maxJ: 14, severity: 'grave'  },
+  { name: 'Fractura',             minJ: 8, maxJ: 16, severity: 'grave'  },
+  { name: 'Desgarro muscular',    minJ: 5, maxJ: 10, severity: 'grave'  },
 ];
 
 function checkInjuries() {
@@ -1358,9 +1358,9 @@ function checkInjuries() {
       // Seleccionar tipo según gravedad ponderada
       const roll = Math.random();
       let pool;
-      if (roll < 0.55)      pool = INJURY_TYPES.filter(t => t.severity === 'minor');
-      else if (roll < 0.85) pool = INJURY_TYPES.filter(t => t.severity === 'moderate');
-      else                  pool = INJURY_TYPES.filter(t => t.severity === 'serious');
+      if (roll < 0.55)      pool = INJURY_TYPES.filter(t => t.severity === 'leve');
+      else if (roll < 0.85) pool = INJURY_TYPES.filter(t => t.severity === 'moderada');
+      else                  pool = INJURY_TYPES.filter(t => t.severity === 'grave');
       const type = pick(pool);
       const jornadas = rndI(type.minJ, type.maxJ);
       p.injury = { jornadasLeft: jornadas, type: type.name, severity: type.severity };
@@ -1370,7 +1370,7 @@ function checkInjuries() {
 
   // Avisar de nuevas lesiones en el log del partido
   newInjuries.forEach(({ player, injury }) => {
-    const sevColor = injury.severity === 'serious' ? 'var(--red)' : injury.severity === 'moderate' ? 'var(--yellow)' : 'var(--text-dim)';
+    const sevColor = injury.severity === 'grave' ? 'var(--red)' : injury.severity === 'moderada' ? 'var(--yellow)' : 'var(--text-dim)';
     addLog(t('injury', player.name, injury.type, injury.jornadasLeft), 'injury');
   });
 

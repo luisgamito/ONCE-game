@@ -389,7 +389,7 @@ function renderSquad() {
       ? `<div style="width:${Math.min(xpPct,100)}%;height:2px;background:var(--purple);border-radius:1px;margin-top:2px"></div>` : '';
 
     const contractStr = p.contract
-      ? `${fmt(p.contract.salary)}/wk · ${p.contract.yearsLeft||0}y`
+      ? `${fmt(p.contract.salary)}/sem · ${p.contract.yearsLeft||0}y`
       : 'No contract';
     const contractColor = (p.contract?.yearsLeft||0) <= 1 ? 'var(--red)' : 'var(--text-muted)';
 
@@ -726,7 +726,7 @@ function renderTransferList() {
   const wageEl = document.getElementById('wageBudgetVal');
   const wageUsedEl = document.getElementById('wageUsedVal');
   if (wageEl) {
-    wageEl.textContent = fmt(G.club.wageBudget || 0) + (_lang==='en'?'/yr':'/yr');
+    wageEl.textContent = fmt(G.club.wageBudget || 0) + (_lang==='en'?'/año':'/año');
     const pct = G.club.wageBudget > 0 ? Math.round(bill / G.club.wageBudget * 100) : 0;
     const col = pct > 90 ? 'var(--red)' : pct > 70 ? 'var(--yellow)' : 'var(--green)';
     if (wageUsedEl) wageUsedEl.innerHTML = `<span style="color:${col}">${t('wageUsed', fmt(bill), pct)}</span>`;
@@ -834,7 +834,7 @@ function renderTransferList() {
     return `<div class="transfer-item">
       <div>
         <div class="ti-name">${p.name}${potHint}</div>
-        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age}</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}${_lang==='en'?'/wk':(_lang==='en'?'/wk':'/wk')}</span>${wageWarn}</div>
+        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age}</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}${_lang==='en'?'/sem':(_lang==='en'?'/sem':'/sem')}</span>${wageWarn}</div>
       </div>
       <div class="ti-price">${fmt(p.value)}</div>
       <button class="btn-sign" onclick="openNegModal(${realIdx})" ${canAfford?'':'style="opacity:0.4;cursor:not-allowed"'} ${canAfford?'':'disabled'}>NEGOCIAR</button>

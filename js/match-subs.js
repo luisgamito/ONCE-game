@@ -8,7 +8,7 @@ function openSubModal(){
     document.getElementById('sub-info').textContent='Selecciona el jugador que SALE';
     document.getElementById('sub-bench-list').innerHTML = fieldP(myT).filter(p=>p.pos!=='GK'||(match.possession&&false)).map(p=>{
       return `<div class="transfer-item" style="cursor:pointer" onclick="selectSubOut('${p.id}')">
-        <div><div class="ti-name">${p.name}</div><div class="ti-info">${p.pos} · Fat. ${Math.round(p.fatigue)} · Rat. ${p.match.rating.toFixed(1)}</div></div>
+        <div><div class="ti-name">${p.name}</div><div class="ti-info">${p.pos} · Fat. ${Math.round(p.fatigue)} · Val. ${p.match.rating.toFixed(1)}</div></div>
         <div class="ti-price" style="color:var(--red)">SALE</div>
       </div>`;
     }).join('');
@@ -20,11 +20,11 @@ function selectSubOut(id){
   const p=fieldP(myT).find(pl=>pl.id===id);
   if(!p)return;
   subPendingOut=p;
-  document.getElementById('sub-info').textContent=`${p.name} OUT — choose incoming player:`;
+  document.getElementById('sub-info').textContent=`${p.name} SALE — Elige quién entra:`;
   document.getElementById('sub-bench-list').innerHTML = myT.bench.filter(b=>b.onField!==false).map(b=>{
     const overall=Math.round((b.attr.speed+b.attr.technique+b.attr.physical+b.attr.vision+b.attr.mentality+b.attr.shooting+b.attr.defense)/7);
     return `<div class="transfer-item" style="cursor:pointer" onclick="confirmSub('${b.id}')">
-      <div><div class="ti-name">${b.name}</div><div class="ti-info">${b.pos} · OVR ${overall} · Fat. ${Math.round(b.fatigue||100)}</div></div>
+      <div><div class="ti-name">${b.name}</div><div class="ti-info">${b.pos} · MEDIA ${overall} · Fat. ${Math.round(b.fatigue||100)}</div></div>
       <div class="ti-price" style="color:var(--green)">ENTRA</div>
     </div>`;
   }).join('');

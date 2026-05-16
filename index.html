@@ -73,7 +73,7 @@
       <div id="cmWageInfo" style="font-size:11px;color:var(--text-muted);margin-bottom:12px;text-align:center"></div>
 
       <div class="neg-actions">
-        <button class="btn accent" onclick="confirmContract()" id="cmConfirmBtn">✓ CONFIRM CONTRACT</button>
+        <button class="btn accent" onclick="confirmContract()" id="cmConfirmBtn">✓ CONFIRMAR CONTRATO</button>
         <button class="btn" onclick="closeContractModal()">CANCELAR</button>
       </div>
     </div>
@@ -134,7 +134,7 @@
         </tr></thead>
         <tbody id="pmcPlayersTbody"></tbody>
       </table>
-      <div class="section-title" data-i18n="matchStats">Match Statistics</div>
+      <div class="section-title" data-i18n="matchStats">Estadísticas del Partido</div>
       <div id="pmcMatchStats"></div>
     </div>
     <div class="pmc-foot" style="display:flex;gap:10px;justify-content:flex-end">
@@ -180,12 +180,12 @@
   </div>
 </div>
 
-<!-- ============================================================ MODAL: SUBSTITUTION -->
+<!-- ============================================================ MODAL: SUSTITUCIÓN -->
 <div class="modal-overlay" id="subModal">
   <div class="modal">
     <div class="modal-head">
       <div>
-        <div style="font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--accent)" data-i18n="substitution">SUBSTITUTION</div>
+        <div style="font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--accent)" data-i18n="substitution">SUSTITUCIÓN</div>
         <div id="sub-info" style="font-size:12px;color:var(--text-muted);margin-top:2px"></div>
       </div>
       <button class="modal-close" onclick="closeSubModal()">✕</button>
@@ -276,22 +276,22 @@
         <select id="setupTactic">
           <optgroup id="optgroupPos" label="Possession">
             <option value="tikitaka">🔵 Tiki-Taka</option>
-            <option value="possession">⚙️ Possession</option>
-            <option value="positional">♟️ Positional Play</option>
+            <option value="possession">⚙️ Posesión</option>
+            <option value="positional">♟️ Juego de posición</option>
             <option value="vertical">⬆️ Vertical</option>
           </optgroup>
           <optgroup id="optgroupPres" label="Pressing">
             <option value="gegenpressing">🔥 Gegenpressing</option>
-            <option value="pressing" selected>🟠 High Press</option>
+            <option value="pressing" selected>🟠 Presión alta</option>
           </optgroup>
           <optgroup id="optgroupDef" label="Defensive">
-            <option value="counter">⚡ Counter-attack</option>
-            <option value="parking">🧱 Low Block</option>
+            <option value="counter">⚡ Contraataque</option>
+            <option value="parking">🧱 Bloque bajo</option>
           </optgroup>
           <optgroup id="optgroupOth" label="Other">
-            <option value="direct">🎯 Direct Play</option>
-            <option value="wing">↔️ Wing Play</option>
-            <option value="balanced">⚖️ Balanced</option>
+            <option value="direct">🎯 Juego directo</option>
+            <option value="wing">↔️ Juego por bandas</option>
+            <option value="balanced">⚖️ Equilibrado</option>
           </optgroup>
         </select>
       </div>
@@ -312,7 +312,7 @@
       <div class="badge-circle" id="hubBadge"></div>
       <span class="hub-team-name" id="hubTeamName">—</span>
     </div>
-    <div class="hub-season" id="hubSeason">MD1 · Season 1</div>
+    <div class="hub-season" id="hubSeason">J1 · Temporada 1</div>
     <nav class="hub-nav">
       <div class="hub-nav-item active" data-panel="panel-home" onclick="switchHubPanel('panel-home')" data-i18n="navHome">🏠 INICIO</div>
       <div class="hub-nav-item" data-panel="panel-squad" onclick="switchHubPanel('panel-squad')" data-i18n="navSquad">👥 PLANTILLA</div>
@@ -335,7 +335,7 @@
       <div class="hub-panel active" id="panel-home">
         <div class="card" id="nextMatchCard">
           <div class="card-header">
-            <span class="card-title" data-i18n="nextMatch2">Next Match</span>
+            <span class="card-title" data-i18n="nextMatch2">Próximo Partido</span>
             <span id="homeJornada" style="font-size:11px;color:var(--text-muted)">Jornada 1</span>
           </div>
           <div class="next-match-teams" id="nextMatchTeams"></div>
@@ -361,7 +361,7 @@
         </div>
 
         <!-- 11 INICIAL -->
-        <div style="font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">STARTING XI</div>
+        <div style="font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">ONCE INICIAL</div>
         <div id="squadStarters" style="display:flex;flex-direction:column;gap:4px;margin-bottom:18px"></div>
 
         <!-- BANQUILLO -->
@@ -424,11 +424,11 @@
       <!-- PANEL: TRANSFERS -->
       <div class="hub-panel" id="panel-transfers">
         <div class="budget-bar">
-          <span class="budget-label">TRANSFER BUDGET</span>
+          <span class="budget-label">PRESUPUESTO FICHAJES</span>
           <span class="budget-val" id="budgetVal">—</span>
         </div>
         <div class="budget-bar" style="margin-top:4px;margin-bottom:12px">
-          <span class="budget-label" style="color:var(--text-muted)">WAGE BUDGET</span>
+          <span class="budget-label" style="color:var(--text-muted)">MASA SALARIAL</span>
           <span id="wageBudgetVal" style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim)">—</span>
           <span id="wageUsedVal" style="font-size:11px;color:var(--text-muted);margin-left:8px"></span>
         </div>
@@ -491,7 +491,7 @@
           <div id="fpPlayers"></div>
         </div>
         <div class="bench-label">
-          <span class="bench-label-text">Bench (drag to swap)</span>
+          <span class="bench-label-text">Banquillo (arrastra para sustituir)</span>
         </div>
         <div class="bench-bar" id="benchBar"></div>
       </div>
@@ -501,16 +501,16 @@
         <div class="sidebar-label" data-i18n="tacticLabel">TÁCTICA</div>
         <div style="display:flex;flex-direction:column;gap:4px" id="hubTacticRow">
           <div class="tactic-chip" data-tactic="tikitaka" title="Tiki-Taka: total possession with immediate press" data-i18n="tacTikitaka">🔵 Tiki-Taka</div>
-          <div class="tactic-chip active" data-tactic="possession" title="Possession: short passing, ball domination" data-i18n="tacPossession">⚙️ Possession</div>
+          <div class="tactic-chip active" data-tactic="possession" title="Possession: short passing, ball domination" data-i18n="tacPossession">⚙️ Posesión</div>
           <div class="tactic-chip" data-tactic="positional" title="Positional: disciplined zonal occupation" data-i18n="tacPositional">♟️ Positional</div>
           <div class="tactic-chip" data-tactic="vertical" title="Vertical: quick possession with forward runs" data-i18n="tacVertical">⬆️ Vertical</div>
           <div class="tactic-chip" data-tactic="gegenpressing" title="Gegenpressing: suffocating press after losing ball" data-i18n="tacGegenpressing">🔥 Gegenpressing</div>
-          <div class="tactic-chip" data-tactic="pressing" title="High Press: high line and constant pressing" data-i18n="tacPressing">🟠 High Press</div>
+          <div class="tactic-chip" data-tactic="pressing" title="High Press: high line and constant pressing" data-i18n="tacPressing">🟠 Presión alta</div>
           <div class="tactic-chip" data-tactic="counter" title="Counter: mid block and fast transitions" data-i18n="tacCounter">⚡ Counter</div>
-          <div class="tactic-chip" data-tactic="parking" title="Low Block: deep compact defence" data-i18n="tacParking">🧱 Low Block</div>
+          <div class="tactic-chip" data-tactic="parking" title="Low Block: deep compact defence" data-i18n="tacParking">🧱 Bloque bajo</div>
           <div class="tactic-chip" data-tactic="direct" title="Direct: long balls to forwards" data-i18n="tacDirect">🎯 Direct</div>
-          <div class="tactic-chip" data-tactic="wing" title="Wing Play: width and crosses into the box" data-i18n="tacWing">↔️ Wing Play</div>
-          <div class="tactic-chip" data-tactic="balanced" title="Balanced: no extremes, solid" data-i18n="tacBalanced">⚖️ Balanced</div>
+          <div class="tactic-chip" data-tactic="wing" title="Wing Play: width and crosses into the box" data-i18n="tacWing">↔️ Juego por bandas</div>
+          <div class="tactic-chip" data-tactic="balanced" title="Balanced: no extremes, solid" data-i18n="tacBalanced">⚖️ Equilibrado</div>
         </div>
         <div id="tacticDesc" style="font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.4"></div>
       </div>
@@ -561,7 +561,7 @@
         <div class="match-tab active" onclick="switchMatchTab('log')">LOG</div>
         <div class="match-tab" onclick="switchMatchTab('stats')">STATS</div>
         <div class="match-tab" onclick="switchMatchTab('squad')">JUGADORES</div>
-        <div class="match-tab" onclick="switchMatchTab('manage')">MANAGEMENT</div>
+        <div class="match-tab" onclick="switchMatchTab('manage')">GESTIÓN</div>
       </div>
 
       <!-- LOG -->
@@ -591,27 +591,27 @@
       <!-- MANAGE -->
       <div class="match-panel" id="mpanel-manage">
         <div class="manage-scroll">
-          <div class="sidebar-label" style="padding:10px 10px 0">TACTIC CHANGE</div>
+          <div class="sidebar-label" style="padding:10px 10px 0">CAMBIO DE TÁCTICA</div>
           <div style="padding:8px 10px">
             <div class="tactic-live-row" id="tacticLiveRow">
               <div class="tactic-chip" data-tactic="tikitaka" title="Tiki-Taka: total possession with immediate press" data-i18n="tacTikitaka">🔵 Tiki-Taka</div>
-              <div class="tactic-chip" data-tactic="possession" title="Possession: short passing, ball domination" data-i18n="tacPossession">⚙️ Possession</div>
+              <div class="tactic-chip" data-tactic="possession" title="Possession: short passing, ball domination" data-i18n="tacPossession">⚙️ Posesión</div>
               <div class="tactic-chip" data-tactic="positional" title="Positional: disciplined zonal occupation" data-i18n="tacPositional">♟️ Positional</div>
               <div class="tactic-chip" data-tactic="vertical" title="Vertical: quick possession with forward runs" data-i18n="tacVertical">⬆️ Vertical</div>
               <div class="tactic-chip" data-tactic="gegenpressing" title="Gegenpressing: suffocating press after losing ball" data-i18n="tacGegenpressing">🔥 Gegenpressing</div>
-              <div class="tactic-chip" data-tactic="pressing" title="High Press: high line and constant pressing" data-i18n="tacPressing">🟠 High Press</div>
+              <div class="tactic-chip" data-tactic="pressing" title="High Press: high line and constant pressing" data-i18n="tacPressing">🟠 Presión alta</div>
               <div class="tactic-chip" data-tactic="counter" title="Counter: mid block and fast transitions" data-i18n="tacCounter">⚡ Counter</div>
-              <div class="tactic-chip" data-tactic="parking" title="Low Block: deep compact defence" data-i18n="tacParking">🧱 Low Block</div>
+              <div class="tactic-chip" data-tactic="parking" title="Low Block: deep compact defence" data-i18n="tacParking">🧱 Bloque bajo</div>
               <div class="tactic-chip" data-tactic="direct" title="Direct: long balls to forwards" data-i18n="tacDirect">🎯 Direct</div>
-              <div class="tactic-chip" data-tactic="wing" title="Wing Play: width and crosses into the box" data-i18n="tacWing">↔️ Wing Play</div>
-              <div class="tactic-chip" data-tactic="balanced" title="Balanced: no extremes, solid" data-i18n="tacBalanced">⚖️ Balanced</div>
+              <div class="tactic-chip" data-tactic="wing" title="Wing Play: width and crosses into the box" data-i18n="tacWing">↔️ Juego por bandas</div>
+              <div class="tactic-chip" data-tactic="balanced" title="Balanced: no extremes, solid" data-i18n="tacBalanced">⚖️ Equilibrado</div>
             </div>
           </div>
-          <div class="sidebar-label" style="padding:10px 10px 0">SUBSTITUTIONS</div>
+          <div class="sidebar-label" style="padding:10px 10px 0">SUSTITUCIONES</div>
           <div class="subs-remaining" id="subsRemaining">5 cambios disponibles</div>
           <div style="padding:0 10px">
             <div id="subsPlanned"></div>
-            <button class="btn-sub-action" onclick="openSubModal()">+ PROGRAMAR SUBSTITUTION</button>
+            <button class="btn-sub-action" onclick="openSubModal()">+ PROGRAMAR SUSTITUCIÓN</button>
           </div>
         </div>
       </div>

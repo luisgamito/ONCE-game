@@ -43,11 +43,11 @@ function showPostMatch(){
 
   // Match stats
   const stats=[
-    {n:'Possession',own:Math.round(myT.possession/(myT.possession+oppT.possession||1)*100)+'%',opp:Math.round(oppT.possession/(myT.possession+oppT.possession||1)*100)+'%',ov:myT.possession,op:oppT.possession},
+    {n:'Posesión',own:Math.round(myT.possession/(myT.possession+oppT.possession||1)*100)+'%',opp:Math.round(oppT.possession/(myT.possession+oppT.possession||1)*100)+'%',ov:myT.possession,op:oppT.possession},
     {n:'Disparos',own:myT.shots,opp:oppT.shots,ov:myT.shots,op:oppT.shots},
-    {n:'On target',own:myT.shotsOnTarget||0,opp:oppT.shotsOnTarget||0,ov:myT.shotsOnTarget||0,op:oppT.shotsOnTarget||0},
-    {n:'Fouls',own:myT.fouls,opp:oppT.fouls,ov:myT.fouls,op:oppT.fouls},
-    {n:'Corners',own:myT.corners,opp:oppT.corners,ov:myT.corners,op:oppT.corners}
+    {n:'A puerta',own:myT.shotsOnTarget||0,opp:oppT.shotsOnTarget||0,ov:myT.shotsOnTarget||0,op:oppT.shotsOnTarget||0},
+    {n:'Faltas',own:myT.fouls,opp:oppT.fouls,ov:myT.fouls,op:oppT.fouls},
+    {n:'Córners',own:myT.corners,opp:oppT.corners,ov:myT.corners,op:oppT.corners}
   ];
   document.getElementById('pmcMatchStats').innerHTML=stats.map(s=>{
     const tot=(s.ov||0)+(s.op||0)||1;
@@ -83,13 +83,13 @@ function showSeasonSummary() {
   const myTeam = getMyTeam();
   let outcome, description, color;
   if (s.promoted) {
-    outcome = 'PROMOTED!'; color = 'var(--green)';
+    outcome = '¡ASCENSO!'; color = 'var(--green)';
     description = `Promoted to First Division after finishing ${s.finalPos}${ord(s.finalPos)}`;
   } else if (s.relegated) {
     outcome = 'DESCENSO'; color = 'var(--red)';
     description = `Relegated to Second Division after finishing ${s.finalPos}${ord(s.finalPos)}`;
   } else if (s.finalPos === 1) {
-    outcome = 'CHAMPIONS!'; color = 'var(--gold)';
+    outcome = '¡CAMPEÓN!'; color = 'var(--gold)';
     description = `Tu club gana la ${myDiv.name}`;
   } else {
     outcome = `${s.finalPos}${ord(s.finalPos)} PLACE`; color = 'var(--accent)';
@@ -127,7 +127,7 @@ function showSeasonSummary() {
         <div class="pmc-mvp-info">
           <div class="pmc-mvp-label">⚽ ${topScorer.season.goals} GOALS IN ${topScorer.season.gamesPlayed} MATCHES</div>
           <div class="pmc-mvp-name">${topScorer.name}</div>
-          <div class="pmc-mvp-detail">${topScorer.age} yrs · OVR ${calcOverall(topScorer)}</div>
+          <div class="pmc-mvp-detail">${topScorer.age} años · MEDIA ${calcOverall(topScorer)}</div>
         </div>
       </div>` : ''}
     <div class="section-title">Finanzas de season</div>

@@ -100,7 +100,7 @@ function updateMatchHUD(){
   const realMin=match.period==='first'?Math.floor(match.tick/4):45+Math.floor(match.tick/4);
   const sec=(match.tick%4)*15;
   document.getElementById('mhMinute').textContent=`${realMin}:${sec.toString().padStart(2,'0')}`;
-  document.getElementById('mhPeriod').textContent=match.state==='finished'?'END':match.period==='first'?'1ST HALF':'2ND HALF';
+  document.getElementById('mhPeriod').textContent=match.state==='finished'?'FIN':match.period==='first'?'1º TIEMPO':'2º TIEMPO';
 }
 
 function updateMatchStats(){
@@ -110,12 +110,12 @@ function updateMatchStats(){
   const totPos=myT.possession+oppT.possession||1;
   const posOwn=Math.round(myT.possession/totPos*100);
   const stats=[
-    {n:'Possession',ov:posOwn,op:100-posOwn,own:posOwn+'%',opp:(100-posOwn)+'%'},
+    {n:'Posesión',ov:posOwn,op:100-posOwn,own:posOwn+'%',opp:(100-posOwn)+'%'},
     {n:'Disparos',ov:myT.shots,op:oppT.shots,own:myT.shots,opp:oppT.shots},
-    {n:'On target',ov:myT.shotsOnTarget||0,op:oppT.shotsOnTarget||0,own:myT.shotsOnTarget||0,opp:oppT.shotsOnTarget||0},
-    {n:'Fouls',ov:myT.fouls,op:oppT.fouls,own:myT.fouls,opp:oppT.fouls},
-    {n:'Corners',ov:myT.corners,op:oppT.corners,own:myT.corners,opp:oppT.corners},
-    {n:'Offsides',ov:myT.offsides,op:oppT.offsides,own:myT.offsides,opp:oppT.offsides}
+    {n:'A puerta',ov:myT.shotsOnTarget||0,op:oppT.shotsOnTarget||0,own:myT.shotsOnTarget||0,opp:oppT.shotsOnTarget||0},
+    {n:'Faltas',ov:myT.fouls,op:oppT.fouls,own:myT.fouls,opp:oppT.fouls},
+    {n:'Córners',ov:myT.corners,op:oppT.corners,own:myT.corners,opp:oppT.corners},
+    {n:'Fueras de juego',ov:myT.offsides,op:oppT.offsides,own:myT.offsides,opp:oppT.offsides}
   ];
   document.getElementById('matchStatsPanel').innerHTML=`<div class="ms-label">ESTADÍSTICAS EN VIVO</div>`+stats.map(s=>{
     const tot=(s.ov||0)+(s.op||0)||1;

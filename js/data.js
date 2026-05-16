@@ -147,7 +147,7 @@ const TACTICS_CFG = {
     overlap:.55, patience:.85, offsideTrap:.50, resultMod:.01
   },
   possession: {
-    name:'Possession', icon:'⚙️', mentality:'balanced',
+    name:'Posesión', icon:'⚙️', mentality:'balanced',
     desc:'Circulación corta y paciente, dominio del balón, espera abrir huecos.',
     defLine:.50, lineEngage:.55, pressIntensity:.45, counterPress:.55, compactness:.65,
     widthDef:.55, widthAtt:.50, tempo:.55, directness:.25, passLength:.20,
