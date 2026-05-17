@@ -32,7 +32,7 @@ function startMatch() {
   const oppTeam = getTeamById(oppId);
   if (!oppTeam) { alert('Error: opponent not found'); return; }
 
-  // Comprobar si hay jugadores no disponibles en el 11 inicial
+  ensureElevenSlots(); // Garantizar 11 slots antes de verificar
   const unavailableInSquad = myTeam.squad.filter(p =>
     p.inSquad && ((p.injury && p.injury.jornadasLeft > 0) || (p.suspension && p.suspension > 0))
   );

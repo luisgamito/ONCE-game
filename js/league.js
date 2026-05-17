@@ -27,57 +27,41 @@ function generateCalendar(ids) {
 function createDivision(divLevel, namesPool, abbrsPool, includePlayer = false, playerData = null) {
   const cfg = DIV_CFG[divLevel];
   const teams = [];
-  const namesUsed = [];
   const startIdx = (divLevel-1)*100;
 
-  // Distribución de calidades para 18 equipos:
-  // 6 candidatos al título/ascenso (alta calidad)
-  // 6 equipos de zona media
-  // 6 equipos de zona baja / lucha por no descender
   const qualityTiers = divLevel === 1
     ? [
-        // 6 candidatos al título: baseQ +8 a +15
         ...Array(6).fill(null).map(() => cfg.baseQuality + rndI(8, 15)),
-        // 6 zona media: baseQ -2 a +7
         ...Array(6).fill(null).map(() => cfg.baseQuality + rndI(-2, 7)),
-        // 6 zona baja: baseQ -14 a -3
         ...Array(6).fill(null).map(() => cfg.baseQuality + rndI(-14, -3))
       ]
     : [
-        // 6 candidatos al ascenso: baseQ +8 a +15
         ...Array(6).fill(null).map(() => cfg.baseQuality + rndI(8, 15)),
-        // 6 zona media: baseQ -2 a +7
         ...Array(6).fill(null).map(() => cfg.baseQuality + rndI(-2, 7)),
-        // 6 zona baja: baseQ -14 a -3
         ...Array(6).fill(null).map(() => cfg.baseQuality + rndI(-14, -3))
       ];
 
-  // Mezclar para que no estén ordenados por calidad
   qualityTiers.sort(() => Math.random() - 0.5);
 
+  // Generar nombres únicos para todos los rivales de esta división
+  const rivalCount = includePlayer ? TEAMS_PER_DIV - 1 : TEAMS_PER_DIV;
+  const teamPool = generateTeamPool(rivalCount);
+
   let tierIdx = 0;
+  let poolIdx = 0;
   for (let i = 0; i < TEAMS_PER_DIV; i++) {
     if (includePlayer && i === 0) {
       teams.push(playerData);
       tierIdx++;
       continue;
     }
-    let name, abbr;
-    let attempts = 0;
-    do {
-      const idx = rndI(0, namesPool.length - 1);
-      name = namesPool[idx];
-      abbr = abbrsPool[idx];
-      attempts++;
-    } while (namesUsed.includes(name) && attempts < 50);
-    namesUsed.push(name);
-
+    const { name, abbr, color } = teamPool[poolIdx++];
     const q = Math.max(40, Math.min(99, qualityTiers[tierIdx] || cfg.baseQuality));
     tierIdx++;
     const form = pick(Object.keys(FORMATIONS));
     const tac = pick(Object.keys(TACTICS_CFG));
     teams.push({
-      id:`d${divLevel}t${i}`, name, abbr, quality: q,
+      id:`d${divLevel}t${i}`, name, abbr, color, quality: q,
       formation: form, tactic: tac,
       squad: createSquad(q, form, true, `d${divLevel}t${i}_`),
       stats:{ pts:0,pj:0,g:0,e:0,p:0,gf:0,gc:0,dg:0 },
@@ -132,11 +116,8 @@ function createLeague(playerDivision, playerFormation, playerTactic, playerSquad
     division: playerDivision, isPlayer:true
   };
 
-  const div1NamePool = [...TEAM_NAMES_DIV1], div1AbbrPool = [...TEAM_ABBRS_DIV1];
-  const div2NamePool = [...TEAM_NAMES_DIV2], div2AbbrPool = [...TEAM_ABBRS_DIV2];
-
-  const div1 = createDivision(1, div1NamePool, div1AbbrPool, playerDivision===1, playerDivision===1?playerTeam:null);
-  const div2 = createDivision(2, div2NamePool, div2AbbrPool, playerDivision===2, playerDivision===2?playerTeam:null);
+  const div1 = createDivision(1, [], [], playerDivision===1, playerDivision===1?playerTeam:null);
+  const div2 = createDivision(2, [], [], playerDivision===2, playerDivision===2?playerTeam:null);
 
   const cup = createCup(div1.teams, div2.teams);
 

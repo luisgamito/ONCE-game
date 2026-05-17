@@ -121,20 +121,11 @@ function releasePlayer(playerId, compensation) {
     alert(t('fireNoFunds', compensation));
     return;
   }
-  const starters = myTeam.squad.filter(pl => pl.inSquad);
-  if (p.inSquad && starters.length <= 11) {
-    alert(t('fireNeedSub'));
-    return;
-  }
   if (!confirm(t('fireConfirm', p.name, compensation))) return;
 
   G.club.budget -= compensation;
   myTeam.squad = myTeam.squad.filter(pl => pl.id !== playerId);
-  // Si era titular, promover el primer suplente disponible
-  if (p.inSquad) {
-    const sub = myTeam.squad.find(pl => !pl.inSquad && (!pl.injury || pl.injury.jornadasLeft <= 0));
-    if (sub) sub.inSquad = true;
-  }
+  ensureElevenSlots(); // Rellenar el hueco automáticamente si era titular
   closePlayerModal();
   saveGame();
   renderSquad();

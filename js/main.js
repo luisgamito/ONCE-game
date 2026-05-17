@@ -44,6 +44,8 @@ function showScreen(id) {
     }
 
     document.getElementById('btnContinue').style.display = 'block';
+    // Reparar alineación si tiene menos de 11 titulares (partida antigua)
+    if (G && G.league) ensureElevenSlots();
     if (G._pendingOffers && G._pendingOffers.length > 0) renderPendingOffers();
   }
 })();

@@ -75,6 +75,7 @@ function acceptRivalOffer(offerId) {
   player.askingPrice = null;
   G.club.budget += offer.amount;
   myTeam.squad.splice(playerIdx, 1);
+  ensureElevenSlots();
   dismissOffer(offerId);
   saveGame();
   renderSquad();
@@ -106,6 +107,7 @@ function counterRivalOffer(offerId) {
     if (playerIdx !== -1) {
       G.club.budget += counterAmt;
       myTeam.squad.splice(playerIdx, 1);
+      ensureElevenSlots();
       saveGame();
       renderSquad();
       renderFormationPitch();

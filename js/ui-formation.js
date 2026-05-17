@@ -171,11 +171,34 @@ function setupFormationDragDrop() {
 }
 
 function refreshSquadOrder() {
-  // Ensure starters come first in the squad array
   const myTeam = getMyTeam();
   const starters = myTeam.squad.filter(p => p.inSquad);
   const subs = myTeam.squad.filter(p => !p.inSquad);
   myTeam.squad = [...starters, ...subs];
+}
+
+// Garantiza siempre 11 titulares. Si faltan, promueve suplentes disponibles.
+// Llamar después de cualquier operación que elimine o mueva jugadores.
+function ensureElevenSlots() {
+  const myTeam = getMyTeam();
+  if (!myTeam) return;
+
+  const starterCount = () => myTeam.squad.filter(p => p.inSquad).length;
+
+  while (starterCount() < 11) {
+    // Buscar el mejor suplente disponible (no lesionado, no sancionado)
+    const available = myTeam.squad.filter(p =>
+      !p.inSquad &&
+      !(p.injury && p.injury.jornadasLeft > 0) &&
+      !(p.suspension && p.suspension > 0)
+    );
+    if (available.length === 0) break; // No hay más jugadores disponibles
+    // Promover el de mayor media
+    const best = available.reduce((a, b) => calcOverall(a) >= calcOverall(b) ? a : b);
+    best.inSquad = true;
+  }
+
+  refreshSquadOrder();
 }
 
 function changeFormation(f) {

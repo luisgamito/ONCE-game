@@ -2,6 +2,9 @@
 function initHub() {
   const myTeam = getMyTeam();
   const myDiv = getMyDivision();
+
+  // Garantizar siempre 11 slots de titular
+  ensureElevenSlots();
   document.getElementById('hubBadge').style.background = G.club.color;
   document.getElementById('hubBadge').textContent = G.club.abbr;
   document.getElementById('hubBadge').style.color = isDark(G.club.color)?'#fff':'#000';

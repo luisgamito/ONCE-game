@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONCE Football Manager — Guía del Juego</title>
+<style>
+  :root {
+    --bg: #0e0f13;
+    --bg2: #14161c;
+    --surface: #1a1d26;
+    --surface2: #20242f;
+    --border: #2a2e3d;
+    --accent: #00d4ff;
+    --green: #00e676;
+    --yellow: #ffd740;
+    --red: #ff3d5a;
+    --text: #e8eaf0;
+    --text-dim: #b0b8cc;
+    --text-muted: #6b7592;
+    --font: 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 0 0 80px;
+  }
+
+  /* HEADER */
+  .hero {
+    background: linear-gradient(135deg, #0a0c14 0%, #111520 50%, #0d1018 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 32px 40px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  /* NAV */
+  .toc {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .toc a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    padding: 14px 18px;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .toc a:hover { color: var(--text); border-bottom-color: var(--border); }
+
+  /* CONTENT */
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* SECTIONS */
+  .section {
+    padding: 52px 0 0;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: clamp(18px, 3vw, 26px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+  .section-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* CARDS */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px 22px;
+  }
+  .card h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .card p, .card li {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 4px; }
+
+  /* WIDE CARD */
+  .card-wide {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .card-wide h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .card-wide p, .card-wide li {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .card-wide ul { padding-left: 18px; }
+  .card-wide li { margin-bottom: 5px; }
+
+  /* TABLES */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 8px 0;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-size: 10px;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  /* TAGS */
+  .tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    margin: 2px 2px 2px 0;
+    color: var(--text-dim);
+    vertical-align: middle;
+  }
+
+  /* TIPS */
+  .tip {
+    background: rgba(0,212,255,0.06);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .tip strong { color: var(--accent); }
+  .warn {
+    background: rgba(255,61,90,0.07);
+    border-left: 3px solid var(--red);
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .warn strong { color: var(--red); }
+
+  /* FATIGUE BAR */
+  .fatigue-demo {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 8px 0;
+    font-size: 12px;
+  }
+  .fbar {
+    height: 8px;
+    border-radius: 2px;
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  /* STEP LIST */
+  .steps { counter-reset: steps; }
+  .step {
+    counter-increment: steps;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .step::before {
+    content: counter(steps);
+    background: var(--accent);
+    color: #000;
+    font-weight: 900;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-body { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+  .step-body strong { color: var(--text); }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0 0;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 40px 24px 0;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero { padding: 32px 20px 28px; }
+    .toc { padding: 0 16px; }
+    .content { padding: 0 16px; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">GUÍA OFICIAL</div>
+  <h1>ONCE <span>Football</span> Manager</h1>
+  <p>GUÍA COMPLETA DEL JUEGO · v1.7</p>
+</div>
+
+<nav class="toc">
+  <a href="#inicio">🚀 INICIO</a>
+  <a href="#plantilla">👥 PLANTILLA</a>
+  <a href="#tacticas">♟️ TÁCTICAS</a>
+  <a href="#mercado">💰 MERCADO</a>
+  <a href="#liga">🏆 LIGA</a>
+  <a href="#partidos">⚽ PARTIDOS</a>
+  <a href="#contratos">📋 CONTRATOS</a>
+  <a href="#consejos">💡 CONSEJOS</a>
+</nav>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════════════ INICIO -->
+<section class="section" id="inicio">
+  <div class="section-header">
+    <div class="section-icon">🚀</div>
+    <div>
+      <div class="section-title">PRIMEROS PASOS</div>
+      <div class="section-sub">Cómo crear tu club y qué hacer antes del primer partido</div>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>CREAR EL CLUB</h3>
+    <div class="steps">
+      <div class="step"><div class="step-body"><strong>Nombre y abreviatura.</strong> El nombre completo del club y 3 letras para el escudo. Elige algo que te identifique.</div></div>
+      <div class="step"><div class="step-body"><strong>Color.</strong> El color primario del equipo. Se usa en los escudos y en el campo durante el partido.</div></div>
+      <div class="step"><div class="step-body"><strong>División de inicio.</strong> Segunda División (media ≈65, presupuesto 2M€) para empezar con calma. Primera División (media ≈78, presupuesto 8M€) para un reto inmediato.</div></div>
+      <div class="step"><div class="step-body"><strong>Formación y táctica base.</strong> No te preocupes demasiado — las puedes cambiar antes del primer partido y en cualquier momento durante la temporada.</div></div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>SEGUNDA DIVISIÓN</h3>
+      <ul>
+        <li>Media rivales: ≈65 (rango ±14)</li>
+        <li>Presupuesto inicial: 2.000.000 €</li>
+        <li>Objetivo: ascender en 1-3 temporadas</li>
+        <li>Dificultad: ⭐⭐</li>
+        <li>Ideal para aprender el juego</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>PRIMERA DIVISIÓN</h3>
+      <ul>
+        <li>Media rivales: ≈78 (rango ±14)</li>
+        <li>Presupuesto inicial: 8.000.000 €</li>
+        <li>Objetivo: sobrevivir y aspirar al título</li>
+        <li>Dificultad: ⭐⭐⭐⭐</li>
+        <li>Para jugadores con experiencia</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 Antes del primer partido tienes mercado de verano abierto (jornadas 0-4).</strong> Úsalo. Revisa tu plantilla, detecta los puestos más débiles y ficha al menos un portero backup y un delantero alternativo.
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ Guardado automático.</strong> El juego guarda en el navegador (localStorage) después de cada partido, fichaje y cambio de alineación. No borres los datos del sitio web o perderás el progreso. En modo incógnito la partida no se conserva al cerrar.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ PLANTILLA -->
+<div class="divider"></div>
+<section class="section" id="plantilla">
+  <div class="section-header">
+    <div class="section-icon">👥</div>
+    <div>
+      <div class="section-title">PLANTILLA Y JUGADORES</div>
+      <div class="section-sub">Fatiga, desarrollo, atributos y suspensiones</div>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>FATIGA — EL RECURSO MÁS IMPORTANTE</h3>
+    <p>Cada jugador tiene una barra de fatiga (0-100) que baja ~55-65 puntos por partido completo.</p>
+    <br>
+    <div class="fatigue-demo">
+      <div class="fbar" style="background:#00e676;width:90px"></div>
+      <div><strong style="color:#00e676">Verde (60-100)</strong> — Rendimiento completo al 100%</div>
+    </div>
+    <div class="fatigue-demo">
+      <div class="fbar" style="background:#ffd740;width:50px"></div>
+      <div><strong style="color:#ffd740">Amarillo (30-59)</strong> — Atributos reducidos al 85-92%</div>
+    </div>
+    <div class="fatigue-demo">
+      <div class="fbar" style="background:#ff3d5a;width:20px"></div>
+      <div><strong style="color:#ff3d5a">Rojo (0-29)</strong> — Atributos al 65% · riesgo alto de lesión</div>
+    </div>
+    <br>
+    <p>Los jugadores que no juegan recuperan <strong>35-50 puntos por jornada</strong>. Con 20 jugadores en plantilla la rotación es obligatoria a partir de la jornada 5-6.</p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>POSICIONES CLAVE</h3>
+      <ul>
+        <li>🥇 <strong>Portero (GK)</strong> — Sus Reflejos y Posición determinan directamente los goles encajados. Un GK de 75 para el 60-70% de los tiros; uno de 55, solo el 45-55%.</li>
+        <li>🥈 <strong>Delantero (ST/CF)</strong> — Disparo, Técnica y Velocidad. Mayor generador de xG.</li>
+        <li>🥉 <strong>Mediocampistas</strong> — Controlan la posesión y frenan contraataques.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>DESARROLLO DE JÓVENES</h3>
+      <ul>
+        <li>Jugadores &lt;26 años acumulan XP por partido</li>
+        <li>La barra morada en su ficha muestra el progreso</li>
+        <li>Al llenarla suben uno o varios atributos</li>
+        <li>Las valoraciones altas (7.0+) dan bonus de XP</li>
+        <li>Ser titular acelera el desarrollo x3 vs banquillo</li>
+        <li>A partir de los 30 años los atributos declinan</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>ATRIBUTOS — QUÉ HACE CADA UNO</h3>
+    <table>
+      <tr><th>ATRIBUTO</th><th>AFECTA A…</th><th>IMPORTANTE PARA</th></tr>
+      <tr><td>Velocidad</td><td>Pressing, carreras en profundidad, regates</td><td>Extremos, laterales, delanteros</td></tr>
+      <tr><td>Técnica</td><td>Pases exitosos, control, primer toque</td><td>Mediocampistas, mediapuntas</td></tr>
+      <tr><td>Disparo</td><td>Probabilidad de gol por tiro</td><td>Delanteros, extremos</td></tr>
+      <tr><td>Defensa</td><td>Entradas, interceptaciones, presión</td><td>Defensas, pivotes</td></tr>
+      <tr><td>Físico</td><td>Resistencia a fatiga, duelos corporales</td><td>Todos, especialmente CDM y CB</td></tr>
+      <tr><td>Visión</td><td>Pases filtrados, asistencias, creación</td><td>Mediapuntas, DLP</td></tr>
+      <tr><td>Mentalidad</td><td>Rendimiento bajo presión, consistencia</td><td>Todos</td></tr>
+      <tr><td>Posición</td><td>Cobertura de espacios, anticipación</td><td>Defensas, porteros</td></tr>
+      <tr><td>Reflejos</td><td>Paradas, reacciones, 1 vs 1</td><td>Solo porteros</td></tr>
+    </table>
+  </div>
+
+  <div class="card-wide">
+    <h3>TARJETAS Y SUSPENSIONES</h3>
+    <table>
+      <tr><th>SITUACIÓN</th><th>CONSECUENCIA</th></tr>
+      <tr><td>5 amarillas acumuladas en temporada</td><td>1 partido de suspensión automática</td></tr>
+      <tr><td>Segunda amarilla en el mismo partido</td><td>Expulsión + 1 partido suspendido</td></tr>
+      <tr><td>Roja directa</td><td>Expulsión + 2-3 partidos suspendidos</td></tr>
+    </table>
+    <div class="warn" style="margin-top:12px">
+      <strong>⚠️</strong> El juego bloquea el inicio del partido si hay jugadores lesionados o sancionados en el once. Sustitúyelos en 👥 Plantilla antes de jugar.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ TÁCTICAS -->
+<div class="divider"></div>
+<section class="section" id="tacticas">
+  <div class="section-header">
+    <div class="section-icon">♟️</div>
+    <div>
+      <div class="section-title">TÁCTICAS Y FORMACIONES</div>
+      <div class="section-sub">11 tácticas, 6 formaciones y el sistema de contratácticas</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>TÁCTICAS DE POSESIÓN</h3>
+      <ul>
+        <li><span class="tag">🔵 Tiki-Taka</span> Posesión total con presión inmediata. Requiere técnica alta en todos los puestos.</li>
+        <li><span class="tag">⚙️ Posesión</span> Circulación paciente, dominio del balón. Sólida y controlada.</li>
+        <li><span class="tag">♟️ Posicional</span> Ocupa zonas, atrae el press y libera al hombre libre.</li>
+        <li><span class="tag">⬆️ Vertical</span> Posesión ágil con verticalización rápida. Pocos toques.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>TÁCTICAS DE PRESIÓN</h3>
+      <ul>
+        <li><span class="tag">🔥 Gegenpressing</span> Recuperación inmediata tras perder el balón. Muy exigente físicamente.</li>
+        <li><span class="tag">🟠 Presión alta</span> Línea alta y presión constante en campo rival.</li>
+      </ul>
+      <h3 style="margin-top:14px">TÁCTICAS DEFENSIVAS</h3>
+      <ul>
+        <li><span class="tag">⚡ Contraataque</span> Bloque medio, transiciones rápidas. Muy eficaz con jugadores veloces.</li>
+        <li><span class="tag">🧱 Bloque bajo</span> Defensa profunda y compacta. Difícil de superar.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>OTRAS TÁCTICAS</h3>
+      <ul>
+        <li><span class="tag">🎯 Directo</span> Balones largos al delantero referencia. Simple y agresivo.</li>
+        <li><span class="tag">↔️ Bandas</span> Amplitud máxima, centros constantes al área.</li>
+        <li><span class="tag">⚖️ Equilibrado</span> Sin extremos. Mejor punto de partida si no sabes qué elegir.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>TABLA DE CONTRATÁCTICAS</h3>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Consulta la táctica del rival en 🔍 Equipos antes de cada partido y ajusta la tuya:</p>
+    <table>
+      <tr><th>TU TÁCTICA</th><th>BATE A…</th><th>PIERDE CONTRA…</th></tr>
+      <tr><td><span class="tag">🧱 Bloque bajo</span></td><td>Tiki-Taka, Posesión</td><td>Directo, Bandas</td></tr>
+      <tr><td><span class="tag">⚡ Contraataque</span></td><td>Gegenpressing, Presión alta</td><td>Posicional, Bloque bajo</td></tr>
+      <tr><td><span class="tag">🎯 Directo</span></td><td>Bloque bajo, Posicional</td><td>Presión alta, Posesión</td></tr>
+      <tr><td><span class="tag">🔥 Gegenpressing</span></td><td>Posesión, Tiki-Taka</td><td>Contraataque, Vertical</td></tr>
+      <tr><td><span class="tag">⚙️ Posesión</span></td><td>Directo, Bloque bajo†</td><td>Gegenpressing, Contra</td></tr>
+      <tr><td><span class="tag">🟠 Presión alta</span></td><td>Directo, Vertical</td><td>Contraataque, Posicional</td></tr>
+    </table>
+    <p style="font-size:11px;color:var(--text-muted);margin-top:8px">† Con ventaja de calidad. Estos modificadores también se aplican a los partidos simulados de otras jornadas.</p>
+  </div>
+
+  <div class="card-wide">
+    <h3>FORMACIONES — CUÁNDO USAR CADA UNA</h3>
+    <table>
+      <tr><th>FORMACIÓN</th><th>DESCRIPCIÓN</th><th>COMBINA CON</th></tr>
+      <tr><td><span class="tag">4-3-3</span></td><td>Versátil. Laterales suben en posesión. Equilibrio ataque/defensa.</td><td>Posesión, Presión alta</td></tr>
+      <tr><td><span class="tag">4-2-3-1</span></td><td>Doble pivote protege bien. El mediapunta necesita buena Visión.</td><td>Posesión, Tiki-Taka</td></tr>
+      <tr><td><span class="tag">4-4-2</span></td><td>Clásico y sólido. Dos delanteros generan más ocasiones.</td><td>Directo, Contraataque</td></tr>
+      <tr><td><span class="tag">3-5-2</span></td><td>Carrileros clave: necesitan Velocidad y Físico altos. Amplitud máxima.</td><td>Posesión, Bandas</td></tr>
+      <tr><td><span class="tag">5-3-2</span></td><td>Bloque muy sólido. Cinco defensas.</td><td>Bloque bajo, Contraataque</td></tr>
+      <tr><td><span class="tag">4-1-4-1</span></td><td>CDM aislado. Necesita Defensa ≥70 en ese puesto.</td><td>Posicional, Equilibrado</td></tr>
+    </table>
+  </div>
+
+  <div class="tip">
+    <strong>💡 Cambio de táctica en vivo.</strong> Durante el partido usa la pestaña GESTIÓN. Si vas ganando 1-0 al minuto 75 → <span class="tag">🧱 Bloque bajo</span>. Si vas perdiendo → <span class="tag">🔥 Gegenpressing</span> o <span class="tag">🎯 Directo</span> para buscar el gol rápido.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ MERCADO -->
+<div class="divider"></div>
+<section class="section" id="mercado">
+  <div class="section-header">
+    <div class="section-icon">💰</div>
+    <div>
+      <div class="section-title">MERCADO DE FICHAJES</div>
+      <div class="section-sub">Ventanas, negociación, presupuestos y ofertas</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>🌞 MERCADO DE VERANO</h3>
+      <p>Jornadas 0-4 (julio-agosto).<br>La ventana más larga. Aprovéchala para reforzar el equipo antes de empezar la temporada.</p>
+    </div>
+    <div class="card">
+      <h3>❄️ MERCADO DE INVIERNO</h3>
+      <p>Jornadas 17-18 (enero).<br>Breve pero clave para tapar bajas por lesión o reforzar posiciones débiles a mitad de temporada.</p>
+    </div>
+    <div class="card">
+      <h3>🔄 FINAL DE TEMPORADA</h3>
+      <p>Tras la jornada 34 (julio).<br>Prepara la siguiente campaña. Renegocia contratos que expiran.</p>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>CÓMO NEGOCIAR UN FICHAJE</h3>
+    <div class="steps">
+      <div class="step"><div class="step-body">Filtra por posición en el mercado y pulsa <strong>NEGOCIAR</strong> sobre el jugador que te interesa.</div></div>
+      <div class="step"><div class="step-body">Ajusta tu oferta con el slider. Empieza por el <strong>80-85% del valor de mercado</strong> — el precio secreto real raramente supera el 130%.</div></div>
+      <div class="step"><div class="step-body">El club responde: <strong>acepta</strong>, <strong>contraoferta</strong> (te da un precio orientativo) o <strong>rechaza</strong>. Tienes hasta 4 intentos. Si rechazan definitivamente, el jugador desaparece del mercado.</div></div>
+      <div class="step"><div class="step-body">Al acordar el precio, negocias el <strong>contrato</strong>: salario semanal (slider) y duración en años (1-6). Comprueba que el salario cabe en tu masa salarial antes de confirmar.</div></div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>DOS PRESUPUESTOS</h3>
+      <ul>
+        <li><strong>💰 Fichajes</strong> — Para pagar traspasos. Se alimenta del presupuesto inicial, ventas y premios de liga.</li>
+        <li><strong>📋 Masa salarial</strong> — Para pagar las nóminas anuales. La barra del sidebar va de verde (holgado) a rojo (al límite).</li>
+      </ul>
+      <br>
+      <p>Si la barra salarial está en rojo, evita fichar jugadores de salario alto. Al final de temporada, si el presupuesto salarial no alcanza, la diferencia sale de fichajes.</p>
+    </div>
+    <div class="card">
+      <h3>RECIBIR OFERTAS</h3>
+      <ul>
+        <li>Los rivales pueden ofrecer espontáneamente por jugadores con media ≥62 (~30% probabilidad/jornada).</li>
+        <li>Ofrece un jugador al mercado desde 👥 Plantilla para subir esa probabilidad al 40%.</li>
+        <li>Al recibir oferta: <strong>Aceptar</strong> (dinero a fichajes), <strong>Contraoferta</strong> (+15-25%, 60% probabilidad de que acepten) o <strong>Rechazar</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>PRIORIDADES DE FICHAJE RECOMENDADAS</h3>
+    <table>
+      <tr><th>PRIORIDAD</th><th>POSICIÓN</th><th>POR QUÉ</th></tr>
+      <tr><td>1</td><td>Portero backup</td><td>Sin él, una lesión del portero titular te obliga a poner un jugador de campo en portería</td></tr>
+      <tr><td>2</td><td>Delantero alternativo</td><td>Garantiza goles con rotaciones o cuando el titular esté agotado</td></tr>
+      <tr><td>3</td><td>Laterales veloces</td><td>Protegen en transiciones y suben al ataque según la formación</td></tr>
+      <tr><td>4</td><td>★ Gran Promesa</td><td>Jóvenes con potencial muy superior a su media actual. Bajo coste, alto retorno futuro</td></tr>
+    </table>
+    <div class="tip" style="margin-top:12px">
+      <strong>💡</strong> Evita gastar todo en un solo crack. Un equipo equilibrado de medias 65-68 supera a uno con 10 jugadores de 60 y uno de 80.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ LIGA -->
+<div class="divider"></div>
+<section class="section" id="liga">
+  <div class="section-header">
+    <div class="section-icon">🏆</div>
+    <div>
+      <div class="section-title">LIGA Y COMPETICIÓN</div>
+      <div class="section-sub">Estructura, premios y estrategia por bloques de temporada</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>LIGA</h3>
+      <ul>
+        <li>18 equipos, 34 jornadas (ida y vuelta)</li>
+        <li>3 pts victoria · 1 empate · 0 derrota</li>
+        <li>Top 3 de Segunda → ascienden a Primera</li>
+        <li>Bottom 3 de Primera → descienden a Segunda</li>
+        <li>6 equipos candidatos al título/ascenso</li>
+        <li>6 equipos de zona media</li>
+        <li>6 equipos en lucha por no descender</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>PREMIOS DE LIGA</h3>
+      <table>
+        <tr><th>POSICIÓN</th><th>PRIMERA</th><th>SEGUNDA</th></tr>
+        <tr><td>Campeón</td><td>5.000.000€</td><td>1.500.000€</td></tr>
+        <tr><td>2º - 3º</td><td>3-2M€</td><td>700-1M€</td></tr>
+        <tr><td>4º - 6º</td><td>1-1.5M€</td><td>300-500K€</td></tr>
+        <tr><td>Último</td><td>100.000€</td><td>40.000€</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>COPA NACIONAL</h3>
+      <ul>
+        <li>36 equipos (ambas divisiones)</li>
+        <li>Formato eliminatorio</li>
+        <li>Ronda preliminar → octavos → cuartos → semis → final</li>
+        <li>Ideal para rotar y dar minutos a jóvenes</li>
+        <li>No hay premios económicos directos</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>ESTRATEGIA POR BLOQUES DE TEMPORADA</h3>
+    <table>
+      <tr><th>JORNADAS</th><th>MES REAL</th><th>ESTRATEGIA</th></tr>
+      <tr><td>0-4</td><td>Jul-Ago</td><td>Mercado abierto. Ficha lo que necesites. Juega con tu mejor once pero observa carencias.</td></tr>
+      <tr><td>5-15</td><td>Sep-Nov</td><td>Sin mercado. <strong>Rota cada 3-4 partidos.</strong> La fatiga acumulada destroza equipos que no rotan.</td></tr>
+      <tr><td>17-18</td><td>Enero</td><td>Mercado de invierno. Si desciendes → refuerza defensa. Si asciendes → refuerza y mantén.</td></tr>
+      <tr><td>19-24</td><td>Feb-Mar</td><td>Consolidación. Mantén la rotación pero empieza a gestionar el sprint final.</td></tr>
+      <tr><td>25-34</td><td>Mar-May</td><td>Sprint final. Si tienes objetivo claro, juega con tu mejor once aunque estén cansados.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ PARTIDOS -->
+<div class="divider"></div>
+<section class="section" id="partidos">
+  <div class="section-header">
+    <div class="section-icon">⚽</div>
+    <div>
+      <div class="section-title">PANTALLA DE PARTIDO</div>
+      <div class="section-sub">Controles, sustituciones y cómo leer el partido</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>CONTROLES</h3>
+      <ul>
+        <li><strong>▶ / ⏸</strong> — Jugar / Pausar</li>
+        <li><strong>0.5x / 1x / 2x / 4x / MAX</strong> — Velocidad de simulación</li>
+        <li><strong>Pestaña LOG</strong> — Texto descriptivo de cada acción</li>
+        <li><strong>Pestaña GESTIÓN</strong> — Sustituciones y táctica en vivo</li>
+        <li><strong>Pestaña STATS</strong> — Posesión, tiros, faltas en tiempo real</li>
+        <li><strong>Pestaña JUGADORES</strong> — Valoraciones y fatiga de cada jugador</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>SUSTITUCIONES</h3>
+      <ul>
+        <li>5 cambios disponibles por partido</li>
+        <li>Se aplican en el siguiente momento de pausa natural</li>
+        <li>Usa la pestaña GESTIÓN del panel derecho</li>
+      </ul>
+      <br>
+      <p><strong>Cuándo sustituir:</strong></p>
+      <ul>
+        <li>Jugador en rojo de fatiga antes del min. 65</li>
+        <li>Lesión leve sin agravar</li>
+        <li>Táctica: meter un delantero si vas perdiendo</li>
+        <li>Proteger resultado: un CDM más en los últimos 10 min</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>¿POR QUÉ MARCA POCO EL EQUIPO?</h3>
+    <table>
+      <tr><th>CAUSA</th><th>SOLUCIÓN</th></tr>
+      <tr><td>Delantero con Disparo &lt;60</td><td>Fichar un ST con Disparo ≥68. Es el atributo más directo para marcar.</td></tr>
+      <tr><td>Táctica demasiado defensiva</td><td>Cambiar a Posesión, Bandas o Gegenpressing para generar más ocasiones.</td></tr>
+      <tr><td>Jugadores en rojo de fatiga</td><td>Rotar. Un delantero agotado de media 70 rinde como uno de media 45.</td></tr>
+      <tr><td>Sin delantero centro en el once</td><td>Asegurarte de tener al menos un ST o CF como titular.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ CONTRATOS -->
+<div class="divider"></div>
+<section class="section" id="contratos">
+  <div class="section-header">
+    <div class="section-icon">📋</div>
+    <div>
+      <div class="section-title">CONTRATOS Y ECONOMÍA</div>
+      <div class="section-sub">Salarios, renovaciones y gestión económica</div>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>CICLO DE VIDA DE UN CONTRATO</h3>
+    <div class="steps">
+      <div class="step"><div class="step-body"><strong>Al fichar</strong> — Negocias salario semanal y duración (1-6 años).</div></div>
+      <div class="step"><div class="step-body"><strong>Durante la temporada</strong> — El salario se descuenta de la masa salarial disponible. La barra del sidebar lo muestra en tiempo real.</div></div>
+      <div class="step"><div class="step-body"><strong>Al final de temporada</strong> — Se paga la nómina anual completa. Los contratos se decrementan 1 año automáticamente.</div></div>
+      <div class="step"><div class="step-body"><strong>Con 0 años restantes</strong> — El jugador abandona el club como agente libre. Si quieres conservarlo, renegocia cuando le quede 1 año.</div></div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>SALARIOS ORIENTATIVOS</h3>
+      <table>
+        <tr><th>MEDIA</th><th>/SEMANA</th></tr>
+        <tr><td>50-55</td><td>300-600 €</td></tr>
+        <tr><td>56-62</td><td>600-1.200 €</td></tr>
+        <tr><td>63-68</td><td>1.200-2.800 €</td></tr>
+        <tr><td>69-74</td><td>2.800-5.500 €</td></tr>
+        <tr><td>75-80</td><td>5.500-9.000 €</td></tr>
+        <tr><td>81+</td><td>9.000+ €</td></tr>
+      </table>
+      <p style="font-size:11px;margin-top:8px;color:var(--text-muted)">Jugadores &lt;24 años: descuento del ~25%.</p>
+    </div>
+    <div class="card">
+      <h3>RESCISIÓN DE CONTRATO</h3>
+      <p>El coste de rescindir un contrato varía entre <strong>6 y 18 meses de salario</strong> según los años restantes.</p>
+      <br>
+      <ul>
+        <li>Más años restantes → más caro rescindir.</li>
+        <li>Espera a que quede 1 año para rescindir a precio razonable.</li>
+        <li>Si no te interesa el jugador, déjalo expirar gratis.</li>
+        <li>Si lo quieres vender, hazlo antes de que expire — pierde valor en el mercado.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ CONSEJOS -->
+<div class="divider"></div>
+<section class="section" id="consejos">
+  <div class="section-header">
+    <div class="section-icon">💡</div>
+    <div>
+      <div class="section-title">CONSEJOS AVANZADOS</div>
+      <div class="section-sub">Estrategias basadas en el motor del juego</div>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>CÓMO ASCENDER EN LA PRIMERA TEMPORADA</h3>
+    <div class="steps">
+      <div class="step"><div class="step-body"><strong>Prioriza portero y delantero en pretemporada.</strong> Son los puestos con mayor impacto directo en el marcador. Busca media ≥68 en ambos.</div></div>
+      <div class="step"><div class="step-body"><strong>Elige una táctica y mantenla.</strong> No la cambies cada jornada. El Contraataque y el Posicional son los más efectivos para equipos medianos en Segunda.</div></div>
+      <div class="step"><div class="step-body"><strong>Rota de forma sistemática.</strong> Nunca dos partidos seguidos con el mismo once si puedes. La fatiga es acumulativa y destroza rendimientos en noviembre.</div></div>
+      <div class="step"><div class="step-body"><strong>Vende jugadores no deseados en invierno,</strong> no esperes a que expiren los contratos. Recuperas dinero para reforzar el sprint final.</div></div>
+      <div class="step"><div class="step-body"><strong>Si estás en top 3 en enero, refuerza.</strong> No esperes a ver si aguantas. El sprint final (jornadas 25-34) es decisivo y necesitas a tu mejor plantilla descansada.</div></div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>MAXIMIZAR EL DESARROLLO JUVENIL</h3>
+      <ul>
+        <li><strong>Hazlos titulares</strong> — el desarrollo como suplente es 3x más lento.</li>
+        <li><strong>Tácticas ofensivas</strong> — más acciones = más XP por partido.</li>
+        <li><strong>Contrato largo</strong> — firma 4-5 años para no perderlos en su mejor etapa (22-26).</li>
+        <li><strong>Paciencia</strong> — un jugador de media 58 a los 19 puede llegar a 74-78 a los 24.</li>
+        <li>La barra morada en su ficha muestra el progreso hasta el siguiente nivel.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>QUÉ HACER SI DESCIENDES</h3>
+      <ul>
+        <li>Cambia a táctica conservadora: Bloque bajo o Contraataque.</li>
+        <li>Refuerza portería y defensa en el mercado de invierno.</li>
+        <li>Acepta empates contra equipos superiores — un punto es valioso.</li>
+        <li>En los últimos minutos con ventaja: sustituye un extremo por un CDM.</li>
+        <li>Si finalmente desciendes: en Segunda tienes más margen para desarrollar jóvenes con menos presión.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-wide">
+    <h3>ERRORES FRECUENTES DE JUGADORES NUEVOS</h3>
+    <table>
+      <tr><th>ERROR</th><th>POR QUÉ ES UN PROBLEMA</th><th>SOLUCIÓN</th></tr>
+      <tr><td>Jugar siempre con el mismo once</td><td>En jornada 6-7 todos están en rojo. El rendimiento cae en picado.</td><td>Rotación cada 3-4 partidos mínimo.</td></tr>
+      <tr><td>Fichar sin comprobar el salario</td><td>La masa salarial se dispara al 200% y al final de temporada te quedas sin presupuesto de fichajes.</td><td>Revisa la barra salarial del sidebar antes de cada fichaje.</td></tr>
+      <tr><td>No renovar contratos a tiempo</td><td>El jugador se va gratis. Pierdes el activo y no recuperas nada.</td><td>Vigila los contratos con 1 año restante cada inicio de temporada.</td></tr>
+      <tr><td>Ignorar la táctica del rival</td><td>Un rival con Gegenpressing te destroza si juegas Posesión contra él.</td><td>Consulta 🔍 Equipos antes de cada partido y ajusta.</td></tr>
+      <tr><td>Empezar con Primera División sin experiencia</td><td>Los rivales tienen media 85-93 y el margen de error es mínimo.</td><td>Empieza en Segunda hasta conocer todos los sistemas.</td></tr>
+    </table>
+  </div>
+
+</section>
+
+<div class="divider"></div>
+<footer>
+  ONCE Football Manager · v1.7 · Guía del Juego<br>
+  <span style="color:#3a4060;margin-top:6px;display:block">Todos los valores y mecánicas descritos corresponden a la versión actual del motor de simulación</span>
+</footer>
+
+</div><!-- /content -->
+</body>
+</html>

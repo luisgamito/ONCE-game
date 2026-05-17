@@ -322,10 +322,157 @@ const LAST_NAMES = [
   'Smith','Jones','Williams','Brown','Taylor','Davies','Evans','Wilson','Thomas','Roberts',
   'Rossi','Ferrari','Esposito','Bianchi','Romano','Colombo','Ricci','Marino','Greco','Bruno',
 ];
-const TEAM_NAMES_DIV1 = ['Real Capital','Atlético Norte','FC Imperio','Sporting CF','Racing Élite','Olimpia FC','Estrella Roja','Bética CF','Águilas Reales','Club Náutico','Dragones FC','Tempest United','Halcones FC','Real Cosmos','FC Patriotas','Marítimo SC','Valencia Sur','Celta Premier'];
-const TEAM_NAMES_DIV2 = ['Deportivo SC','Independiente','Fortuna CF','Unión Norte','Costa FC','Atlético Sur','FC Veteranos','Sporting B','Real Provincia','Magnos FC','Lobos FC','Centauros','Vientos FC','Bahía SC','Cóndor FC','Albirrojo CF','Estrella B','Rayo Azul'];
-const TEAM_ABBRS_DIV1 = ['RCP','ATN','FCI','SPC','REL','OLI','EST','BET','AGU','NAU','DRA','TMP','HAL','RCO','FCP','MAR','VLS','CEL'];
-const TEAM_ABBRS_DIV2 = ['DSC','IND','FRT','UNN','CST','ATS','FCV','SPB','RPV','MAG','LOB','CTR','VTO','BHA','CDR','ALB','ETB','RAY'];
+// ============================================================
+// GENERADOR DE NOMBRES DE EQUIPOS — combinatorio masivo
+// Inspirado en fútbol italiano, inglés, francés, alemán, argentino y brasileño
+// ============================================================
+
+const _CITIES = [
+  // Italia
+  'Roma','Milano','Torino','Napoli','Palermo','Venezia','Genova','Bologna','Firenze','Lazio',
+  'Bari','Padova','Verona','Parma','Catania','Udine','Brescia','Lecce','Reggio','Livorno',
+  'Salerno','Modena','Piacenza','Novara','Ternana','Cosenza','Crotone','Foggia','Perugia','Rimini',
+  'Ascoli','Spezia','Empoli','Pisa','Salernitana','Vicenza','Cittadella','Monza','Cagliari','Siena',
+  // Inglaterra
+  'Blackpool','Preston','Bolton','Burnley','Oldham','Wigan','Bury','Crewe','Exeter','Grimsby',
+  'Harlow','Ipswich','Leeds','Luton','Newport','Oxford','Portsmouth','Reading','Swindon','Watford',
+  'Barnsley','Bradford','Bristol','Burton','Carlisle','Chester','Colchester','Coventry','Derby','Doncaster',
+  'Fleetwood','Gillingham','Huddersfield','Lincoln','Mansfield','Millwall','Morecambe','Northampton',
+  'Nottingham','Peterborough','Plymouth','Rochdale','Rotherham','Salford','Scunthorpe','Sheffield',
+  'Shrewsbury','Southend','Stockport','Stoke','Swansea','Tranmere','Walsall','Wrexham','Yeovil',
+  // Francia
+  'Lyon','Bordeaux','Nantes','Rennes','Strasbourg','Toulouse','Montpellier','Lens','Metz','Caen',
+  'Dijon','Grenoble','Reims','Rouen','Brest','Lorient','Troyes','Angers','Clermont','Ajaccio',
+  'Auxerre','Bastia','Guingamp','Laval','Niort','Sedan','Sochaux','Valenciennes','Amiens','Nancy',
+  'Libourne','Arles','Châteauroux','Istres','Cannes','Toulon','Béziers','Perpignan','Pau','Bayonne',
+  // Alemania
+  'Köln','Bremen','Essen','Dortmund','Bochum','Bielefeld','Duisburg','Kassel','Freiburg','Mainz',
+  'Erfurt','Halle','Chemnitz','Rostock','Paderborn','Ingolstadt','Ulm','Aachen','Kiel','Lübeck',
+  'Wiesbaden','Regensburg','Augsburg','Fürth','Karlsruhe','Mannheim','Osnabrück','Saarbrücken',
+  'Braunschweig','Magdeburg','Dresden','Cottbus','Jena','Göttingen','Würzburg','Offenbach',
+  'Münster','Wuppertal','Darmstadt','Bayreuth','Sandhausen','Homburg','Elversberg','Zwickau',
+  // Argentina
+  'Rosario','Córdoba','Mendoza','Tucumán','Salta','Quilmes','Lanús','Banfield','Belgrano','Tigre',
+  'Platense','Ferro','Chacarita','Colón','Talleres','Patronato','Aldosivi','Almagro','Huracán',
+  'Vélez','San Lorenzo','Gimnasia','Estudiantes','Defensa','Arsenal','Temperley','Almirante',
+  'Barracas','Deportivo','Riestra','San Martín','Atlético','Godoy','Sarmiento','Instituto',
+  // Brasil
+  'Santos','Goiânia','Recife','Fortaleza','Manaus','Belém','Maceió','Natal','Aracaju','Vitória',
+  'Botafogo','Vasco','América','Cruzeiro','Grêmio','Caxias','Londrina','Joinville','Figueirense',
+  'Avaí','Chapecoense','Brusque','Criciúma','Operário','Tombense','Sampaio','Remo','Paysandu',
+  'Náutico','Sport','CRB','CSA','Bahia','Sergipe','Confiança','Treze','Campinense','Sousa',
+];
+
+const _SUFFIXES = [
+  // Ingleses
+  'United','City','Town','Rovers','Wanderers','Athletic','FC','AFC','County','Rangers',
+  'Vale','Wednesday','Thursday','Friday','Hotspur','Palace','Albion','North','South','East','West',
+  // Italianos
+  'Calcio','FC','AC','SS','AS','SSD','CF','SR','SC',
+  // Franceses
+  'FC','SC','AS','OC','Sporting','Olympique','Union',
+  // Alemanes
+  'FC','SC','VfB','VfL','TSV','Borussia','Dynamo','Eintracht','Fortuna','Hansa',
+  // Latinos
+  'CF','CD','AC','Atlético','Deportivo','Racing','Unión','Sporting','River','Boca',
+  'Central','Juniors','Independiente','Nacional','Libertad','Olimpia','Victoria',
+];
+
+const _PREFIXES = [
+  'Real','Atlético','Sporting','Racing','Club','Olympique','Olympia','Olimpia',
+  'FC','SC','AC','CF','CD','AS','SV','FK','VfB','VfL','TSV',
+  'Rapid','Dynamo','Fortuna','Borussia','Hansa','Eintracht',
+  'Deportivo','Unión','Nacional','Central','Independiente',
+];
+
+const _ADJECTIVES = [
+  'United','Rojo','Azul','Verde','Negro','Blanco','Dorado','Plateado',
+  'Norte','Sur','Este','Oeste','Central','Real','Grande','Nuevo',
+  'Royal','Red','Blue','Black','White','Green','Golden','Silver',
+  'Rouge','Bleu','Noir','Blanc','Vert','Nord','Sud',
+  'Rot','Blau','Schwarz','Weiß','Grün','Nord','Süd',
+  'Rojo y Negro','Azul y Blanco','Verde y Blanco','Rojo y Blanco',
+];
+
+const _NOUNS = [
+  // Animales / emblemas
+  'Eagles','Lions','Tigers','Bears','Wolves','Hawks','Falcons','Ravens','Sharks',
+  'Dragons','Phoenix','Condors','Jaguars','Panthers','Cobras','Vipers',
+  'Águilas','Leones','Tigres','Lobos','Halcones','Dragones','Cóndores',
+  'Aioli','Orquídea','Estrella','Diamante','Rayo','Trueno','Tormenta',
+  // Lugares / elementos
+  'United','City','Town','Park','Vale','Wood','Field','Moor','Hill','Brook',
+  'Marina','Costa','Sierra','Bahía','Pampas','Selva','Llanos',
+  // Conceptos
+  'Athletic','Sporting','Racing','Wanderers','Rovers','Rangers',
+  'Warriors','Knights','Crusaders','Spartans','Titans','Gladiators',
+  'Olimpia','Victoria','Gloria','Libertad','Imperio','Corona',
+];
+
+const _TEAM_COLORS = [
+  '#e63946','#457b9d','#2a9d8f','#e9c46a','#f4a261','#264653','#6d6875',
+  '#b5838d','#7b2d8b','#1d3557','#2d6a4f','#52b788','#d62828','#023e8a',
+  '#fb8500','#8ecae6','#219ebc','#126782','#ffb703','#06d6a0','#118ab2',
+  '#073b4c','#ef476f','#ffd166','#7209b7','#3a0ca3','#4361ee','#4cc9f0',
+  '#f72585','#b5179e','#560bad','#480ca8','#3f37c9','#c77dff','#9d4edd',
+  '#e07a5f','#3d405b','#81b29a','#f2cc8f','#118ab2','#06d6a0','#ffd166',
+  '#ef476f','#0077b6','#00b4d8','#90e0ef','#caf0f8','#d00000','#e85d04',
+  '#f48c06','#ffba08','#370617','#6a040f','#9d0208','#dc2f02','#f35b04',
+];
+
+// Selector aleatorio local (data.js se carga antes de utils.js)
+const _pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+// Patrones de construcción de nombre
+const _PATTERNS = [
+  () => `${_pick(_PREFIXES)} ${_pick(_CITIES)}`,
+  () => `${_pick(_CITIES)} ${_pick(_SUFFIXES)}`,
+  () => `${_pick(['Real','Atlético','Sporting','Racing','Deportivo','Unión','Nacional','Rapid','Dynamo','Fortuna'])} ${_pick(_CITIES)}`,
+  () => `${_pick(_CITIES)} ${_pick(['Central','Norte','Sur','Este','Oeste','United','Athletic','Sporting','Racing','FC','CF','SC'])}`,
+  () => `${_pick(['FC','SC','AC','AS','CD','CF','FK','VfL','VfB','TSV','SS'])} ${_pick(_CITIES)}`,
+  () => `${_pick(['Olympique','Borussia','Eintracht','Hansa','Fortuna','Olympia','Esperanza','Progreso'])} ${_pick(_CITIES)}`,
+  () => `${_pick(_CITIES)} ${_pick(['Wanderers','Rovers','Rangers','Athletic','United','City','Town','County','Hotspur','Albion'])}`,
+  () => `${_pick(_CITIES)} FC`,
+  () => `${_pick(_CITIES)} SC`,
+  () => `${_pick(_CITIES)} CF`,
+];
+
+function _genTeamName(used = new Set()) {
+  let name, tries = 0;
+  do {
+    name = _pick(_PATTERNS)();
+    tries++;
+  } while (used.has(name) && tries < 100);
+  used.add(name);
+  return name;
+}
+
+function _genAbbr(name) {
+  const stop = new Set(['de','del','la','le','les','des','van','von','fc','sc','ac','as','cf','cd','ss','vfb','vfl','tsv','fk']);
+  const words = name.split(/\s+/).filter(w => !stop.has(w.toLowerCase()));
+  if (words.length >= 3) return (words[0][0]+words[1][0]+words[2][0]).toUpperCase();
+  if (words.length === 2) return (words[0].slice(0,2)+words[1][0]).toUpperCase();
+  return name.slice(0,3).toUpperCase();
+}
+
+function _genColor(used = new Set()) {
+  const available = _TEAM_COLORS.filter(c => !used.has(c));
+  const pool = available.length > 0 ? available : _TEAM_COLORS;
+  const c = _pick(pool);
+  used.add(c);
+  return c;
+}
+
+function generateTeamPool(n) {
+  const usedNames = new Set();
+  const usedColors = new Set();
+  return Array.from({length: n}, () => {
+    const name = _genTeamName(usedNames);
+    return { name, abbr: _genAbbr(name), color: _genColor(usedColors) };
+  });
+}
+
+// Los equipos se generan dinámicamente en createLeague via generateTeamPool()
 
 const POS_ROLE = {GK:'GK',CB:'DEF',LB:'DEF',RB:'DEF',CDM:'MID',CM:'MID',LM:'MID',RM:'MID',CAM:'MID',LW:'FWD',RW:'FWD',ST:'FWD'};
 
