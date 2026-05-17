@@ -16,7 +16,6 @@ function showScreen(id) {
   const savedTheme = localStorage.getItem('once_theme') || 'dark';
   applyTheme(savedTheme);
 
-  _lang = 'es';
   syncTacticsLang();
   applyLang();
 
