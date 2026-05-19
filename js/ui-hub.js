@@ -9,7 +9,7 @@ function initHub() {
   document.getElementById('hubBadge').textContent = G.club.abbr;
   document.getElementById('hubBadge').style.color = isDark(G.club.color)?'#fff':'#000';
   document.getElementById('hubTeamName').textContent = G.club.name;
-  document.getElementById('hubSeason').textContent = `${t('matchdayShort', myDiv.currentJornada+1)} · ${divName(myDiv.name)} · S${G.season}`;
+  document.getElementById('hubSeason').textContent = `${t('matchdayShort', myDiv.currentJornada+1)} · ${divName(myDiv.name)} · T${G.season}`;
   document.getElementById('hubFormationSelect').value = G.club.formation;
   updateTacticChips('hubTacticRow', G.club.tactic);
 
@@ -49,7 +49,7 @@ function updateBudgetSidebar() {
   if (dateEl && myDiv2) {
     const j = myDiv2.currentJornada;
     const dateStr = jornadaDateStr(j, G.season, _lang);
-    const jLabel = j === 0 ? (_lang === 'en' ? 'Pre-season' : 'Preseason') : (_lang === 'en' ? `Matchday ${j}` : `Matchday ${j}`);
+    const jLabel = j === 0 ? 'Pretemporada' : `Jornada ${j}`;
     dateEl.innerHTML = `<span style="color:var(--text-dim)">${jLabel}</span> <span style="color:var(--text-muted)">·</span> <span style="color:var(--text-muted)">${dateStr}</span>`;
   }
   const myTeam = getMyTeam();
@@ -170,7 +170,7 @@ function renderNextMatch() {
   const myDiv = getMyDivision();
   document.getElementById('homeJornada').textContent = `${t('matchdayLabel', myDiv.currentJornada+1)} · ${divName(myDiv.name)}`;
   if (!event) {
-    document.getElementById('nextMatchTeams').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Season completada</div>';
+    document.getElementById('nextMatchTeams').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Temporada completada</div>';
     document.getElementById('nextMatchMeta').innerHTML = '';
     return;
   }
@@ -189,24 +189,28 @@ function renderNextMatch() {
   }
   const myColor = G.club.color;
 
-  document.getElementById('nextMatchTeams').innerHTML = `
-    <div class="nm-team">
-      <div class="nm-team-badge" style="background:${homeT.id==='player'?myColor:'#1c2530'};color:${homeT.id==='player'?(isDark(myColor)?'#fff':'#000'):'#6b8fa8'}">${homeT.abbr||homeT.name.slice(0,3).toUpperCase()}</div>
-      <div class="nm-team-name">${homeT.name}</div>
-      <div class="nm-team-rating">Media ${homeT.quality||'?'}</div>
-    </div>
-    <div class="nm-sep">VS</div>
-    <div class="nm-team">
-      <div class="nm-team-badge" style="background:${awayT.id==='player'?myColor:'#1c2530'};color:${awayT.id==='player'?(isDark(myColor)?'#fff':'#000'):'#6b8fa8'}">${awayT.abbr||awayT.name.slice(0,3).toUpperCase()}</div>
-      <div class="nm-team-name">${awayT.name}</div>
-      <div class="nm-team-rating">Media ${awayT.quality||'?'}</div>
+  const oppT = homeT.id === 'player' ? awayT : homeT;
+  const makeTeamHtml = (team) => {
+    const isPlayer = team.id === 'player';
+    const clickable = !isPlayer;
+    return `<div class="nm-team" ${clickable ? `style="cursor:pointer" onclick="switchHubPanel('panel-teams');selectTeam('${team.id}')" title="Ver plantilla y táctica"` : ''}>
+      <div class="nm-team-badge" style="background:${isPlayer?myColor:(team.color||'#1c2530')};color:${isPlayer?(isDark(myColor)?'#fff':'#000'):(isDark(team.color||'#1c2530')?'#fff':'#000')}">${team.abbr||team.name.slice(0,3).toUpperCase()}</div>
+      <div class="nm-team-name" ${clickable?'style="color:var(--accent);text-decoration:underline dotted;text-underline-offset:3px"':''}>${team.name}</div>
+      <div class="nm-team-rating">Media ${team.quality||'?'}</div>
+      ${clickable ? '<div style="font-size:9px;color:var(--text-muted);margin-top:2px">🔍 ver equipo</div>' : ''}
     </div>`;
+  };
+
+  document.getElementById('nextMatchTeams').innerHTML = `
+    ${makeTeamHtml(homeT)}
+    <div class="nm-sep">VS</div>
+    ${makeTeamHtml(awayT)}`;
 
   document.getElementById('nextMatchMeta').innerHTML = `
     <div class="nm-meta-item"><div class="nm-meta-label">${t('competition')}</div><div class="nm-meta-val" style="color:${event.type==='cup'?'var(--gold)':'var(--accent)'}">${badge}</div></div>
     <div class="nm-meta-item"><div class="nm-meta-label">${event.type==='league'?t('matchdayLabel', event.jornada||1):t('roundLabel')}</div><div class="nm-meta-val">${label}</div></div>
     <div class="nm-meta-item"><div class="nm-meta-label">Campo</div><div class="nm-meta-val">${isHome?'LOCAL':'VISITANTE'}</div></div>
-    <div class="nm-meta-item"><div class="nm-meta-label">Season</div><div class="nm-meta-val">${G.season}</div></div>`;
+    <div class="nm-meta-item"><div class="nm-meta-label">Temporada</div><div class="nm-meta-val">${G.season}</div></div>`;
 }
 
 function renderRecentResults() {
@@ -381,7 +385,7 @@ function renderSquad() {
     const slot      = formSlots[slotIdx] || { pos: p.pos };
 
     const statusIcon = injured   ? `<span title="${p.injury.type} — ${p.injury.jornadasLeft}" style="color:var(--red)">🩹</span>`
-                     : suspended ? `<span title="${_lang==='en'?'Suspended':'Suspended'} — ${p.suspension}j" style="color:var(--red)">🟥</span>`
+                     : suspended ? `<span title="${_lang==='en'?'Sancionado':'Sancionado'} — ${p.suspension}j" style="color:var(--red)">🟥</span>`
                      : warned    ? `<span title="${t('warned')}" style="color:var(--yellow)">⚠️</span>`
                      : p.listedForSale ? `<span title="${_lang==='en'?'Listed: ':'Listed: '}${fmt(p.askingPrice)}" style="color:var(--accent)">💰</span>`
                      : '';
@@ -393,7 +397,7 @@ function renderSquad() {
 
     const contractStr = p.contract
       ? `${fmt(p.contract.salary)}/sem · ${p.contract.yearsLeft||0}y`
-      : 'No contract';
+      : 'Sin contrato';
     const contractColor = (p.contract?.yearsLeft||0) <= 1 ? 'var(--red)' : 'var(--text-muted)';
 
     return `<div class="sq-row ${injured||suspended?'sq-unavailable':''}"
@@ -761,33 +765,52 @@ function renderTransferList() {
   if (!G._transferPool || G._transferWindowKey !== windowKey) {
     G._transferPool = [];
 
-    // Cuotas por posición: garantizamos variedad y cantidad
+    // Cuotas por posición: variedad y cantidad generosa
     const posQuotas = [
-      { pos: 'GK',  count: 4 },
-      { pos: 'CB',  count: 5 },
-      { pos: 'LB',  count: 3 },
-      { pos: 'RB',  count: 3 },
-      { pos: 'CDM', count: 4 },
-      { pos: 'CM',  count: 5 },
-      { pos: 'CAM', count: 4 },
-      { pos: 'LM',  count: 2 },
-      { pos: 'RM',  count: 2 },
-      { pos: 'LW',  count: 3 },
-      { pos: 'RW',  count: 3 },
-      { pos: 'ST',  count: 6 },
+      { pos: 'GK',  count: 6 },
+      { pos: 'CB',  count: 8 },
+      { pos: 'LB',  count: 5 },
+      { pos: 'RB',  count: 5 },
+      { pos: 'CDM', count: 7 },
+      { pos: 'CM',  count: 8 },
+      { pos: 'CAM', count: 6 },
+      { pos: 'LM',  count: 4 },
+      { pos: 'RM',  count: 4 },
+      { pos: 'LW',  count: 6 },
+      { pos: 'RW',  count: 6 },
+      { pos: 'ST',  count: 10 },
     ];
+
+    // Perfiles de jugador: distribución variada
+    const profiles = [
+      { weight: 0.12, label: 'joven_promesa',  qMod: () => -rndI(8,18),  age: () => rndI(16,19) },
+      { weight: 0.10, label: 'super_promesa',  qMod: () => -rndI(2,10),  age: () => rndI(18,21) },
+      { weight: 0.08, label: 'veterano',        qMod: () => rndI(-5,8),   age: () => rndI(33,37) },
+      { weight: 0.12, label: 'crack',           qMod: () => rndI(10,20),  age: () => rndI(24,29) },
+      { weight: 0.08, label: 'crack_joven',     qMod: () => rndI(6,14),   age: () => rndI(21,25) },
+      { weight: 0.18, label: 'standard',        qMod: () => rndI(-3,6),   age: () => rndI(23,30) },
+      { weight: 0.10, label: 'irregular',       qMod: () => -rndI(6,14),  age: () => rndI(22,32) },
+      { weight: 0.08, label: 'maduro_solido',   qMod: () => rndI(0,8),    age: () => rndI(28,33) },
+      { weight: 0.07, label: 'libre_barato',    qMod: () => -rndI(10,20), age: () => rndI(24,36) },
+      { weight: 0.07, label: 'wildcard',        qMod: () => rndI(-12,15), age: () => rndI(19,34) },
+    ];
+
+    function pickProfile() {
+      const r = Math.random();
+      let cum = 0;
+      for (const pr of profiles) {
+        cum += pr.weight;
+        if (r < cum) return pr;
+      }
+      return profiles[profiles.length - 1];
+    }
 
     posQuotas.forEach(({ pos, count }) => {
       for (let i = 0; i < count; i++) {
-        const r = Math.random();
-        let q, ageOverride;
-        if (r < 0.15)      { q = cfg.baseQuality - rndI(8,18);  ageOverride = rndI(16,19); } // joven promesa
-        else if (r < 0.30) { q = cfg.baseQuality + rndI(-5,8);  ageOverride = rndI(33,37); } // veterano
-        else if (r < 0.45) { q = cfg.baseQuality + rndI(8,16);  ageOverride = rndI(24,29); } // crack
-        else if (r < 0.70) { q = cfg.baseQuality + rndI(-3,6);  ageOverride = rndI(23,30); } // standard
-        else if (r < 0.85) { q = cfg.baseQuality - rndI(6,14);  ageOverride = rndI(22,32); } // irregular
-        else               { q = cfg.baseQuality + rndI(-10,12); ageOverride = rndI(19,33); } // wildcard
-        const p = createPlayer(q, pos, 'tr'+pos+i+'_'+Date.now()+'_'+rndI(0,9999), false, ageOverride);
+        const profile = pickProfile();
+        const q = clamp(cfg.baseQuality + profile.qMod(), 38, 97);
+        const age = profile.age();
+        const p = createPlayer(q, pos, 'tr'+pos+i+'_'+Date.now()+'_'+rndI(0,9999), false, age);
         G._transferPool.push(p);
       }
     });
@@ -837,9 +860,8 @@ function renderTransferList() {
     return `<div class="transfer-item">
       <div>
         <div class="ti-name">${p.name}${potHint}</div>
-        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age}</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}${_lang==='en'?'/sem':(_lang==='en'?'/sem':'/sem')}</span>${wageWarn}</div>
+        <div class="ti-info">${p.pos} · ${overall} <span style="color:${ageColor}">· ${p.age} años</span> · <span style="color:var(--text-muted)">${fmt(estSalary)}/sem</span>${wageWarn}</div>
       </div>
-      <div class="ti-price">${fmt(p.value)}</div>
       <button class="btn-sign" onclick="openNegModal(${realIdx})" ${canAfford?'':'style="opacity:0.4;cursor:not-allowed"'} ${canAfford?'':'disabled'}>NEGOCIAR</button>
     </div>`;
   }).join('');

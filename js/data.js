@@ -229,23 +229,32 @@ const TACTICS_CFG = {
 };
 
 // Aplicar el modificador de mentalidad sobre la táctica
-function effectiveTactic(tacticKey) {
+function effectiveTactic(tacticKey, isMyTeam) {
   // Migración de claves antiguas
   if (tacticKey === 'block') tacticKey = 'parking';
   const tac = TACTICS_CFG[tacticKey] || TACTICS_CFG.balanced;
   const m = MENTALITIES[tac.mentality] || MENTALITIES.balanced;
   const c = (v) => Math.max(0, Math.min(1, v));
+
+  // Bonus de entrenamiento táctico (solo al equipo del jugador)
+  let tacBonus = 0;
+  if (isMyTeam && G && G.club && G.club.trainingBonus && G.club.trainingBonus.tactical
+      && G.club.trainingBonus.tacticUsed === tacticKey) {
+    tacBonus = 0.05;
+  }
+
   return {
     ...tac,
     defLine:        c(tac.defLine        + m.lineMod),
     lineEngage:     c(tac.lineEngage     + m.lineMod),
-    pressIntensity: c(tac.pressIntensity + m.pressMod),
+    pressIntensity: c(tac.pressIntensity + m.pressMod + tacBonus),
     counterPress:   c(tac.counterPress   + m.pressMod * .8),
     tempo:          c(tac.tempo          + m.tempoMod),
     directness:     c(tac.directness     + m.tempoMod * .5),
     widthAtt:       c(tac.widthAtt       + m.widthMod),
     shootBias:      c(tac.shootBias      + m.riskMod * .5),
-    throughBalls:   c(tac.throughBalls   + m.riskMod * .5)
+    throughBalls:   c(tac.throughBalls   + m.riskMod * .5),
+    passBonus:      tacBonus   // pases más precisos con cohesión táctica
   };
 }
 
@@ -328,40 +337,61 @@ const LAST_NAMES = [
 // ============================================================
 
 const _CITIES = [
-  // Italia
-  'Roma','Milano','Torino','Napoli','Palermo','Venezia','Genova','Bologna','Firenze','Lazio',
-  'Bari','Padova','Verona','Parma','Catania','Udine','Brescia','Lecce','Reggio','Livorno',
-  'Salerno','Modena','Piacenza','Novara','Ternana','Cosenza','Crotone','Foggia','Perugia','Rimini',
-  'Ascoli','Spezia','Empoli','Pisa','Salernitana','Vicenza','Cittadella','Monza','Cagliari','Siena',
-  // Inglaterra
-  'Blackpool','Preston','Bolton','Burnley','Oldham','Wigan','Bury','Crewe','Exeter','Grimsby',
-  'Harlow','Ipswich','Leeds','Luton','Newport','Oxford','Portsmouth','Reading','Swindon','Watford',
-  'Barnsley','Bradford','Bristol','Burton','Carlisle','Chester','Colchester','Coventry','Derby','Doncaster',
-  'Fleetwood','Gillingham','Huddersfield','Lincoln','Mansfield','Millwall','Morecambe','Northampton',
-  'Nottingham','Peterborough','Plymouth','Rochdale','Rotherham','Salford','Scunthorpe','Sheffield',
-  'Shrewsbury','Southend','Stockport','Stoke','Swansea','Tranmere','Walsall','Wrexham','Yeovil',
-  // Francia
-  'Lyon','Bordeaux','Nantes','Rennes','Strasbourg','Toulouse','Montpellier','Lens','Metz','Caen',
-  'Dijon','Grenoble','Reims','Rouen','Brest','Lorient','Troyes','Angers','Clermont','Ajaccio',
-  'Auxerre','Bastia','Guingamp','Laval','Niort','Sedan','Sochaux','Valenciennes','Amiens','Nancy',
-  'Libourne','Arles','Châteauroux','Istres','Cannes','Toulon','Béziers','Perpignan','Pau','Bayonne',
-  // Alemania
-  'Köln','Bremen','Essen','Dortmund','Bochum','Bielefeld','Duisburg','Kassel','Freiburg','Mainz',
-  'Erfurt','Halle','Chemnitz','Rostock','Paderborn','Ingolstadt','Ulm','Aachen','Kiel','Lübeck',
-  'Wiesbaden','Regensburg','Augsburg','Fürth','Karlsruhe','Mannheim','Osnabrück','Saarbrücken',
-  'Braunschweig','Magdeburg','Dresden','Cottbus','Jena','Göttingen','Würzburg','Offenbach',
-  'Münster','Wuppertal','Darmstadt','Bayreuth','Sandhausen','Homburg','Elversberg','Zwickau',
-  // Argentina
-  'Rosario','Córdoba','Mendoza','Tucumán','Salta','Quilmes','Lanús','Banfield','Belgrano','Tigre',
-  'Platense','Ferro','Chacarita','Colón','Talleres','Patronato','Aldosivi','Almagro','Huracán',
-  'Vélez','San Lorenzo','Gimnasia','Estudiantes','Defensa','Arsenal','Temperley','Almirante',
-  'Barracas','Deportivo','Riestra','San Martín','Atlético','Godoy','Sarmiento','Instituto',
-  // Brasil
-  'Santos','Goiânia','Recife','Fortaleza','Manaus','Belém','Maceió','Natal','Aracaju','Vitória',
-  'Botafogo','Vasco','América','Cruzeiro','Grêmio','Caxias','Londrina','Joinville','Figueirense',
-  'Avaí','Chapecoense','Brusque','Criciúma','Operário','Tombense','Sampaio','Remo','Paysandu',
-  'Náutico','Sport','CRB','CSA','Bahia','Sergipe','Confiança','Treze','Campinense','Sousa',
+  // Grandes ciudades
+  'Madrid','Barcelona','Valencia','Sevilla','Zaragoza','Málaga','Murcia','Bilbao','Alicante','Córdoba',
+  'Valladolid','Vigo','Gijón','Granada','Elche','Oviedo','Badalona','Terrassa','Hospitalet','Cartagena',
+  'Santander','Pamplona','Almería','Burgos','Albacete','Getafe','Salamanca','Huelva','Logroño','San Sebastián',
+  'Badajoz','Tarragona','Lleida','Jaén','Ourense','Mataró','Fuenlabrada','Algeciras','Cádiz','Castellón',
+  'Leganés','Móstoles','Alcalá','Alcorcón','Torrejón','Parla','Alcobendas','Reus','Sabadell','Girona',
+  // Capitales de provincia y ciudades medianas
+  'Ávila','Cuenca','Segovia','Soria','Teruel','Zamora','Palencia','Huesca','Cáceres','Mérida',
+  'Toledo','Ciudad Real','Guadalajara','Pontevedra','Lugo','León','Vitoria','Pamplona','Ferrol','Avilés',
+  'Manresa','Vic','Igualada','Blanes','Granollers','Vilafranca','Berga','Ripoll','Figueres','Olot',
+  'Gandía','Sagunto','Dénia','Benidorm','Orihuela','Torrevieja','Petrer','Novelda','Ibi','Alcoy',
+  'Linares','Úbeda','Baeza','Andújar','Motril','Antequera','Ronda','Marbella','Estepona','Vélez',
+  'Jerez','Sanlúcar','Chiclana','El Puerto','Arcos','Medina','Barbate','Tarifa','La Línea','Algeciras',
+  'Écija','Osuna','Marchena','Carmona','Morón','Utrera','Dos Hermanas','Alcalá de Guadaíra',
+  'Mérida','Coria','Plasencia','Navalmoral','Trujillo','Montijo','Don Benito','Villanueva',
+  'Talavera','Ocaña','Consuegra','Madridejos','Quintanar','Tomelloso','Daimiel','Puertollano',
+  'Cuenca','Tarancón','Motilla','Cañete','Huete','Priego','Brihuega','Sigüenza','Molina',
+  'Tudela','Estella','Tafalla','Olite','Sangüesa','Puente la Reina','Peralta','Miranda',
+  'Durango','Eibar','Arrasate','Tolosa','Zarautz','Hondarribia','Bergara','Azpeitia','Ordizia',
+  'Barakaldo','Sestao','Getxo','Leioa','Basauri','Santurtzi','Erandio','Amorebieta',
+  'Torrelavega','Castro','Laredo','Santoña','Reinosa','Los Corrales','Guarnizo','Astillero',
+  'Ponferrada','Astorga','La Bañeza','Sahagún','Benavente','Bembibre','Villafranca','Fabero',
+  'Aranda','Lerma','Miranda de Ebro','Medina de Pomar','Briviesca','Villarcayo',
+  'Soria','El Burgo','Almazán','Ólvega','Ágreda',
+  'Guadalajara','Azuqueca','El Casar','Alovera','Marchamalo','Cabanillas',
+  'Cuellar','Arévalo','Aranda','Peñafiel','Medina del Campo','Tordesillas','Simancas',
+  // Pueblos con historia futbolística o carácter
+  'Calahorra','Arnedo','Alfaro','Haro','Nájera','Santo Domingo','Ezcaray',
+  'Tarazona','Ejea','Borja','Calatayud','Daroca','Cariñena','Belchite','Fraga',
+  'Barbastro','Monzón','Sabiñánigo','Jaca','Aínsa','Graus','Benabarre',
+  'Alcañiz','Alcorisa','Calanda','Híjar','Andorra','Utrillas','Calamocha',
+  'Requena','Utiel','Chelva','Chiva','Liria','Sagunt','Gandia','Oliva','Pego',
+  'Yecla','Jumilla','Cieza','Mula','Lorca','Águilas','Mazarrón','Puerto Lumbreras',
+  'Baza','Guadix','Loja','Íllora','Montefrío','Alhama','Almuñécar','Salobreña',
+  'Úbeda','Quesada','Cazorla','Segura','Beas','Villacarrillo','Torredonjimeno',
+  'Peñarroya','Pozoblanco','Montoro','Palma del Río','Aguilar','Cabra','Lucena','Priego',
+  'Villamartín','Olvera','Grazalema','Puerto Serrano','El Bosque','Algodonales',
+  'Aracena','Valverde','Nerva','Minas','Zalamea','Calañas','Ayamonte','Isla Cristina',
+  'Montánchez','Zafra','Almendralejo','Azuaga','Llerena','Fuente de Cantos','Jerez de los Caballeros',
+  'Reinosa','Potes','Cabezón','Santoña','Castro Urdiales','Ramales','Ampuero','Colindres',
+  'Cangas','Lalín','A Estrada','Ribeira','Noia','Muros','Corcubión','Fisterra',
+  'Viveiro','Mondoñedo','Ribadeo','Vilalba','Sarria','Monforte','O Barco','Xinzo',
+  'O Porriño','Ponteareas','Tui','Baiona','Redondela','Marín','Cangas','Moaña',
+  'Llanes','Cangas de Onís','Arriondas','Infiesto','Pola de Laviana','Mieres','Langreo',
+  'El Entrego','Laviana','Pola de Siero','Noreña','Castrillón','Gozón','Valdés','Tineo',
+  'Villaviciosa','Colunga','Ribadesella','Navia','Coaña','Castropol',
+  'Puigcerdà','Berga','Solsona','Seu d\'Urgell','Tremp','Balaguer','Cervera','Tàrrega','Mollerussa',
+  'Amposta','Tortosa','Móra','Gandesa','Falset','Cambrils','Salou','Calafell','Sitges',
+  'Vilafranca','Sant Sadurní','Martorell','Esparreguera','Abrera','Olesa',
+  'Alcúdia','Manacor','Inca','Llucmajor','Felanitx','Campos','Santanyí','Pollença',
+  'Mahón','Ciutadella','Alaior','Ferreries','Es Mercadal',
+  'Arrecife','Puerto del Rosario','San Bartolomé','Tías','Arucas','Guía','Gáldar','Moya',
+  'Icod','Güímar','Granadilla','Los Llanos','Tazacorte','Breña Alta','Valverde',
 ];
+
 
 const _SUFFIXES = [
   // Ingleses

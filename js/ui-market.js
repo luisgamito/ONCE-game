@@ -8,39 +8,44 @@ function openNegModal(idx) {
   if (!p) return;
   const overall = calcOverall(p);
 
-  // Precio oculto real que el club quiere (entre 1x y 1.4x del valor de mercado, con algo de azar)
-  const secretMultiplier = rnd(0.95, 1.40);
+  // Precio oculto: entre 0.9x y 1.5x del valor. El usuario no lo ve nunca.
+  const secretMultiplier = rnd(0.90, 1.50);
   const secretPrice = Math.round(p.value * secretMultiplier / 1000) * 1000;
+
+  // Rango del slider: amplio, no revela el valor real
+  // Mínimo simbólico, máximo generoso — el usuario tiene que tantear
+  const sliderMax = Math.round(p.value * 2.2 / 1000) * 1000;
+  const sliderStep = Math.max(10000, Math.round(sliderMax * 0.015 / 1000) * 1000);
 
   _neg = {
     idx,
     player: p,
-    marketValue: p.value,
-    secretPrice,           // minimum price they'll accept (hidden from user)
-    minOffer: Math.round(p.value * 0.5 / 1000) * 1000,   // minimum offer allowed
-    maxOffer: Math.round(p.value * 1.6 / 1000) * 1000,   // max slider value
+    secretPrice,
+    minOffer: sliderStep,       // empieza desde casi 0
+    maxOffer: sliderMax,
     rounds: 0,
     maxRounds: 4,
     lastResponse: null,
-    blocked: false,        // true si rechazaron definitivamente
-    currentOffer: p.value  // oferta actual del slider
+    blocked: false,
+    currentOffer: sliderStep    // slider arranca desde el mínimo
   };
 
+  // Modal: mostrar solo info del jugador, SIN valor de mercado
   document.getElementById('negPlayerName').textContent = p.name;
-  document.getElementById('negPlayerMeta').textContent = `${p.pos} · ${overall} · ${p.age}a · Pot ${p.potential}`;
-  document.getElementById('negMarketVal').textContent = fmt(p.value);
-  document.getElementById('negOfferVal').textContent = fmt(p.value);
+  document.getElementById('negPlayerMeta').textContent = `${p.pos} · Media ${overall} · ${p.age} años`;
+  // (valor de mercado oculto — negociación a ciegas)
+  document.getElementById('negOfferVal').textContent = fmt(sliderStep);
   document.getElementById('negRounds').textContent = t('attemptsLeft', _neg.maxRounds);
   document.getElementById('negResponse').className = 'neg-response pending';
-  document.getElementById('negResponse').textContent = t('negPending');
+  document.getElementById('negResponse').textContent = 'Ajusta tu oferta y envíala al club vendedor.';
   document.getElementById('negBtnSend').disabled = false;
   document.getElementById('negBtnSend').textContent = t('sendOffer');
 
   const slider = document.getElementById('negSlider');
-  slider.min = _neg.minOffer;
-  slider.max = _neg.maxOffer;
-  slider.step = Math.round(p.value * 0.02 / 1000) * 1000 || 10000;
-  slider.value = p.value;
+  slider.min  = _neg.minOffer;
+  slider.max  = _neg.maxOffer;
+  slider.step = sliderStep;
+  slider.value = _neg.minOffer;
   document.getElementById('negSliderMin').textContent = fmt(_neg.minOffer);
   document.getElementById('negSliderMax').textContent = fmt(_neg.maxOffer);
 
@@ -71,60 +76,55 @@ function sendNegOffer() {
   let responseClass, responseText, done = false;
 
   if (ratio >= 1.0) {
-    // Oferta igual o superior al precio secreto → aceptan
+    // Aceptan
     responseClass = 'accepted';
     responseText = t('negAccepted', _neg.player.name, offer);
     done = true;
     _neg.blocked = true;
-    const _capturedIdx = _neg.idx;
-    const _capturedOffer = offer;
-    setTimeout(() => {
-      closeNegModal();
-      signPlayerDirect(_capturedIdx, _capturedOffer);
-    }, 1400);
-  } else if (ratio >= 0.88) {
-    // Cerca pero no suficiente → contraoferta
-    const counterOffer = Math.round((secret + offer) / 2 / 1000) * 1000;
+    const _idx = _neg.idx, _off = offer;
+    setTimeout(() => { closeNegModal(); signPlayerDirect(_idx, _off); }, 1200);
+
+  } else if (ratio >= 0.85) {
+    // Cerca — pista vaga sin número
     responseClass = 'counter';
-    responseText = t('negCounter', counterOffer);
-    // Sugerir la contraoferta en el slider
-    document.getElementById('negSlider').value = counterOffer;
-    _neg.currentOffer = counterOffer;
-    document.getElementById('negOfferVal').textContent = fmt(counterOffer);
-  } else if (ratio >= 0.72) {
-    // Baja pero negociable
+    responseText = remainingRounds > 0
+      ? '↔ Oferta baja, pero el club está dispuesto a escuchar. Mejora tu propuesta.'
+      : (done = false, _neg.blocked = true, '✗ Negociaciones cerradas. El club ha perdido la paciencia.');
+    if (_neg.blocked) responseClass = 'rejected';
+
+  } else if (ratio >= 0.65) {
+    // Bastante baja
     responseClass = 'counter';
-    responseText = t('negLow');
+    responseText = remainingRounds > 0
+      ? '↔ El club rechaza la oferta. Están dispuestos a vender, pero quieren más dinero.'
+      : (done = false, _neg.blocked = true, '✗ Negociaciones rotas. No ha habido acuerdo.');
+    if (_neg.blocked) responseClass = 'rejected';
+
   } else {
-    const hardReject = ratio < 0.55 || remainingRounds <= 0;
-    if (hardReject) {
-      responseClass = 'rejected';
-      responseText = t('negRejected', _neg.player.name);
-      _neg.blocked = true;
-      done = true;
-      document.getElementById('negBtnSend').disabled = true;
-      document.getElementById('negBtnSend').textContent = t('closed');
-      const _rIdx = _neg.idx;
-      setTimeout(() => { removeFromPool(_rIdx); closeNegModal(); }, 1800);
-    } else {
-      responseClass = 'rejected';
-      responseText = t('negTooLow');
-    }
+    // Oferta muy baja
+    responseClass = 'counter';
+    responseText = remainingRounds > 0
+      ? '↔ Oferta muy por debajo de las expectativas del club. No han respondido formalmente.'
+      : (done = false, _neg.blocked = true, '✗ El club ha rechazado todas las ofertas. Negociaciones cerradas.');
+    if (_neg.blocked) responseClass = 'rejected';
   }
 
-  if (!done && remainingRounds <= 0) {
-    responseClass = 'rejected';
-    responseText = t('negNoAttempts');
+  if (!done && remainingRounds <= 0 && !_neg.blocked) {
     _neg.blocked = true;
-    document.getElementById('negBtnSend').disabled = true;
-    document.getElementById('negBtnSend').textContent = t('closed');
-    const _rIdx2 = _neg.idx;
-    setTimeout(() => { removeFromPool(_rIdx2); closeNegModal(); }, 1800);
+    responseClass = 'rejected';
+    responseText = '✗ Sin más intentos. El club cierra las negociaciones.';
   }
 
   document.getElementById('negResponse').className = `neg-response ${responseClass}`;
   document.getElementById('negResponse').textContent = responseText;
-  document.getElementById('negRounds').textContent = t('attemptsLeft', Math.max(0, remainingRounds));
+  document.getElementById('negRounds').textContent = _neg.blocked && !done ? '' : t('attemptsLeft', Math.max(0, remainingRounds));
+
+  if (_neg.blocked && !done) {
+    document.getElementById('negBtnSend').disabled = true;
+    document.getElementById('negBtnSend').textContent = 'CERRADO';
+    const _rIdx = _neg.idx;
+    setTimeout(() => { removeFromPool(_rIdx); closeNegModal(); }, 2000);
+  }
 }
 
 function removeFromPool(idx) {

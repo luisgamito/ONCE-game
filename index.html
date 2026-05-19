@@ -80,6 +80,28 @@
   </div>
 </div>
 
+<!-- ============================================================ TRAINING MODAL -->
+<div class="modal-overlay" id="trainingModal">
+  <div class="modal" style="width:460px;padding:0;overflow:hidden">
+    <div class="neg-player-header">
+      <div class="neg-player-name">🏋️ ENTRENAMIENTO SEMANAL</div>
+      <div class="neg-player-meta" id="trainingDateInfo">Jornada actual</div>
+    </div>
+    <div class="neg-body">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+        Elige el enfoque del entrenamiento de esta semana. Solo se puede entrenar una vez entre jornadas.
+      </div>
+      <div id="trainingOptions" style="display:flex;flex-direction:column;gap:10px">
+        <!-- Se rellena por JS -->
+      </div>
+      <div id="trainingFeedback" style="display:none;margin-top:16px;padding:12px;background:rgba(0,230,118,0.07);border:1px solid var(--green);font-size:12px;color:var(--green)"></div>
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="btn" style="flex:1" onclick="closeTrainingModal()">CERRAR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="negModal">
   <div class="negociation-modal">
     <div class="neg-player-header">
@@ -87,10 +109,6 @@
       <div class="neg-player-meta" id="negPlayerMeta">—</div>
     </div>
     <div class="neg-body">
-      <div class="neg-price-row">
-        <span class="neg-price-label">Valor de mercado</span>
-        <span class="neg-price-val" id="negMarketVal">—</span>
-      </div>
       <div class="neg-price-row">
         <span class="neg-price-label">Tu oferta</span>
         <span class="neg-price-val" id="negOfferVal">—</span>
@@ -449,6 +467,9 @@
         <button class="play-btn" id="playMatchBtn" onclick="startMatch()" style="margin-bottom:6px">
           ▶ JUGAR PARTIDO
         </button>
+        <button onclick="openTrainingModal()" style="width:100%;padding:8px;background:transparent;border:1px solid var(--border2);color:var(--text-muted);font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;cursor:pointer;margin-bottom:6px;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text-muted)'">
+          🏋️ ENTRENAMIENTO
+        </button>
         <div id="playMatchWarning" style="display:none;padding:5px 8px;background:rgba(255,85,113,0.1);border:1px solid var(--red);font-size:10px;color:var(--red);font-family:var(--font-display);letter-spacing:0.5px;text-align:center;margin-bottom:4px"></div>
         <div id="sidebarDateLine" style="font-size:10px;color:var(--text-muted);text-align:center;padding-bottom:8px;border-bottom:1px solid var(--border)"></div>
       </div>
@@ -646,6 +667,7 @@
 <script src="js/match-controls.js"></script>
 
 <!-- 5. UI de pantalla de inicio/setup -->
+<script src="js/training.js"></script>
 <script src="js/setup-ui.js"></script>
 
 <!-- 6. Inicialización -->

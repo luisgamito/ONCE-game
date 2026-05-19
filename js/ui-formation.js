@@ -208,20 +208,125 @@ function changeFormation(f) {
 }
 
 function updateTacticChips(rowId, activeTactic) {
-  document.querySelectorAll(`#${rowId} .tactic-chip`).forEach(c=>{
-    c.classList.toggle('active', c.dataset.tactic===activeTactic);
+  // Calcular táctica del próximo rival (si existe)
+  const oppTactic = _getNextOppTactic();
+
+  document.querySelectorAll(`#${rowId} .tactic-chip`).forEach(c => {
+    const tac = c.dataset.tactic;
+    c.classList.toggle('active', tac === activeTactic);
+
+    // Limpiar badges anteriores
+    const old = c.querySelector('.asst-badge');
+    if (old) old.remove();
+
+    // Añadir badge del asistente si hay rival conocido
+    if (oppTactic && rowId === 'hubTacticRow') {
+      const badge = _assistantBadge(tac, oppTactic);
+      if (badge) {
+        const el = document.createElement('span');
+        el.className = 'asst-badge';
+        el.textContent = badge.text;
+        el.style.cssText = `
+          display:inline-block;margin-left:6px;font-size:8px;font-weight:700;
+          letter-spacing:0.5px;padding:1px 5px;border-radius:1px;vertical-align:middle;
+          background:${badge.bg};color:${badge.color}`;
+        el.title = badge.tip;
+        c.appendChild(el);
+      }
+    }
   });
-  document.querySelector(`#${rowId}`).onclick = (e)=>{
+
+  document.querySelector(`#${rowId}`).onclick = (e) => {
     const chip = e.target.closest('.tactic-chip');
     if (!chip) return;
     G.club.tactic = chip.dataset.tactic;
     updateTacticChips(rowId, G.club.tactic);
     saveGame();
   };
-  // Mostrar descripción si existe el elemento
+
   const descEl = document.getElementById('tacticDesc');
   if (descEl) {
-    descEl.textContent = tacticDesc(activeTactic);
+    let desc = tacticDesc(activeTactic);
+    // Si hay rival, añadir nota del asistente sobre la táctica activa
+    if (oppTactic && rowId === 'hubTacticRow') {
+      const note = _assistantNote(activeTactic, oppTactic);
+      if (note) desc += ` — ${note}`;
+    }
+    descEl.textContent = desc;
   }
+}
+
+// Obtiene la táctica del próximo rival en liga
+function _getNextOppTactic() {
+  try {
+    const myDiv = getMyDivision();
+    const j = myDiv.currentJornada;
+    if (j >= myDiv.calendar.length) return null;
+    const round = myDiv.calendar[j];
+    if (!round) return null;
+    const fix = round.find(f => f.home === 'player' || f.away === 'player');
+    if (!fix) return null;
+    const oppId = fix.home === 'player' ? fix.away : fix.home;
+    const opp = myDiv.teams.find(t => t.id === oppId);
+    return opp ? opp.tactic : null;
+  } catch(e) { return null; }
+}
+
+// Decide qué badge mostrar para una táctica contra el rival
+// Solo 1 recomendado y 1 desaconsejado — no más
+function _assistantBadge(myTac, oppTac) {
+  if (!oppTac) return null;
+
+  // Calcular scores de todas las tácticas contra este rival
+  const scores = Object.keys(TACTIC_MATCHUPS).map(t => ({
+    tac: t,
+    mod: getMatchupMod(t, oppTac)
+  }));
+  scores.sort((a, b) => b.mod - a.mod);
+
+  const best = scores[0];
+  const worst = scores[scores.length - 1];
+
+  // Solo badge si el mod es significativo (>= 0.03 o <= -0.02)
+  if (myTac === best.tac && best.mod >= 0.03) {
+    return {
+      text: '👍 Recomendado',
+      bg: 'rgba(0,230,118,0.15)',
+      color: 'var(--green)',
+      tip: `Tu asistente recomienda esta táctica contra ${oppTac}`
+    };
+  }
+  if (myTac === worst.tac && worst.mod <= -0.02) {
+    return {
+      text: '⚠️ Evitar',
+      bg: 'rgba(255,61,90,0.13)',
+      color: 'var(--red)',
+      tip: `Tu asistente desaconseja esta táctica contra ${oppTac}`
+    };
+  }
+
+  // Segunda opción: si el actual tiene mod bueno pero no es el mejor
+  const myScore = scores.find(s => s.tac === myTac);
+  if (myScore && myScore.mod >= 0.02 && myTac !== best.tac) {
+    return {
+      text: '✓ Buena opción',
+      bg: 'rgba(0,212,255,0.10)',
+      color: 'var(--accent)',
+      tip: `Tu asistente considera esta táctica sólida para el próximo partido`
+    };
+  }
+
+  return null;
+}
+
+// Nota del asistente para la descripción de la táctica activa
+function _assistantNote(myTac, oppTac) {
+  const mod = getMatchupMod(myTac, oppTac);
+  const oppName = tacticName ? tacticName(oppTac) : oppTac;
+  if (mod >= 0.04) return `tu asistente la ve ideal contra su ${oppName}`;
+  if (mod >= 0.02) return `tu asistente cree que funcionará bien contra su ${oppName}`;
+  if (mod <= -0.03) return `⚠️ tu asistente la desaconseja frente a su ${oppName}`;
+  if (mod <= -0.01) return `ten cuidado, no es la mejor contra su ${oppName}`;
+  return null;
 }
 

@@ -33,6 +33,9 @@ function startMatch() {
   if (!oppTeam) { alert('Error: opponent not found'); return; }
 
   ensureElevenSlots(); // Garantizar 11 slots antes de verificar
+
+  // Aplicar bonuses de entrenamiento acumulados
+  if (typeof consumeTrainingBonuses === 'function') consumeTrainingBonuses();
   const unavailableInSquad = myTeam.squad.filter(p =>
     p.inSquad && ((p.injury && p.injury.jornadasLeft > 0) || (p.suspension && p.suspension > 0))
   );
@@ -174,8 +177,9 @@ function findNearestOpp(p,oppTeam) {
 function updatePositions() {
   const bx = match.ballX, by = match.ballY;
   [match.teamA, match.teamB].forEach(team => {
-    const cfg = effectiveTactic(team.tactic);
-    const oppCfg = effectiveTactic(getOpp(team.side).tactic);
+    const isMyT = team.side === match.myTeamSide;
+    const cfg = effectiveTactic(team.tactic, isMyT);
+    const oppCfg = effectiveTactic(getOpp(team.side).tactic, !isMyT);
     const hasBall = match.possession === team.side;
     const recentlyLostBall = team.lastLossTick && (match.tick - team.lastLossTick < 8);
     const recentlyWonBall  = team.lastWinTick  && (match.tick - team.lastWinTick  < 8);
@@ -324,11 +328,11 @@ function updatePositions() {
       const intScale = .35 + p.currentSpeed * .65;
       moveToward(p, tx, ty, baseSpd * intScale * fatF);
 
-      // Fatiga: el press y el counter-press desgastan más
-      if (p.currentSpeed > .7) {
-        let drain = .18 * (p.currentSpeed - .7) / pers.stamina;
-        if (cfg.pressIntensity > .7) drain *= 1.20;
-        if (recentlyLostBall && cfg.counterPress > .7) drain *= 1.30;
+      // Fatiga: solo drena al correr fuerte — un partido completo gasta ~40-55 pts
+      if (p.currentSpeed > .5) {
+        let drain = .06 * (p.currentSpeed - .5) / pers.stamina;
+        if (cfg.pressIntensity > .7) drain *= 1.15;
+        if (recentlyLostBall && cfg.counterPress > .7) drain *= 1.20;
         p.fatigue = clamp(p.fatigue - drain, 0, 100);
       }
     });
@@ -341,19 +345,15 @@ function processTick() {
   const team=getTeam(match.possession);
   const opp=getOpp(match.possession);
   team.possession++;
-  [match.teamA,match.teamB].forEach(t=>fieldP(t).forEach(p=>{
-    // Drain base por tick: con 360 ticks llegan a ~30-40 de fatiga
-    const drain = 0.20 + (p.currentSpeed || 0) * 0.08;
-    p.fatigue = clamp(p.fatigue - drain, 0, 100);
-  }));
   updatePositions();
 
   applyPendingSubs();
 
   const holder=match.ballHolder;
   match.ballX=holder.x; match.ballY=holder.y;
-  const oppCfg=effectiveTactic(opp.tactic);
-  const ourCfg=effectiveTactic(team.tactic);
+  const isMyTeamSide = team.side === match.myTeamSide;
+  const oppCfg=effectiveTactic(opp.tactic, !isMyTeamSide);
+  const ourCfg=effectiveTactic(team.tactic, isMyTeamSide);
   const adv=advance(holder);
   const nearestOpp=findNearestOpp(holder,opp);
   // Distancia para considerar "presionado": depende de la pressIntensity rival
@@ -811,7 +811,7 @@ function checkPeriodEnd(){
           if(p.attX!=null){p.attX=1-p.attX; p.attY=1-p.attY;}
         });
       });
-      [match.teamA,match.teamB].forEach(t=>fieldP(t).forEach(p=>{p.fatigue=clamp(p.fatigue+6,0,100);}));
+      [match.teamA,match.teamB].forEach(t=>fieldP(t).forEach(p=>{p.fatigue=clamp(p.fatigue+12,0,100);}));
       // Apply half-time subs
       applyPendingSubsHalfTime();
       resetKickoff(match.teamB.side);
@@ -870,7 +870,7 @@ function saveMatchResult(){
     p.career.goals += p.match.goals;
     p.career.assists += p.match.assists;
     p.career.gamesPlayed++;
-    p.fatigue = clamp(p.fatigue + 8, 0, 100);
+    p.fatigue = clamp(p.fatigue + 20, 0, 100);
 
     // === TARJETAS Y SUSPENSIONES ===
     if (!p.season.yellows) p.season.yellows = 0;

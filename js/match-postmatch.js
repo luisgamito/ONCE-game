@@ -84,16 +84,16 @@ function showSeasonSummary() {
   let outcome, description, color;
   if (s.promoted) {
     outcome = '¡ASCENSO!'; color = 'var(--green)';
-    description = `Promoted to First Division after finishing ${s.finalPos}${ord(s.finalPos)}`;
+    description = `Ascenso a Primera División. Has terminado ${s.finalPos}º de la clasificación.`;
   } else if (s.relegated) {
     outcome = 'DESCENSO'; color = 'var(--red)';
-    description = `Relegated to Second Division after finishing ${s.finalPos}${ord(s.finalPos)}`;
+    description = `Descenso a Segunda División. Has terminado ${s.finalPos}º de la clasificación.`;
   } else if (s.finalPos === 1) {
     outcome = '¡CAMPEÓN!'; color = 'var(--gold)';
     description = `Tu club gana la ${myDiv.name}`;
   } else {
-    outcome = `${s.finalPos}${ord(s.finalPos)} PLACE`; color = 'var(--accent)';
-    description = `Season completada en ${myDiv.name}`;
+    outcome = `${s.finalPos}º PUESTO`; color = 'var(--accent)';
+    description = `Temporada completada en ${myDiv.name}`;
   }
   document.getElementById('ssOutcome').textContent = outcome;
   document.getElementById('ssOutcome').style.color = color;
@@ -102,7 +102,7 @@ function showSeasonSummary() {
   // Body: prize money, top scorer, key events
   const topScorer = [...myTeam.squad].sort((a,b)=>b.season.goals-a.season.goals)[0];
   const cup = G.league.cup;
-  const cupResult = cup.completed && cup.winner === 'player' ? '🏆 CUP WINNERS' : '';
+  const cupResult = cup.completed && cup.winner === 'player' ? '🏆 CAMPEÓN DE COPA' : '';
 
   document.getElementById('ssBody').innerHTML = `
     <div class="records-grid" style="margin-bottom:16px">
@@ -112,7 +112,7 @@ function showSeasonSummary() {
       </div>
       <div class="record-item">
         <div class="ri-val" style="color:var(--gold)">${fmt(s.leaguePrize)}</div>
-        <div class="ri-label">Premio Liga</div>
+        <div class="ri-label">Premio de liga</div>
       </div>
       <div class="record-item">
         <div class="ri-val" style="color:var(--green)">${myTeam.stats.pts}</div>
